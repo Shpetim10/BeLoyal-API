@@ -2,6 +2,7 @@ package com.shabanaj.beloyal.Entity;
 
 import com.shabanaj.beloyal.Enums.Role;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -25,6 +26,7 @@ public class User {
     private String username;
 
     @Column(unique = true, nullable = false)
+    @Email
     private String email;
 
     @Column(nullable = false)
