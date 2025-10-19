@@ -53,10 +53,10 @@ public class User {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @Column(nullable = false)
-    private String verificationToken;
-    @Column(nullable = false)
-    private String resetPasswordToken;
+    @Column(nullable = true)
+    private String verificationToken="";
+    @Column(nullable = true)
+    private String resetPasswordToken="";
 
     public User(){}
 
