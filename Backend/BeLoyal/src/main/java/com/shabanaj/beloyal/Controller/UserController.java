@@ -1,12 +1,14 @@
 package com.shabanaj.beloyal.Controller;
 
 import com.shabanaj.beloyal.Entity.User;
+import com.shabanaj.beloyal.Enums.Role;
 import com.shabanaj.beloyal.Service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/api/beloyal/users")
@@ -71,4 +73,80 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @PutMapping("/{id}/enable")
+    public ResponseEntity<String> enableUser(@PathVariable Long id){
+        try{
+            userService.enableUser(id);
+
+            return ResponseEntity.ok("User enabled successfully!");
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/disable")
+    public ResponseEntity<String> disableUser(@PathVariable Long id){
+        try{
+            userService.disableUser(id);
+
+            return ResponseEntity.ok("User disabled successfully!");
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/lock")
+    public ResponseEntity<String> lockUser(@PathVariable Long id){
+        try {
+            userService.lockUser(id);
+
+            return ResponseEntity.ok("User locked successfully!");
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/unlock")
+    public ResponseEntity<String> unlockUser(@PathVariable Long id){
+        try {
+            userService.unlockUser(id);
+
+            return ResponseEntity.ok("User unlocked successfully!");
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/assign")
+    public ResponseEntity<String> updateRole(@PathVariable Long id, @RequestBody Role role){
+        try{
+            userService.assignRole(id, role);
+
+            return ResponseEntity.ok("Role was assigned successfully!");
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/revoke")
+    public ResponseEntity<String> revokeUser(@PathVariable Long id, @RequestBody Role role){
+        try{
+            userService.removeRole(id,role);
+
+            return ResponseEntity.ok("Role was revoked successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}/roles")
+    public ResponseEntity<Set<Role>> getRoles(@PathVariable Long id){
+        try{
+            return ResponseEntity.ok(userService.getUserRoles(id));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 }

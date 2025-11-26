@@ -1,5 +1,9 @@
 package com.shabanaj.beloyal.Dto;
 
+import com.shabanaj.beloyal.Enums.Role;
+
+import java.util.Set;
+
 public class RegisterUserDto {
     private String firstName;
     private String lastName;
@@ -8,11 +12,12 @@ public class RegisterUserDto {
     private String phoneNumber;
     private String username;
     private String profileImageUrl;
+    private Set<Role> roles;
 
     public RegisterUserDto() {
     }
 
-    public RegisterUserDto(String firstName, String lastName, String email, String password, String phoneNumber, String username, String profileImageUrl) {
+    public RegisterUserDto(String firstName, String lastName, String email, String password, String phoneNumber, String username, String profileImageUrl, Set<Role> roles) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -20,6 +25,7 @@ public class RegisterUserDto {
         this.phoneNumber = phoneNumber;
         this.username = username;
         this.profileImageUrl = profileImageUrl;
+        this.roles = roles;
     }
 
     public String getFirstName() {
@@ -76,5 +82,13 @@ public class RegisterUserDto {
 
     public void setProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }
