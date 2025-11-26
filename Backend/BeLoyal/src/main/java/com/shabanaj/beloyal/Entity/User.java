@@ -53,14 +53,9 @@ public class User {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @Column(nullable = true)
-    private String verificationToken="";
-    @Column(nullable = true)
-    private String resetPasswordToken="";
-
     public User(){}
 
-    public User(Long id, String firstName, String lastName, String username, String email, String password, String phoneNumber, String profileImageUrl, Set<Role> roles, boolean enabled, boolean locked, LocalDateTime lastLoginTime, LocalDateTime createdAt, LocalDateTime updatedAt, String verificationToken, String resetPasswordToken) {
+    public User(Long id, String firstName, String lastName, String username, String email, String password, String phoneNumber, String profileImageUrl, Set<Role> roles, boolean enabled, boolean locked, LocalDateTime lastLoginTime, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -75,8 +70,6 @@ public class User {
         this.lastLoginTime = lastLoginTime;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
-        this.verificationToken = verificationToken;
-        this.resetPasswordToken = resetPasswordToken;
     }
 
     public User(Long id, String firstName, String lastName, String username, String email, String password, String phoneNumber, String profileImageUrl, Set<Role> roles) {
@@ -201,21 +194,5 @@ public class User {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public String getVerificationToken() {
-        return verificationToken;
-    }
-
-    public void setVerificationToken(String verificationToken) {
-        this.verificationToken = verificationToken;
-    }
-
-    public String getResetPasswordToken() {
-        return resetPasswordToken;
-    }
-
-    public void setResetPasswordToken(String resetPasswordToken) {
-        this.resetPasswordToken = resetPasswordToken;
     }
 }
