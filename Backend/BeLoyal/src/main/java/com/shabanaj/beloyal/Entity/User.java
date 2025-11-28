@@ -45,6 +45,9 @@ public class User {
     private boolean enabled= false;
     private boolean locked= false;
 
+    private boolean emailVerified= false;
+    private LocalDateTime emailVerifiedAt;
+
     private LocalDateTime lastLoginTime;
 
     @CreatedDate
@@ -194,5 +197,21 @@ public class User {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
+    }
+
+    public LocalDateTime getEmailVerifiedAt() {
+        return emailVerifiedAt;
+    }
+
+    public void setEmailVerifiedAt(LocalDateTime emailVerifiedAt) {
+        this.emailVerifiedAt = emailVerifiedAt;
     }
 }

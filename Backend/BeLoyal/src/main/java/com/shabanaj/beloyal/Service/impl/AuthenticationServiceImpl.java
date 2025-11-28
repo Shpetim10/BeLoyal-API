@@ -42,19 +42,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setPassword(dto.getPassword());
         user.setRoles(dto.getRoles());
 
-        userService.createUser(user);
+        User savedUser= userService.createUser(user);
 
         //Create verification token and send it to user's email
         String token= UUID.randomUUID().toString();
 
         EmailVerificationToken verificationToken = new EmailVerificationToken();
         verificationToken.setToken(token);
-        verificationToken.setUser(user);
+        verificationToken.setUser(savedUser);
         verificationToken.setExpiresAt(LocalDateTime.now().plusHours(24));
 
         verificationTokenRepository.save(verificationToken);
 
-        emailService.sendActivationEmail(user, token);
+        emailService.sendActivationEmail(savedUser, token);
     }
 
     @Transactional
@@ -72,6 +72,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         User currentUser= activationToken.getUser();
         currentUser.setEnabled(true);
+        currentUser.setEmailVerified(true);
+        currentUser.setEmailVerifiedAt(LocalDateTime.now());
         userRepository.save(currentUser);
 
         activationToken.setUsed(true);

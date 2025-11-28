@@ -1,17 +1,37 @@
 package com.shabanaj.beloyal.Dto;
 
 import com.shabanaj.beloyal.Enums.Role;
+import com.shabanaj.beloyal.Validation.Annotation.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.Set;
 
 public class RegisterUserDto {
+    @NotBlank
     private String firstName;
+    @NotBlank
     private String lastName;
+
+    @ValidEmail
+    @UniqueEmailOnCreate
     private String email;
+
+    @NotBlank
+    @NotNull
     private String password;
+
+    @ValidPhoneNumber
+    @UniquePhoneNumberOnCreate
     private String phoneNumber;
+
+    @UniqueUsernameOnCreate
     private String username;
+
     private String profileImageUrl;
+
+    @NotEmpty
     private Set<Role> roles;
 
     public RegisterUserDto() {
