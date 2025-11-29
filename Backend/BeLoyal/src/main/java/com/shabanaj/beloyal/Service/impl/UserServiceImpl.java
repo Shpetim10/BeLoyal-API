@@ -8,6 +8,7 @@ import com.shabanaj.beloyal.Service.UserService;
 import com.shabanaj.beloyal.Service.ValidationService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,16 +21,20 @@ import java.util.Set;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ValidationService validationService;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, ValidationService validationService) {
+    public UserServiceImpl(UserRepository userRepository, ValidationService validationService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.validationService = validationService;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
     @Override
     public User createUser(User user) {
         validateUserFields(user);
+        //Handle password hashing
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -98,14 +103,14 @@ public class UserServiceImpl implements UserService {
     public void changePassword(Long userId,String oldPassword, String password) {
         User user = getUserOrThrow(userId);
 
-        if(!user.getPassword().equals(oldPassword))
+        if(!user.getPassword().equals(passwordEncoder.encode(oldPassword)))
             throw new ValidationException("Old password is incorrect!");
 
         if (!validationService.isValidPassword(password))
             throw new ValidationException("Invalid password!");
 
         //change when adding password hashing
-        user.setPassword(password);
+        user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
     }
 
@@ -130,6 +135,12 @@ public class UserServiceImpl implements UserService {
         user.setPhoneNumber(updatedUser.getPhoneNumber());
         user.setEmail(updatedUser.getEmail());
         user.setRoles(updatedUser.getRoles());
+        //handle password change
+        if(updatedUser.getPassword()==null)
+            throw new ValidationException("Password cannot be null!");
+        if(!user.getPassword().matches(passwordEncoder.encode(updatedUser.getPassword()))){
+            user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+        }
         //save in db
         userRepository.save(user);
     }
