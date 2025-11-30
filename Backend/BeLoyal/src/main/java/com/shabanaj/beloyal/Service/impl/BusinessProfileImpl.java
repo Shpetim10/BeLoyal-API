@@ -1,6 +1,6 @@
 package com.shabanaj.beloyal.Service.impl;
 
-import com.shabanaj.beloyal.Dto.BusinessProfileRegisterDto;
+import com.shabanaj.beloyal.Dto.Registration.BusinessProfileRegisterDto;
 import com.shabanaj.beloyal.Entity.BusinessProfile;
 import com.shabanaj.beloyal.Entity.User;
 import com.shabanaj.beloyal.Repository.BusinessProfileRepository;

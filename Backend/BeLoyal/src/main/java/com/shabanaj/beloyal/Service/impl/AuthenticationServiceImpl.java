@@ -2,7 +2,7 @@ package com.shabanaj.beloyal.Service.impl;
 
 import com.shabanaj.beloyal.Dto.Login.LoginRequest;
 import com.shabanaj.beloyal.Dto.Login.LoginResponse;
-import com.shabanaj.beloyal.Dto.RegisterUserDto;
+import com.shabanaj.beloyal.Dto.Registration.RegisterUserDto;
 import com.shabanaj.beloyal.Entity.EmailVerificationToken;
 import com.shabanaj.beloyal.Entity.User;
 import com.shabanaj.beloyal.Exception.TokenIsNotValidException;
@@ -107,6 +107,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         User user= userRepository.findUserByEmail(request.getEmail())
                 .orElseThrow();
+        user.setLastLoginTime(LocalDateTime.now());
+        userRepository.save(user);
 
         LoginResponse response=new LoginResponse();
         response.setToken(jwt);

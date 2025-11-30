@@ -1,6 +1,6 @@
 package com.shabanaj.beloyal.Service.impl;
 
-import com.shabanaj.beloyal.Dto.CustomerProfileRegisterDto;
+import com.shabanaj.beloyal.Dto.Registration.CustomerProfileRegisterDto;
 import com.shabanaj.beloyal.Entity.CustomerProfile;
 import com.shabanaj.beloyal.Entity.User;
 import com.shabanaj.beloyal.Helpers.ReferralCodeGenerator;
@@ -25,6 +25,7 @@ public class CustomerProfileImpl implements CustomerProfileService {
     public CustomerProfile createCustomerPofile(User user, CustomerProfileRegisterDto dto) {
         //Complete other fields from DTO
         CustomerProfile customerProfile= new CustomerProfile();
+        customerProfile.setUser(user);
         customerProfile.setBirthDate(dto.getBirthdate());
         customerProfile.setGender(dto.getGender());
         customerProfile.setCity(dto.getCity());
@@ -35,5 +36,10 @@ public class CustomerProfileImpl implements CustomerProfileService {
         customerProfile.setReferralCode(referralCode);
 
         return customerProfileRepository.save(customerProfile);
+    }
+
+    @Override
+    public CustomerProfile getCustomerProfileByUser(User user) {
+        return customerProfileRepository.findByUser(user).orElseThrow(()-> new RuntimeException("Customer profile not found"));
     }
 }

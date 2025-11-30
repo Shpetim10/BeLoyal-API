@@ -2,9 +2,11 @@ package com.shabanaj.beloyal.Controller;
 
 import com.shabanaj.beloyal.Dto.Login.LoginRequest;
 import com.shabanaj.beloyal.Dto.Login.LoginResponse;
-import com.shabanaj.beloyal.Dto.RegisterUserDto;
+import com.shabanaj.beloyal.Dto.Registration.RegisterUserDto;
 import com.shabanaj.beloyal.Service.AuthenticationService;
 import jakarta.validation.Valid;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/beloyal/auth")
 public class AuthController {
     private final AuthenticationService authenticationService;
+    private Logger logger= LogManager.getLogger(AuthController.class);
 
     public AuthController(AuthenticationService authenticationService) {
         this.authenticationService = authenticationService;
@@ -30,7 +33,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody RegisterUserDto dto) {
+    public ResponseEntity<String> registerUser(@RequestBody @Valid RegisterUserDto dto) {
         try{
             authenticationService.registerUser(dto);
 
@@ -45,6 +48,7 @@ public class AuthController {
         try{
             return ResponseEntity.ok(authenticationService.loginUser(loginRequest));
         }catch(Exception e){
+            logger.error(e.getMessage());
             return ResponseEntity.badRequest().body(null);
         }
     }

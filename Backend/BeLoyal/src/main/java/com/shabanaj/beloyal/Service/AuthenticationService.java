@@ -2,7 +2,7 @@ package com.shabanaj.beloyal.Service;
 
 import com.shabanaj.beloyal.Dto.Login.LoginRequest;
 import com.shabanaj.beloyal.Dto.Login.LoginResponse;
-import com.shabanaj.beloyal.Dto.RegisterUserDto;
+import com.shabanaj.beloyal.Dto.Registration.RegisterUserDto;
 
 public interface AuthenticationService {
     void registerUser(RegisterUserDto dto);

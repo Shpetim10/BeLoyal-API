@@ -39,8 +39,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // public endpoints
                         .requestMatchers(
-                                "/api/beloyal/auth/register/**",
-                                "/api/beloyal/auth/activate/**",
+                                "/api/beloyal/auth/register",
+                                "/api/beloyal/auth/activate",
                                 "/api/beloyal/auth/login",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
@@ -48,8 +48,8 @@ public class SecurityConfig {
                         ).permitAll()
                         // role-based examples:
                         .requestMatchers("/api/beloyal/admin/**").hasRole("SUPER_ADMIN")
-                        .requestMatchers("/api/beloyal.business/**").hasAnyRole("BUSINESS","SUPER_ADMIN")
-                        .requestMatchers("/api/beloyal/customers/**").hasRole("CUSTOMER")
+                        .requestMatchers("/api/beloyal/business/**").hasAnyRole("BUSINESS","SUPER_ADMIN")
+                        .requestMatchers("/api/beloyal/customer/**").hasRole("CUSTOMER")
                         .requestMatchers("/api/beloyal/waiter/**").hasAnyRole("WAITER","BUSINESS")
                         .anyRequest().authenticated()
                 )

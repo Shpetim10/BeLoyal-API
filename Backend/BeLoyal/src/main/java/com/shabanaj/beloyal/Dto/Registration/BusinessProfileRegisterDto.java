@@ -1,4 +1,4 @@
-package com.shabanaj.beloyal.Dto;
+package com.shabanaj.beloyal.Dto.Registration;
 
 import com.shabanaj.beloyal.Enums.BusinessType;
 import com.shabanaj.beloyal.Validation.Annotation.UniqueEmailOnCreate;
