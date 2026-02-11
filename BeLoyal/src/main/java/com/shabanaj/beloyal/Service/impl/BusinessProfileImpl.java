@@ -1,7 +1,7 @@
 package com.shabanaj.beloyal.Service.impl;
 
 import com.shabanaj.beloyal.Dto.Registration.BusinessProfileRegisterDto;
-import com.shabanaj.beloyal.Entity.BusinessProfile;
+import com.shabanaj.beloyal.Entity.Business;
 import com.shabanaj.beloyal.Entity.User;
 import com.shabanaj.beloyal.Repository.BusinessProfileRepository;
 import com.shabanaj.beloyal.Service.BusinessProfileService;
@@ -16,23 +16,22 @@ public class BusinessProfileImpl implements BusinessProfileService {
     }
 
     @Override
-    public BusinessProfile createBusinessProfile(User user, BusinessProfileRegisterDto dto) {
-        BusinessProfile businessProfile= new BusinessProfile();
+    public Business createBusinessProfile(User user, BusinessProfileRegisterDto dto) {
+        Business business = new Business();
 
-        businessProfile.setUser(user);
-        businessProfile.setBusinessName(dto.getBusinessName());
-        businessProfile.setBusinessType(dto.getBusinessType());
-        businessProfile.setBusinessDescription(dto.getBusinessDescription());
-        businessProfile.setLogoUrl(dto.getLogoUrl());
-        businessProfile.setAddress(dto.getAddress());
-        businessProfile.setCity(dto.getCity());
-        businessProfile.setCountry(dto.getCountry());
-        businessProfile.setWebsiteUrl(dto.getWebsiteUrl());
-        businessProfile.setVatId(dto.getVatId());
-        businessProfile.setBusinessPhoneNumber(dto.getPhoneNumber());
-        businessProfile.setBusinessEmail(dto.getEmail());
-        businessProfile.setRating(0.0);
+        business.setBusinessName(dto.getBusinessName());
+        business.setBusinessType(dto.getBusinessType());
+        business.setBusinessDescription(dto.getBusinessDescription());
+        business.setLogoUrl(dto.getLogoUrl());
+        business.setAddress(dto.getAddress());
+        business.setCity(dto.getCity());
+        business.setCountry(dto.getCountry());
+        business.setWebsiteUrl(dto.getWebsiteUrl());
+        business.setVatId(dto.getVatId());
+        business.setBusinessPhoneNumber(dto.getPhoneNumber());
+        business.setBusinessEmail(dto.getEmail());
+        business.setRating(0.0);
 
-        return businessProfileRepository.save(businessProfile);
+        return businessProfileRepository.save(business);
     }
 }

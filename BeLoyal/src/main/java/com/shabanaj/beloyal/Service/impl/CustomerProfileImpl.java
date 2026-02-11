@@ -23,19 +23,8 @@ public class CustomerProfileImpl implements CustomerProfileService {
 
     @Override
     public CustomerProfile createCustomerPofile(User user, CustomerProfileRegisterDto dto) {
-        //Complete other fields from DTO
-        CustomerProfile customerProfile= new CustomerProfile();
-        customerProfile.setUser(user);
-        customerProfile.setBirthDate(dto.getBirthdate());
-        customerProfile.setGender(dto.getGender());
-        customerProfile.setCity(dto.getCity());
-        customerProfile.setCountry(dto.getCountry());
-        customerProfile.setNotificationEnabled(dto.isNotificationEnabled());
-        //Generate referral code
-        String referralCode= referralCodeGenerator.generateReferralCode();
-        customerProfile.setReferralCode(referralCode);
-
-        return customerProfileRepository.save(customerProfile);
+        //TODO
+        return null;
     }
 
     @Override

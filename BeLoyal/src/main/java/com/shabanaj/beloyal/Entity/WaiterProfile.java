@@ -28,7 +28,7 @@ public class WaiterProfile {
     @JoinColumn(name = "business_id", nullable = false)
     @JsonBackReference
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private BusinessProfile businessProfile;
+    private Business business;
 
     @Column(nullable = false, unique= true)
     private String employeeCode;
@@ -44,10 +44,10 @@ public class WaiterProfile {
 
     public WaiterProfile(){}
 
-    public WaiterProfile(Long id, User user, BusinessProfile businessProfile, String employeeCode, LocalDate hireDate) {
+    public WaiterProfile(Long id, User user, Business business, String employeeCode, LocalDate hireDate) {
         this.id = id;
         this.user = user;
-        this.businessProfile = businessProfile;
+        this.business = business;
         this.employeeCode = employeeCode;
         this.hireDate = hireDate;
     }
@@ -68,12 +68,12 @@ public class WaiterProfile {
         this.user = user;
     }
 
-    public BusinessProfile getBusinessProfile() {
-        return businessProfile;
+    public Business getBusinessProfile() {
+        return business;
     }
 
-    public void setBusinessProfile(BusinessProfile businessProfile) {
-        this.businessProfile = businessProfile;
+    public void setBusinessProfile(Business business) {
+        this.business = business;
     }
 
     public String getEmployeeCode() {

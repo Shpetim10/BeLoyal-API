@@ -1,7 +1,7 @@
 package com.shabanaj.beloyal.Service.impl;
 
 import com.shabanaj.beloyal.Dto.Registration.WaiterProfileRegisterDto;
-import com.shabanaj.beloyal.Entity.BusinessProfile;
+import com.shabanaj.beloyal.Entity.Business;
 import com.shabanaj.beloyal.Entity.User;
 import com.shabanaj.beloyal.Entity.WaiterProfile;
 import com.shabanaj.beloyal.Repository.BusinessProfileRepository;
@@ -19,13 +19,13 @@ public class WaiterProfileServiceImpl implements WaiterProfileService {
 
 
     @Override
-    public WaiterProfile createWaiterProfile(User user,BusinessProfile businessProfile, WaiterProfileRegisterDto dto) {
+    public WaiterProfile createWaiterProfile(User user, Business business, WaiterProfileRegisterDto dto) {
         WaiterProfile waiterProfile= new WaiterProfile();
 
         waiterProfile.setUser(user);
         waiterProfile.setEmployeeCode(dto.getEmployeeCode());
         waiterProfile.setHireDate(dto.getHireDate());
-        waiterProfile.setBusinessProfile(businessProfile);
+        waiterProfile.setBusinessProfile(business);
 
         return waiterProfileRepository.save(waiterProfile);
     }

@@ -3,8 +3,8 @@ package com.shabanaj.beloyal.Enums;
 public enum Role {
     SUPER_ADMIN(1,"Superadmin"),
     ADMIN(2,"Admin"),
-    BUSINESS(3,"Business"),
-    WAITER(4,"Waiter"),
+    BUSINESS_ADMIN(3,"Business Admin"),
+    STAFF(4,"Staff"),
     CUSTOMER(5,"Customer");
 
     private Integer id;

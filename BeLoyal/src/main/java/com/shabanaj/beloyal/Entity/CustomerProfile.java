@@ -12,27 +12,26 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="customer_profiles")
+@Table(name = "customer_profiles")
 @EntityListeners(AuditingEntityListener.class)
 public class CustomerProfile {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable= false, unique = true)
+    // User (0..1) <-> (1) CustomerProfile
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    //here will be added loyalty points fields
-
-    @Column(name = "referral_code", nullable = false, unique = true, updatable = false)
-    @Size(max = 20)
+    @Column(name = "referral_code", nullable = false, unique = true, updatable = false, length = 20)
     private String referralCode;
 
-    @Column(name = "referred_by", updatable = false)
-    @Size(max = 20)
+    @Column(name = "referred_by", updatable = false, length = 20)
     private String referredBy;
 
+    // Customer-only optional fields
     @Past
     private LocalDate birthDate;
 
@@ -45,7 +44,8 @@ public class CustomerProfile {
     @Size(max = 100)
     private String country;
 
-    private boolean notificationEnabled=true;
+    @Column(nullable = false)
+    private boolean notificationEnabled = true;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -54,117 +54,40 @@ public class CustomerProfile {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    public CustomerProfile(){}
+    public CustomerProfile() {}
 
-    public CustomerProfile(Long id, User user, String referralCode, String referredBy, LocalDate birthDate, Gender gender, String city, String country, boolean notificationEnabled, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
+    public CustomerProfile(User user, String referralCode, String referredBy) {
         this.user = user;
         this.referralCode = referralCode;
         this.referredBy = referredBy;
-        this.birthDate = birthDate;
-        this.gender = gender;
-        this.city = city;
-        this.country = country;
-        this.notificationEnabled = notificationEnabled;
     }
 
-    public CustomerProfile(Long id, User user, String referralCode, String referredBy, LocalDate birthDate, Gender gender, String city, String country, boolean notificationEnabled) {
-        this.id = id;
-        this.user = user;
-        this.referralCode = referralCode;
-        this.referredBy = referredBy;
-        this.birthDate = birthDate;
-        this.gender = gender;
-        this.city = city;
-        this.country = country;
-        this.notificationEnabled = notificationEnabled;
-    }
+    // Getters/Setters
+    public Long getId() { return id; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
-    public Long getId() {
-        return id;
-    }
+    public String getReferralCode() { return referralCode; }
+    public void setReferralCode(String referralCode) { this.referralCode = referralCode; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getReferredBy() { return referredBy; }
+    public void setReferredBy(String referredBy) { this.referredBy = referredBy; }
 
-    public User getUser() {
-        return user;
-    }
+    public LocalDate getBirthDate() { return birthDate; }
+    public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
+    public Gender getGender() { return gender; }
+    public void setGender(Gender gender) { this.gender = gender; }
 
-    public String getReferralCode() {
-        return referralCode;
-    }
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
 
-    public void setReferralCode(String referralCode) {
-        this.referralCode = referralCode;
-    }
+    public String getCountry() { return country; }
+    public void setCountry(String country) { this.country = country; }
 
-    public String getReferredBy() {
-        return referredBy;
-    }
+    public boolean isNotificationEnabled() { return notificationEnabled; }
+    public void setNotificationEnabled(boolean notificationEnabled) { this.notificationEnabled = notificationEnabled; }
 
-    public void setReferredBy(String referredBy) {
-        this.referredBy = referredBy;
-    }
-
-    public LocalDate getBirthDate() {
-        return birthDate;
-    }
-
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
-    }
-
-    public Gender getGender() {
-        return gender;
-    }
-
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public boolean isNotificationEnabled() {
-        return notificationEnabled;
-    }
-
-    public void setNotificationEnabled(boolean notificationEnabled) {
-        this.notificationEnabled = notificationEnabled;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
 }
