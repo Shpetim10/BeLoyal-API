@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @Controller
 @RequestMapping("/api/beloyal/auth")
 public class AuthController {
@@ -35,7 +37,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody @Valid RegisterUserDto dto) {
         try{
-            authenticationService.registerUser(dto);
+            authenticationService.registerCustomer(dto);
 
             return  ResponseEntity.ok("User successfully registered!");
         } catch (Exception e) {
@@ -44,12 +46,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequest){
+    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest loginRequest){
         try{
             return ResponseEntity.ok(authenticationService.loginUser(loginRequest));
         }catch(Exception e){
             logger.error(e.getMessage());
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

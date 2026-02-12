@@ -3,16 +3,16 @@ package com.shabanaj.beloyal.Service.impl;
 import com.shabanaj.beloyal.Dto.Registration.BusinessProfileRegisterDto;
 import com.shabanaj.beloyal.Entity.Business;
 import com.shabanaj.beloyal.Entity.User;
-import com.shabanaj.beloyal.Repository.BusinessProfileRepository;
-import com.shabanaj.beloyal.Service.BusinessProfileService;
+import com.shabanaj.beloyal.Repository.BusinessRepository;
+import com.shabanaj.beloyal.Service.BusinessService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class BusinessProfileImpl implements BusinessProfileService {
-    private final BusinessProfileRepository businessProfileRepository;
+public class BusinessServiceImpl implements BusinessService {
+    private final BusinessRepository businessRepository;
 
-    public BusinessProfileImpl(BusinessProfileRepository businessProfileRepository) {
-        this.businessProfileRepository = businessProfileRepository;
+    public BusinessServiceImpl(BusinessRepository businessRepository) {
+        this.businessRepository = businessRepository;
     }
 
     @Override
@@ -32,6 +32,6 @@ public class BusinessProfileImpl implements BusinessProfileService {
         business.setBusinessEmail(dto.getEmail());
         business.setRating(0.0);
 
-        return businessProfileRepository.save(business);
+        return businessRepository.save(business);
     }
 }

@@ -1,8 +1,7 @@
-package com.shabanaj.beloyal.Service.impl;
+package com.shabanaj.beloyal.Validation;
 
 import com.shabanaj.beloyal.Entity.User;
 import com.shabanaj.beloyal.Repository.UserRepository;
-import com.shabanaj.beloyal.Service.ValidationService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

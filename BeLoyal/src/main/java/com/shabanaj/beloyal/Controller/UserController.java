@@ -1,5 +1,6 @@
 package com.shabanaj.beloyal.Controller;
 
+import com.shabanaj.beloyal.Dto.User.UpdateUserDto;
 import com.shabanaj.beloyal.Entity.User;
 import com.shabanaj.beloyal.Enums.Role;
 import com.shabanaj.beloyal.Service.UserService;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 @Controller
-@RequestMapping("/api/beloyal/users")
+@RequestMapping("/api/beloyal/admin/users")
 public class UserController {
     private final UserService userService;
 
@@ -64,7 +65,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody User updatedUser){
+    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody UpdateUserDto updatedUser){
         try{
             userService.updateUser(id, updatedUser);
 
@@ -79,7 +80,7 @@ public class UserController {
         try{
             userService.enableUser(id);
 
-            return ResponseEntity.ok("User enabled successfully!");
+            return ResponseEntity.ok("User was enabled successfully!");
         }catch(Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -90,7 +91,7 @@ public class UserController {
         try{
             userService.disableUser(id);
 
-            return ResponseEntity.ok("User disabled successfully!");
+            return ResponseEntity.ok("User was disabled successfully!");
         }catch(Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -114,28 +115,6 @@ public class UserController {
 
             return ResponseEntity.ok("User unlocked successfully!");
         }catch(Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @PutMapping("/{id}/assign")
-    public ResponseEntity<String> updateRole(@PathVariable Long id, @RequestBody Role role){
-        try{
-            userService.assignRole(id, role);
-
-            return ResponseEntity.ok("Role was assigned successfully!");
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @PutMapping("/{id}/revoke")
-    public ResponseEntity<String> revokeUser(@PathVariable Long id, @RequestBody Role role){
-        try{
-            userService.removeRole(id,role);
-
-            return ResponseEntity.ok("Role was revoked successfully!");
-        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

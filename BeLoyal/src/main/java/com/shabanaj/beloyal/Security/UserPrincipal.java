@@ -1,10 +1,12 @@
 package com.shabanaj.beloyal.Security;
 
 import com.shabanaj.beloyal.Entity.User;
+import com.shabanaj.beloyal.Enums.UserStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,9 +22,9 @@ public class UserPrincipal implements UserDetails {
     public UserPrincipal(User user) {
         this.id = user.getId();
         this.email = user.getEmail();
-        this.password = user.getPassword();
-        this.enabled = user.isEnabled();
-        this.accountNonLocked = !user.isLocked();
+        this.password = user.getPasswordHash();
+        this.enabled = user.getStatus() == UserStatus.ENABLED;
+        this.accountNonLocked = user.getLockedUntil() == null || user.getLockedUntil().isBefore(LocalDateTime.now()) || user.getStatus()!=UserStatus.LOCKED;
         this.authorities = mapRolesToAuthorities(user);
     }
 

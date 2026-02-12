@@ -1,8 +1,8 @@
 package com.shabanaj.beloyal.Enums;
 
 public enum UserStatus {
-    ACTIVE,
-    INACTIVE,
+    ENABLED,
+    DISABLED,
     REJECTED,
     BLOCKED,
     PENDING_VERIFICATION,

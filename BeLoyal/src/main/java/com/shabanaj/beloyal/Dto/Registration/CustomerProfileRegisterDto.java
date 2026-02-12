@@ -9,13 +9,17 @@ public class CustomerProfileRegisterDto {
     private Gender gender;
     private String city;
     private String country;
+    private String referredBy;
     private boolean notificationEnabled;
 
-    public CustomerProfileRegisterDto(LocalDate birthdate, Gender gender, String city, String country, boolean notificationEnabled) {
+    public CustomerProfileRegisterDto() {}
+
+    public CustomerProfileRegisterDto(LocalDate birthdate, Gender gender, String city, String country, String referredBy, boolean notificationEnabled) {
         this.birthdate = birthdate;
         this.gender = gender;
         this.city = city;
         this.country = country;
+        this.referredBy = referredBy;
         this.notificationEnabled = notificationEnabled;
     }
 
@@ -49,6 +53,14 @@ public class CustomerProfileRegisterDto {
 
     public void setCountry(String country) {
         this.country = country;
+    }
+
+    public String getReferredBy() {
+        return referredBy;
+    }
+
+    public void setReferredBy(String referredBy) {
+        this.referredBy = referredBy;
     }
 
     public boolean isNotificationEnabled() {

@@ -1,5 +1,6 @@
 package com.shabanaj.beloyal.Service;
 
+import com.shabanaj.beloyal.Dto.User.UpdateUserDto;
 import com.shabanaj.beloyal.Entity.User;
 import com.shabanaj.beloyal.Enums.Role;
 
@@ -15,14 +16,11 @@ public interface UserService {
     void disableUser(Long userId);
     void lockUser(Long userId);
     void unlockUser(Long userId);
-    void assignRole(Long userId, Role role);
-    void removeRole(Long userId, Role role);
     void changePassword(Long userId, String oldPassword, String password);
     void deleteUser(Long userId);
-    void updateUser(Long userId, User updatedUser);
+    void updateUser(Long userId, UpdateUserDto updatedUser);
     Optional<User> getUserById(Long userId);
     List<User> getAllUsers();
-    void validateUserFields(User user);
     Set<Role> getUserRoles(Long userId);
     User getUserOrThrow(Long userId);
 }

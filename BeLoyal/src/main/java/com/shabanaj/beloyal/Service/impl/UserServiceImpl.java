@@ -1,13 +1,14 @@
 package com.shabanaj.beloyal.Service.impl;
 
+import com.shabanaj.beloyal.Dto.User.UpdateUserDto;
 import com.shabanaj.beloyal.Entity.User;
 import com.shabanaj.beloyal.Enums.Role;
+import com.shabanaj.beloyal.Enums.UserStatus;
 import com.shabanaj.beloyal.Exception.UserNotFound;
 import com.shabanaj.beloyal.Repository.UserRepository;
 import com.shabanaj.beloyal.Service.UserService;
-import com.shabanaj.beloyal.Service.ValidationService;
+import com.shabanaj.beloyal.Validation.ValidationService;
 import jakarta.transaction.Transactional;
-import jakarta.validation.ValidationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,22 +21,17 @@ import java.util.Set;
 @Transactional
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final ValidationService validationService;
-    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, ValidationService validationService, PasswordEncoder passwordEncoder) {
+
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.validationService = validationService;
-        this.passwordEncoder = passwordEncoder;
     }
 
 
     @Override
     public User createUser(User user) {
-        validateUserFields(user);
-        //Handle password hashing
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        User newUser = userRepository.save(user);
+        return newUser;
     }
 
     @Override
@@ -45,104 +41,66 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateLastLogin(Long userId) {
-        User user= getUserOrThrow(userId);
+        User user=getUserOrThrow(userId);
 
-        user.setLastLoginTime(LocalDateTime.now());
+        user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
     }
 
     @Override
     public void enableUser(Long userId) {
-        User user= getUserOrThrow(userId);
+        User user=getUserOrThrow(userId);
 
-        user.setEnabled(true);
+        user.setStatus(UserStatus.ENABLED);
         userRepository.save(user);
     }
 
     @Override
     public void disableUser(Long userId) {
-        User user= getUserOrThrow(userId);
+        User user=getUserOrThrow(userId);
 
-        user.setEnabled(false);
+        user.setStatus(UserStatus.DISABLED);
         userRepository.save(user);
     }
 
     @Override
     public void lockUser(Long userId) {
-        User user= getUserOrThrow(userId);
+        User user=getUserOrThrow(userId);
 
-        user.setLocked(true);
+        user.setStatus(UserStatus.LOCKED);
         userRepository.save(user);
     }
 
     @Override
     public void unlockUser(Long userId) {
-        User user = getUserOrThrow(userId);
+        User user=getUserOrThrow(userId);
 
-        user.setLocked(false);
-        userRepository.save(user);
-    }
-
-    @Override
-    public void assignRole(Long userId, Role role) {
-        User user = getUserOrThrow(userId);
-
-        user.getRoles().add(role);
-        userRepository.save(user);
-    }
-
-    @Override
-    public void removeRole(Long userId, Role role) {
-        User user = getUserOrThrow(userId);
-
-        user.getRoles().remove(role);
+        user.setStatus(UserStatus.ENABLED);
         userRepository.save(user);
     }
 
     @Override
     public void changePassword(Long userId,String oldPassword, String password) {
-        User user = getUserOrThrow(userId);
-
-        if(!user.getPassword().equals(passwordEncoder.encode(oldPassword)))
-            throw new ValidationException("Old password is incorrect!");
-
-        if (!validationService.isValidPassword(password))
-            throw new ValidationException("Invalid password!");
-
-        //change when adding password hashing
-        user.setPassword(passwordEncoder.encode(password));
-        userRepository.save(user);
+        // TODO: Implement password change
     }
 
     @Override
     public void deleteUser(Long userId) {
-        User user = getUserOrThrow(userId);
+        User user=getUserOrThrow(userId);
 
         userRepository.delete(user);
     }
 
     @Override
-    public void updateUser(Long userId, User updatedUser) {
-        //find user
-        User user = getUserOrThrow(userId);
-        //validate
-        updatedUser.setId(userId);
-        validateUserFields(updatedUser);
-        //update fields
-        user.setFirstName(updatedUser.getFirstName());
-        user.setLastName(updatedUser.getLastName());
-        user.setUsername(updatedUser.getUsername());
-        user.setPhoneNumber(updatedUser.getPhoneNumber());
-        user.setEmail(updatedUser.getEmail());
-        user.setRoles(updatedUser.getRoles());
-        //handle password change
-        if(updatedUser.getPassword()==null)
-            throw new ValidationException("Password cannot be null!");
-        if(!user.getPassword().matches(passwordEncoder.encode(updatedUser.getPassword()))){
-            user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
-        }
-        //save in db
-        userRepository.save(user);
+    public void updateUser(Long userId, UpdateUserDto updatedUser) {
+        User toUpdate= getUserOrThrow(userId);
+
+        toUpdate.setFirstName(updatedUser.getFirstName());
+        toUpdate.setLastName(updatedUser.getLastName());
+        toUpdate.setEmail(updatedUser.getEmail());
+        toUpdate.setUsername(updatedUser.getUsername());
+        toUpdate.setPhoneNumber(updatedUser.getPhoneNumber());
+        toUpdate.setProfileImage(updatedUser.getProfileImage());
     }
 
     @Override
@@ -153,26 +111,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
-    }
-
-    @Override
-    public void validateUserFields(User user) {
-        if(user==null) return;
-
-        if (!validationService.isValidEmail(user.getEmail()))
-            throw new ValidationException("Invalid email!");
-        if (!validationService.isUniqueEmail(user.getId(), user.getEmail()))
-            throw new ValidationException("Email already exists!");
-        if (!validationService.isValidPhoneNumber(user.getPhoneNumber()))
-            throw new ValidationException("Invalid phone number!");
-        if (!validationService.isUniquePhoneNumber(user.getId(), user.getPhoneNumber()))
-            throw new ValidationException("Phone number already exists!");
-        if (!validationService.isValidPassword(user.getPassword()))
-            throw new ValidationException("Invalid password!");
-        if (!validationService.isUniqueUsername(user.getId(), user.getUsername()))
-            throw new ValidationException("Username already exists!");
-        if (user.getRoles().isEmpty())
-            throw new ValidationException("User must have at least one role!");
     }
 
     @Override

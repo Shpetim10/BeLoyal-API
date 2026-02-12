@@ -3,6 +3,8 @@ package com.shabanaj.beloyal.Service.impl;
 import com.shabanaj.beloyal.Dto.Registration.CustomerProfileRegisterDto;
 import com.shabanaj.beloyal.Entity.CustomerProfile;
 import com.shabanaj.beloyal.Entity.User;
+import com.shabanaj.beloyal.Exception.CustomerProfileExistsException;
+import com.shabanaj.beloyal.Exception.UserNotFound;
 import com.shabanaj.beloyal.Helpers.ReferralCodeGenerator;
 import com.shabanaj.beloyal.Repository.CustomerProfileRepository;
 import com.shabanaj.beloyal.Repository.UserRepository;
@@ -23,8 +25,31 @@ public class CustomerProfileImpl implements CustomerProfileService {
 
     @Override
     public CustomerProfile createCustomerPofile(User user, CustomerProfileRegisterDto dto) {
-        //TODO
-        return null;
+        if(user==null || userRepository.findUserByEmail(user.getEmail())==null){
+            throw new UserNotFound("Your user account could not be found!");
+        }
+
+        if(customerProfileRepository.findByUser(user)!=null){
+            throw new CustomerProfileExistsException();
+        }
+
+        CustomerProfile customerProfile = new CustomerProfile();
+
+        //set attributes
+        customerProfile.setBirthDate(dto.getBirthdate());
+        customerProfile.setCity(dto.getCity());
+        customerProfile.setCountry(dto.getCountry());
+        customerProfile.setGender(dto.getGender());
+        customerProfile.setNotificationEnabled(dto.isNotificationEnabled());
+        customerProfile.setReferredBy(dto.getReferredBy());
+
+        //generate referral code
+        String referralCode= referralCodeGenerator.generateReferralCode();
+        customerProfile.setReferralCode(referralCode);
+
+        // Assign to user
+        customerProfile.setUser(user);
+        return customerProfileRepository.save(customerProfile);
     }
 
     @Override

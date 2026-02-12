@@ -4,6 +4,6 @@ import com.shabanaj.beloyal.Dto.Registration.BusinessProfileRegisterDto;
 import com.shabanaj.beloyal.Entity.Business;
 import com.shabanaj.beloyal.Entity.User;
 
-public interface BusinessProfileService {
+public interface BusinessService {
     Business createBusinessProfile(User user, BusinessProfileRegisterDto dto);
 }

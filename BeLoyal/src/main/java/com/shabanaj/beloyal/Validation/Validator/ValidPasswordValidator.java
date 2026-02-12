@@ -1,6 +1,6 @@
 package com.shabanaj.beloyal.Validation.Validator;
 
-import com.shabanaj.beloyal.Service.ValidationService;
+import com.shabanaj.beloyal.Validation.ValidationService;
 import com.shabanaj.beloyal.Validation.Annotation.ValidPassword;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

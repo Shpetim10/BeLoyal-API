@@ -1,4 +1,4 @@
-package com.shabanaj.beloyal.Service;
+package com.shabanaj.beloyal.Validation;
 
 public interface ValidationService {
     boolean isValidEmail(String email);

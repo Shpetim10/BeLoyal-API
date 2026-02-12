@@ -48,9 +48,9 @@ public class SecurityConfig {
                         ).permitAll()
                         // role-based examples:
                         .requestMatchers("/api/beloyal/admin/**").hasRole("SUPER_ADMIN")
-                        .requestMatchers("/api/beloyal/business/**").hasAnyRole("BUSINESS","SUPER_ADMIN")
+                        .requestMatchers("/api/beloyal/business/**").hasAnyRole("BUSINESS_ADMIN","SUPER_ADMIN")
                         .requestMatchers("/api/beloyal/customer/**").hasRole("CUSTOMER")
-                        .requestMatchers("/api/beloyal/waiter/**").hasAnyRole("WAITER","BUSINESS")
+                        .requestMatchers("/api/beloyal/staff/**").hasAnyRole("STAFF","BUSINESS_ADMIN")
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(userDetailsService)

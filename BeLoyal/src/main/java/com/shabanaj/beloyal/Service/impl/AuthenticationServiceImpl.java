@@ -5,6 +5,10 @@ import com.shabanaj.beloyal.Dto.Login.LoginResponse;
 import com.shabanaj.beloyal.Dto.Registration.RegisterUserDto;
 import com.shabanaj.beloyal.Entity.EmailVerificationToken;
 import com.shabanaj.beloyal.Entity.User;
+import com.shabanaj.beloyal.Enums.Role;
+import com.shabanaj.beloyal.Enums.UserStatus;
+import com.shabanaj.beloyal.Exception.RoleNotAllowedException;
+import com.shabanaj.beloyal.Exception.TCNotAcceptedException;
 import com.shabanaj.beloyal.Exception.TokenIsNotValidException;
 import com.shabanaj.beloyal.Repository.UserRepository;
 import com.shabanaj.beloyal.Repository.VerificationTokenRepository;
@@ -12,12 +16,14 @@ import com.shabanaj.beloyal.Security.CustomUserDetailsService;
 import com.shabanaj.beloyal.Security.JwtService;
 import com.shabanaj.beloyal.Service.AuthenticationService;
 import com.shabanaj.beloyal.Service.EmailService;
+import com.shabanaj.beloyal.Service.EmailVerificationTokenService;
 import com.shabanaj.beloyal.Service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,26 +32,31 @@ import java.util.UUID;
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserService userService;
-    private final VerificationTokenRepository verificationTokenRepository;
     private final EmailService emailService;
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService customUserDetailsService;
     private final JwtService jwtService;
+    private final EmailVerificationTokenService emailVerificationTokenService;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthenticationServiceImpl(UserService userService, VerificationTokenRepository verificationTokenRepository, EmailService emailService, UserRepository userRepository, AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService, JwtService jwtService) {
+    public AuthenticationServiceImpl(UserService userService, EmailService emailService, UserRepository userRepository, AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService, JwtService jwtService, EmailVerificationTokenService emailVerificationTokenService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
-        this.verificationTokenRepository = verificationTokenRepository;
         this.emailService = emailService;
         this.userRepository = userRepository;
         this.authenticationManager = authenticationManager;
         this.customUserDetailsService = customUserDetailsService;
         this.jwtService = jwtService;
+        this.emailVerificationTokenService = emailVerificationTokenService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     @Transactional
-    public void registerUser(RegisterUserDto dto) {
+    public void registerCustomer(RegisterUserDto dto) {
+        if(!dto.isAcceptedTc())
+            throw new TCNotAcceptedException();
+
         //Register user first
         User user= new User();
         user.setFirstName(dto.getFirstName());
@@ -53,28 +64,29 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
         user.setPhoneNumber(dto.getPhoneNumber());
-        user.setPassword(dto.getPassword());
-        user.setRoles(dto.getRoles());
+        user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
+        user.setProfileImage(dto.getProfileImage());
+
+        user.setAcceptedTcVersion(dto.getAcceptedTcVersion());
+        user.setAcceptedTcAt(LocalDateTime.now());
+
+        if(user.getRoles().isEmpty())
+            user.getRoles().add(Role.CUSTOMER);
+        else{
+            throw new RoleNotAllowedException();
+        }
 
         User savedUser= userService.createUser(user);
 
         //Create verification token and send it to user's email
-        String token= UUID.randomUUID().toString();
+        EmailVerificationToken verificationToken =emailVerificationTokenService.generateEmailVerificationToken(savedUser);
 
-        EmailVerificationToken verificationToken = new EmailVerificationToken();
-        verificationToken.setToken(token);
-        verificationToken.setUser(savedUser);
-        verificationToken.setExpiresAt(LocalDateTime.now().plusHours(24));
-
-        verificationTokenRepository.save(verificationToken);
-
-        emailService.sendActivationEmail(savedUser, token);
+        emailService.sendActivationEmail(savedUser, verificationToken.getToken());
     }
 
     @Transactional
     public void activateUser(String token){
-        EmailVerificationToken activationToken= verificationTokenRepository.findByToken(token)
-                .orElseThrow(()->new TokenIsNotValidException("Token is not found!"));
+        EmailVerificationToken activationToken= emailVerificationTokenService.findEmailVerificationTokenByToken(token);
 
         if(activationToken.isUsed()){
             throw new TokenIsNotValidException();
@@ -85,17 +97,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         User currentUser= activationToken.getUser();
-        currentUser.setEnabled(true);
+        currentUser.setStatus(UserStatus.ENABLED);
         currentUser.setEmailVerified(true);
         currentUser.setEmailVerifiedAt(LocalDateTime.now());
         userRepository.save(currentUser);
 
-        activationToken.setUsed(true);
-        verificationTokenRepository.save(activationToken);
+        emailVerificationTokenService.markTokenAsUsed(activationToken);
     }
 
     @Override
     public LoginResponse loginUser(LoginRequest request) {
+        // TODO: change the impelemntation of the login based on REQ-01
         Authentication auth= new UsernamePasswordAuthenticationToken(
                 request.getEmail(),
                 request.getPassword()
@@ -107,7 +119,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         User user= userRepository.findUserByEmail(request.getEmail())
                 .orElseThrow();
-        user.setLastLoginTime(LocalDateTime.now());
+        user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
 
         LoginResponse response=new LoginResponse();
