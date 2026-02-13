@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.shabanaj.beloyal",
+      "sha256_cert_fingerprints": [
+        "EA:A9:D5:F9:0C:A2:F0:30:AE:B2:17:37:2D:E4:9B:AB:D7:7E:41:F2:AC:C7:AF:C1:0D:10:A4:97:13:F3:AB:F4"
+      ]
+    }
+  }
+]

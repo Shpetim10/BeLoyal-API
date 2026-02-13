@@ -29,7 +29,7 @@ public class CustomerProfileImpl implements CustomerProfileService {
             throw new UserNotFound("Your user account could not be found!");
         }
 
-        if(customerProfileRepository.findByUser(user)!=null){
+        if(customerProfileRepository.findByUser(user).isPresent()){
             throw new CustomerProfileExistsException();
         }
 

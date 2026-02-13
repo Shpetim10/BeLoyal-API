@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // public endpoints
                         .requestMatchers(
+                                "/.well-known/assetlinks.json",
                                 "/api/beloyal/auth/register",
                                 "/api/beloyal/auth/activate",
                                 "/api/beloyal/auth/login",
@@ -69,7 +70,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:3000", "http://localhost:8080", "http://localhost:3030")); // adjust
+        config.setAllowedOrigins(List.of(
+                "http://localhost:*",
+                "https://*.trycloudflare.com",
+                "https://glow-portrait-ericsson-usd.trycloudflare.com"
+        ));
         config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization","Content-Type"));
         config.setAllowCredentials(true);

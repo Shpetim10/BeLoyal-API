@@ -23,12 +23,24 @@ public class AuthController {
         this.authenticationService = authenticationService;
     }
 
-    @GetMapping("/activate")
-    public ResponseEntity<String> activateAccount(@RequestParam String token) {
+    // Verify user by the app
+    @GetMapping("/verify-email")
+    public ResponseEntity<?> activateAccount(@RequestParam String token) {
         try{
             authenticationService.activateUser(token);
 
-            return  ResponseEntity.ok("User was successfully activated!");
+            return  ResponseEntity.ok(Map.of("message","User was successfully activated!"));
+        }catch(Exception e){
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/activate")
+    public ResponseEntity<?> activateAccountViaWeb(@RequestParam String token) {
+        try{
+            authenticationService.activateUser(token);
+
+            return  ResponseEntity.ok(Map.of("message","User was successfully activated!"));
         }catch(Exception e){
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
