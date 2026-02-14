@@ -42,6 +42,7 @@ public class CustomerProfileImpl implements CustomerProfileService {
         customerProfile.setGender(dto.getGender());
         customerProfile.setNotificationEnabled(dto.isNotificationEnabled());
         customerProfile.setReferredBy(dto.getReferredBy());
+        user.setProfileImage(dto.getProfileImagePath());
 
         //generate referral code
         String referralCode= referralCodeGenerator.generateReferralCode();
@@ -49,6 +50,8 @@ public class CustomerProfileImpl implements CustomerProfileService {
 
         // Assign to user
         customerProfile.setUser(user);
+        // Save
+        userRepository.save(user);
         return customerProfileRepository.save(customerProfile);
     }
 

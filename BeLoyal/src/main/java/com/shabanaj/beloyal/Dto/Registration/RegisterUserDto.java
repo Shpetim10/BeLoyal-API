@@ -28,8 +28,6 @@ public class RegisterUserDto {
     @UniqueUsernameOnCreate
     private String username;
 
-    private String profileImage;
-
     // T&C acceptance
     @AssertTrue(message = "Terms & Conditions must be accepted")
     private boolean acceptedTc;
@@ -65,9 +63,6 @@ public class RegisterUserDto {
         return username;
     }
 
-    public String getProfileImage() {
-        return profileImage;
-    }
 
     public boolean isAcceptedTc() {
         return acceptedTc;

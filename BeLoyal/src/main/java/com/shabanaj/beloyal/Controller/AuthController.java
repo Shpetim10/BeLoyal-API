@@ -2,11 +2,15 @@ package com.shabanaj.beloyal.Controller;
 
 import com.shabanaj.beloyal.Dto.Login.LoginRequest;
 import com.shabanaj.beloyal.Dto.Login.LoginResponse;
+import com.shabanaj.beloyal.Dto.Registration.ActivationResponse;
 import com.shabanaj.beloyal.Dto.Registration.RegisterUserDto;
+import com.shabanaj.beloyal.Exception.TokenExpiredException;
+import com.shabanaj.beloyal.Exception.TokenIsNotValidException;
 import com.shabanaj.beloyal.Service.AuthenticationService;
 import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -25,24 +29,78 @@ public class AuthController {
 
     // Verify user by the app
     @GetMapping("/verify-email")
-    public ResponseEntity<?> activateAccount(@RequestParam String token) {
-        try{
-            authenticationService.activateUser(token);
+    public ResponseEntity<?> activateAccountFromApp(@RequestParam String token) {
+        try {
+            // Activate user and get authentication details
+            ActivationResponse response = authenticationService.activateUser(token);
 
-            return  ResponseEntity.ok(Map.of("message","User was successfully activated!"));
-        }catch(Exception e){
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseEntity.ok(response);
+
+        } catch (TokenExpiredException e) {
+            return ResponseEntity.status(HttpStatus.GONE)
+                    .body(Map.of(
+                            "error", "TOKEN_EXPIRED",
+                            "message", "Activation link has expired. Please request a new one."
+                    ));
+
+        } catch (TokenIsNotValidException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "error", "INVALID_TOKEN",
+                            "message", "Invalid activation link."
+                    ));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "error", "ACTIVATION_FAILED",
+                            "message", e.getMessage()
+                    ));
         }
     }
 
     @GetMapping("/activate")
-    public ResponseEntity<?> activateAccountViaWeb(@RequestParam String token) {
-        try{
-            authenticationService.activateUser(token);
+    public ResponseEntity<?> activateAccount(@RequestParam String token) {
+        try {
+            // Activate user and get authentication details
+            ActivationResponse response = authenticationService.activateUser(token);
 
-            return  ResponseEntity.ok(Map.of("message","User was successfully activated!"));
-        }catch(Exception e){
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseEntity.ok(response);
+
+        } catch (TokenExpiredException e) {
+            return ResponseEntity.status(HttpStatus.GONE)
+                    .body(Map.of(
+                            "error", "TOKEN_EXPIRED",
+                            "message", "Activation link has expired. Please request a new one."
+                    ));
+
+        } catch (TokenIsNotValidException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "error", "INVALID_TOKEN",
+                            "message", "Invalid activation link."
+                    ));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "error", "ACTIVATION_FAILED",
+                            "message", e.getMessage()
+                    ));
+        }
+    }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<?> resendVerification(@RequestParam String email) {
+        try {
+            authenticationService.resendVerificationEmail(email);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Verification email sent successfully"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "error", e.getMessage()
+            ));
         }
     }
 

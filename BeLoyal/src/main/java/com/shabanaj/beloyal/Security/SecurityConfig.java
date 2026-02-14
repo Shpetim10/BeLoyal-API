@@ -13,12 +13,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
 @Configuration
-@EnableMethodSecurity // allows @PreAuthorize
-public class SecurityConfig {
+@EnableMethodSecurity
+public class SecurityConfig implements WebMvcConfigurer {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final CustomUserDetailsService userDetailsService;
@@ -27,6 +29,13 @@ public class SecurityConfig {
                           CustomUserDetailsService userDetailsService) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.userDetailsService = userDetailsService;
+    }
+
+    // ADD THIS METHOD
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/.well-known/**")
+                .addResourceLocations("classpath:/static/.well-known/");
     }
 
     @Bean
@@ -60,20 +69,18 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // for AuthenticationManager (needed in login)
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-    // basic CORS for Flutter/Postman
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
                 "http://localhost:*",
                 "https://*.trycloudflare.com",
-                "https://glow-portrait-ericsson-usd.trycloudflare.com"
+                "https://patents-glen-pharmaceutical-women.trycloudflare.com"
         ));
         config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization","Content-Type"));
@@ -84,4 +91,3 @@ public class SecurityConfig {
         return source;
     }
 }
-
