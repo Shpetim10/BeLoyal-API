@@ -23,7 +23,7 @@ public class UserPrincipal implements UserDetails {
         this.id = user.getId();
         this.email = user.getEmail();
         this.password = user.getPasswordHash();
-        this.enabled = user.getStatus() == UserStatus.ENABLED;
+        this.enabled = user.getStatus() == UserStatus.ENABLED || user.getStatus()==UserStatus.PENDING_VERIFICATION;
         this.accountNonLocked = user.getLockedUntil() == null || user.getLockedUntil().isBefore(LocalDateTime.now()) || user.getStatus()!=UserStatus.LOCKED;
         this.authorities = mapRolesToAuthorities(user);
     }

@@ -8,14 +8,10 @@ public class LoginResponse {
     private String token;
     private String tokenType= "Bearer";
     private Set<Role> roles;
+    private boolean customerProfileComplete;
+    private boolean emailVerified;
 
     public LoginResponse() {
-    }
-
-    public LoginResponse(String token, String tokenType, Set<Role> roles) {
-        this.token = token;
-        this.tokenType = tokenType;
-        this.roles = roles;
     }
 
     public String getToken() {
@@ -40,5 +36,21 @@ public class LoginResponse {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public boolean isCustomerProfileComplete() {
+        return customerProfileComplete;
+    }
+
+    public void setCustomerProfileComplete(boolean customerProfileComplete) {
+        this.customerProfileComplete = customerProfileComplete;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
     }
 }

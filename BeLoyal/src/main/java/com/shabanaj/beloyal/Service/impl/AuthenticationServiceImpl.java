@@ -1,17 +1,19 @@
 package com.shabanaj.beloyal.Service.impl;
 
+import com.shabanaj.beloyal.Configurations.SystemSettings;
 import com.shabanaj.beloyal.Dto.Login.LoginRequest;
 import com.shabanaj.beloyal.Dto.Login.LoginResponse;
 import com.shabanaj.beloyal.Dto.Registration.ActivationResponse;
 import com.shabanaj.beloyal.Dto.Registration.RegisterUserDto;
+import com.shabanaj.beloyal.Entity.BusinessMember;
 import com.shabanaj.beloyal.Entity.EmailVerificationToken;
 import com.shabanaj.beloyal.Entity.User;
+import com.shabanaj.beloyal.Enums.BusinessStatus;
 import com.shabanaj.beloyal.Enums.Role;
 import com.shabanaj.beloyal.Enums.UserStatus;
-import com.shabanaj.beloyal.Exception.RoleNotAllowedException;
-import com.shabanaj.beloyal.Exception.TCNotAcceptedException;
-import com.shabanaj.beloyal.Exception.TokenExpiredException;
-import com.shabanaj.beloyal.Exception.TokenIsNotValidException;
+import com.shabanaj.beloyal.Exception.*;
+import com.shabanaj.beloyal.Repository.BusinessMemberRepository;
+import com.shabanaj.beloyal.Repository.BusinessRepository;
 import com.shabanaj.beloyal.Repository.CustomerProfileRepository;
 import com.shabanaj.beloyal.Repository.UserRepository;
 import com.shabanaj.beloyal.Security.CustomUserDetailsService;
@@ -21,6 +23,9 @@ import com.shabanaj.beloyal.Service.EmailService;
 import com.shabanaj.beloyal.Service.EmailVerificationTokenService;
 import com.shabanaj.beloyal.Service.UserService;
 import jakarta.transaction.Transactional;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,7 +35,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -45,8 +49,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
     private final EmailVerificationTokenService emailVerificationTokenService;
     private final PasswordEncoder passwordEncoder;
+    private final BusinessRepository businessRepository;
+    private final BusinessMemberRepository businessMemberRepository;
+    private final Logger logger= LogManager.getLogger(AuthenticationServiceImpl.class);
 
-    public AuthenticationServiceImpl(UserService userService, EmailService emailService, UserRepository userRepository, CustomerProfileRepository customerProfileRepository, AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService, JwtService jwtService, EmailVerificationTokenService emailVerificationTokenService, PasswordEncoder passwordEncoder) {
+    public AuthenticationServiceImpl(UserService userService, EmailService emailService, UserRepository userRepository, CustomerProfileRepository customerProfileRepository, AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService, JwtService jwtService, EmailVerificationTokenService emailVerificationTokenService, PasswordEncoder passwordEncoder, BusinessRepository businessRepository, BusinessMemberRepository businessMemberRepository) {
         this.userService = userService;
         this.emailService = emailService;
         this.userRepository = userRepository;
@@ -56,6 +63,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         this.jwtService = jwtService;
         this.emailVerificationTokenService = emailVerificationTokenService;
         this.passwordEncoder = passwordEncoder;
+        this.businessRepository = businessRepository;
+        this.businessMemberRepository = businessMemberRepository;
     }
 
     @Override
@@ -138,27 +147,90 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
+    @Transactional
     public LoginResponse loginUser(LoginRequest request) {
-        // TODO: change the impelemntation of the login based on REQ-01
-        Authentication auth= new UsernamePasswordAuthenticationToken(
-                request.getEmail(),
-                request.getPassword()
-        );
-        authenticationManager.authenticate(auth);
+        String email = request.getEmail().trim().toLowerCase();
 
-        UserDetails userDetails= customUserDetailsService.loadUserByUsername(request.getEmail());
-        String jwt= jwtService.generateToken(userDetails);
+        User user = userRepository.findUserByEmailIgnoreCase(email)
+                .orElseThrow(InvalidCredentialsException::new);
 
-        User user= userRepository.findUserByEmail(request.getEmail())
-                .orElseThrow();
-        user.setLastLoginAt(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+
+        // Lock handling
+        if (user.getStatus() == UserStatus.LOCKED) {
+            if (user.getLockedUntil() != null && user.getLockedUntil().isAfter(now)) {
+                throw new UserIsLockedException();
+            }
+            logger.info("Lock time has passed");
+
+            // lock expired -> unlock
+            user.setStatus(UserStatus.ENABLED);
+            user.setLockedUntil(null);
+            user.setFailedLoginAttempts(0);
+            userRepository.save(user);
+        }
+
+        logger.info("User is not locked");
+        // Disabled handling
+        if (user.getStatus() != UserStatus.ENABLED && user.getStatus()!= UserStatus.PENDING_VERIFICATION) {
+            throw new UserIsDisabledException();
+        }
+
+        logger.info("User is enabled or pending verification");
+
+        // Handle inactive business and staff, if he is not customer
+        if ((user.getRoles().contains(Role.STAFF) || user.getRoles().contains(Role.BUSINESS_ADMIN)) && !user.getRoles().contains(Role.CUSTOMER)) {
+            BusinessMember businessMember= businessMemberRepository.findByUser(user)
+                    .orElseThrow(()-> new AccessDeniedException("Business Member Not Found"));
+
+            logger.info("Business Member has been found");
+
+            if (!businessMember.getMemberStatus().equals(UserStatus.ENABLED) || !businessMember.getBusiness().getBusinessStatus().equals(BusinessStatus.ACTIVE)) {
+                throw new InactiveBusinessException("Staff or business is not active");
+            }
+            logger.info("Business and Member has been activated");
+        }
+
+        try {
+            Authentication auth =
+                    new UsernamePasswordAuthenticationToken(email, request.getPassword());
+            authenticationManager.authenticate(auth);
+        } catch (org.springframework.security.core.AuthenticationException ex) {
+            int attempts = user.getFailedLoginAttempts() + 1;
+            user.setFailedLoginAttempts(attempts);
+
+            if (attempts >= SystemSettings.MAX_LOGIN_ATTEMPTS) {
+                user.setStatus(UserStatus.LOCKED);
+                user.setLockedUntil(now.plusMinutes(SystemSettings.LOCK_MINUTES));
+            }
+
+            userRepository.save(user);
+            throw new InvalidCredentialsException();
+        }
+
+        logger.info("User is logged in successfully");
+        // Success
+        user.setFailedLoginAttempts(0);
+        user.setLockedUntil(null);
+        user.setLastLoginAt(now);
         userRepository.save(user);
 
-        LoginResponse response=new LoginResponse();
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
+        String jwt = jwtService.generateToken(userDetails);
+
+        LoginResponse response = new LoginResponse();
         response.setToken(jwt);
         response.setRoles(user.getRoles());
+        response.setEmailVerified(user.getEmailVerifiedAt() != null);
+
+        response.setCustomerProfileComplete(
+                user.getRoles().contains(Role.CUSTOMER) &&
+                        customerProfileRepository.findByUser(user).isPresent()
+        );
+
         return response;
     }
+
 
     @Override
     public void resendVerificationEmail(String email) {

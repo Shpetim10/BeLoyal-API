@@ -80,7 +80,7 @@ public class SecurityConfig implements WebMvcConfigurer {
         config.setAllowedOrigins(List.of(
                 "http://localhost:*",
                 "https://*.trycloudflare.com",
-                "https://patents-glen-pharmaceutical-women.trycloudflare.com"
+                "https://fits-females-diana-leads.trycloudflare.com"
         ));
         config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization","Content-Type"));
