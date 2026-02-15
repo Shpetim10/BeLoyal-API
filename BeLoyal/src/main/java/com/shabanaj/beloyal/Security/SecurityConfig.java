@@ -40,23 +40,27 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // public endpoints
                         .requestMatchers(
                                 "/.well-known/assetlinks.json",
+
                                 "/api/beloyal/auth/register",
                                 "/api/beloyal/auth/activate",
                                 "/api/beloyal/auth/login",
+                                "/api/beloyal/auth/refresh",
+                                "/api/beloyal/auth/logout",
+                                "/api/beloyal/auth/forgot-password",
+                                "/api/beloyal/auth/reset-password",
+
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
                                 "/swagger-ui/**"
                         ).permitAll()
-                        // role-based examples:
+
                         .requestMatchers("/api/beloyal/admin/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/api/beloyal/business/**").hasAnyRole("BUSINESS_ADMIN","SUPER_ADMIN")
                         .requestMatchers("/api/beloyal/customer/**").hasRole("CUSTOMER")
@@ -68,6 +72,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 
         return http.build();
     }
+
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {

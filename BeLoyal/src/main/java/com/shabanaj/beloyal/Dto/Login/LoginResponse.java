@@ -5,29 +5,35 @@ import com.shabanaj.beloyal.Enums.Role;
 import java.util.Set;
 
 public class LoginResponse {
-    private String token;
-    private String tokenType= "Bearer";
+    private String accessToken;
+    private String refreshToken;
+    private long accessTokenExpiresInSeconds;
     private Set<Role> roles;
-    private boolean customerProfileComplete;
     private boolean emailVerified;
+    private boolean customerProfileComplete;
 
-    public LoginResponse() {
+    public String getAccessToken() {
+        return accessToken;
     }
 
-    public String getToken() {
-        return token;
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public String getRefreshToken() {
+        return refreshToken;
     }
 
-    public String getTokenType() {
-        return tokenType;
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
-    public void setTokenType(String tokenType) {
-        this.tokenType = tokenType;
+    public long getAccessTokenExpiresInSeconds() {
+        return accessTokenExpiresInSeconds;
+    }
+
+    public void setAccessTokenExpiresInSeconds(long accessTokenExpiresInSeconds) {
+        this.accessTokenExpiresInSeconds = accessTokenExpiresInSeconds;
     }
 
     public Set<Role> getRoles() {
@@ -38,19 +44,19 @@ public class LoginResponse {
         this.roles = roles;
     }
 
-    public boolean isCustomerProfileComplete() {
-        return customerProfileComplete;
-    }
-
-    public void setCustomerProfileComplete(boolean customerProfileComplete) {
-        this.customerProfileComplete = customerProfileComplete;
-    }
-
     public boolean isEmailVerified() {
         return emailVerified;
     }
 
     public void setEmailVerified(boolean emailVerified) {
         this.emailVerified = emailVerified;
+    }
+
+    public boolean isCustomerProfileComplete() {
+        return customerProfileComplete;
+    }
+
+    public void setCustomerProfileComplete(boolean customerProfileComplete) {
+        this.customerProfileComplete = customerProfileComplete;
     }
 }

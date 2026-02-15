@@ -1,12 +1,15 @@
 package com.shabanaj.beloyal.Service.impl;
 
 import com.shabanaj.beloyal.Configurations.SystemSettings;
+import com.shabanaj.beloyal.Dto.Auth.LogoutRequest;
+import com.shabanaj.beloyal.Dto.Auth.RefreshRequest;
 import com.shabanaj.beloyal.Dto.Login.LoginRequest;
 import com.shabanaj.beloyal.Dto.Login.LoginResponse;
 import com.shabanaj.beloyal.Dto.Registration.ActivationResponse;
 import com.shabanaj.beloyal.Dto.Registration.RegisterUserDto;
 import com.shabanaj.beloyal.Entity.BusinessMember;
 import com.shabanaj.beloyal.Entity.EmailVerificationToken;
+import com.shabanaj.beloyal.Entity.RefreshToken;
 import com.shabanaj.beloyal.Entity.User;
 import com.shabanaj.beloyal.Enums.BusinessStatus;
 import com.shabanaj.beloyal.Enums.Role;
@@ -18,10 +21,7 @@ import com.shabanaj.beloyal.Repository.CustomerProfileRepository;
 import com.shabanaj.beloyal.Repository.UserRepository;
 import com.shabanaj.beloyal.Security.CustomUserDetailsService;
 import com.shabanaj.beloyal.Security.JwtService;
-import com.shabanaj.beloyal.Service.AuthenticationService;
-import com.shabanaj.beloyal.Service.EmailService;
-import com.shabanaj.beloyal.Service.EmailVerificationTokenService;
-import com.shabanaj.beloyal.Service.UserService;
+import com.shabanaj.beloyal.Service.*;
 import jakarta.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,6 +29,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -52,8 +53,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final BusinessRepository businessRepository;
     private final BusinessMemberRepository businessMemberRepository;
     private final Logger logger= LogManager.getLogger(AuthenticationServiceImpl.class);
+    private final RefreshTokenService refreshTokenService;
 
-    public AuthenticationServiceImpl(UserService userService, EmailService emailService, UserRepository userRepository, CustomerProfileRepository customerProfileRepository, AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService, JwtService jwtService, EmailVerificationTokenService emailVerificationTokenService, PasswordEncoder passwordEncoder, BusinessRepository businessRepository, BusinessMemberRepository businessMemberRepository) {
+    public AuthenticationServiceImpl(UserService userService, EmailService emailService, UserRepository userRepository, CustomerProfileRepository customerProfileRepository, AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService, JwtService jwtService, EmailVerificationTokenService emailVerificationTokenService, PasswordEncoder passwordEncoder, BusinessRepository businessRepository, BusinessMemberRepository businessMemberRepository, RefreshTokenService refreshTokenService) {
         this.userService = userService;
         this.emailService = emailService;
         this.userRepository = userRepository;
@@ -65,6 +67,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         this.passwordEncoder = passwordEncoder;
         this.businessRepository = businessRepository;
         this.businessMemberRepository = businessMemberRepository;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Override
@@ -192,10 +195,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         try {
-            Authentication auth =
-                    new UsernamePasswordAuthenticationToken(email, request.getPassword());
+            Authentication auth = new UsernamePasswordAuthenticationToken(email, request.getPassword());
             authenticationManager.authenticate(auth);
-        } catch (org.springframework.security.core.AuthenticationException ex) {
+        } catch (AuthenticationException ex) {
             int attempts = user.getFailedLoginAttempts() + 1;
             user.setFailedLoginAttempts(attempts);
 
@@ -208,27 +210,32 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new InvalidCredentialsException();
         }
 
-        logger.info("User is logged in successfully");
-        // Success
+        // Success bookkeeping
         user.setFailedLoginAttempts(0);
         user.setLockedUntil(null);
         user.setLastLoginAt(now);
         userRepository.save(user);
 
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
-        String jwt = jwtService.generateToken(userDetails);
 
-        LoginResponse response = new LoginResponse();
-        response.setToken(jwt);
-        response.setRoles(user.getRoles());
-        response.setEmailVerified(user.getEmailVerifiedAt() != null);
+        String access = jwtService.generateAccessToken(userDetails);
 
-        response.setCustomerProfileComplete(
+        // create refresh token
+        String refresh = refreshTokenService.create(user, null, null);
+
+        LoginResponse res = new LoginResponse();
+        res.setAccessToken(access);
+        res.setRefreshToken(refresh);
+        res.setAccessTokenExpiresInSeconds(15 * 60);
+        res.setRoles(user.getRoles());
+        res.setEmailVerified(user.getEmailVerifiedAt() != null);
+
+        res.setCustomerProfileComplete(
                 user.getRoles().contains(Role.CUSTOMER) &&
                         customerProfileRepository.findByUser(user).isPresent()
         );
 
-        return response;
+        return res;
     }
 
 
@@ -244,5 +251,35 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         EmailVerificationToken verificationToken =emailVerificationTokenService.generateEmailVerificationToken(user);
 
         emailService.sendActivationEmail(user, verificationToken.getToken());
+    }
+
+    @Override
+    public LoginResponse refresh(RefreshRequest refreshRequest) {
+        RefreshToken existing = refreshTokenService.validate(refreshRequest.refreshToken());
+
+        User user = existing.getUser();
+        if (user.getStatus() != UserStatus.ENABLED) throw new AccessDeniedException("Access denied");
+
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getEmail());
+        String newAccess = jwtService.generateAccessToken(userDetails);
+        String newRefresh = refreshTokenService.rotate(existing);
+
+        LoginResponse res = new LoginResponse();
+        res.setAccessToken(newAccess);
+        res.setRefreshToken(newRefresh);
+        res.setAccessTokenExpiresInSeconds(15 * 60);
+        res.setRoles(user.getRoles());
+        res.setEmailVerified(user.getEmailVerifiedAt() != null);
+        res.setCustomerProfileComplete(
+                user.getRoles().contains(Role.CUSTOMER) &&
+                        customerProfileRepository.findByUser(user).isPresent()
+        );
+        return res;
+    }
+
+    @Override
+    public void logOut(LogoutRequest request){
+        logger.info("Logout inside auth service");
+        refreshTokenService.revoke(request.refreshToken());
     }
 }

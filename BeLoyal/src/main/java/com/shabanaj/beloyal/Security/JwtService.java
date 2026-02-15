@@ -22,8 +22,20 @@ public class JwtService {
     @Value("${app.jwt.secret}")
     private String secretKey;
 
-    @Value("${app.jwt.expiration-ms:900000}") // e.g. 15 minutes
-    private long jwtExpirationMs;
+    @Value("${app.jwt.access-ttl-minutes}") // e.g. 15 minutes
+    private long accessTtl;
+
+    public String generateAccessToken(UserDetails userDetails) {
+        Date now = new Date();
+        Date exp = new Date(now.getTime() + accessTtl * 60_000);
+
+        return Jwts.builder()
+                .setSubject(userDetails.getUsername())  // email
+                .setIssuedAt(now)
+                .setExpiration(exp)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
 
     private Key getSigningKey() {
         // if secretKey is base64-encoded:
@@ -43,7 +55,7 @@ public class JwtService {
                 .setClaims(claims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + jwtExpirationMs))
+                .setExpiration(new Date(now.getTime() + accessTtl))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

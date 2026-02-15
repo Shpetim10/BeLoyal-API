@@ -1,5 +1,7 @@
 package com.shabanaj.beloyal.Service;
 
+import com.shabanaj.beloyal.Dto.Auth.LogoutRequest;
+import com.shabanaj.beloyal.Dto.Auth.RefreshRequest;
 import com.shabanaj.beloyal.Dto.Login.LoginRequest;
 import com.shabanaj.beloyal.Dto.Login.LoginResponse;
 import com.shabanaj.beloyal.Dto.Registration.ActivationResponse;
@@ -10,4 +12,6 @@ public interface AuthenticationService {
     ActivationResponse activateUser(String token);
     LoginResponse loginUser(LoginRequest request);
     void resendVerificationEmail(String email);
+    LoginResponse refresh(RefreshRequest refreshRequest);
+    void logOut(LogoutRequest logoutRequest);
 }

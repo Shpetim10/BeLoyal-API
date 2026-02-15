@@ -1,17 +1,24 @@
 package com.shabanaj.beloyal.Controller;
 
+import com.shabanaj.beloyal.Dto.Auth.LogoutRequest;
+import com.shabanaj.beloyal.Dto.Auth.RefreshRequest;
 import com.shabanaj.beloyal.Dto.Login.LoginRequest;
 import com.shabanaj.beloyal.Dto.Login.LoginResponse;
 import com.shabanaj.beloyal.Dto.Registration.ActivationResponse;
 import com.shabanaj.beloyal.Dto.Registration.RegisterUserDto;
+import com.shabanaj.beloyal.Entity.User;
 import com.shabanaj.beloyal.Exception.TokenExpiredException;
 import com.shabanaj.beloyal.Exception.TokenIsNotValidException;
+import com.shabanaj.beloyal.Repository.UserRepository;
 import com.shabanaj.beloyal.Service.AuthenticationService;
+import com.shabanaj.beloyal.Service.RefreshTokenService;
 import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,10 +28,14 @@ import java.util.Map;
 @RequestMapping("/api/beloyal/auth")
 public class AuthController {
     private final AuthenticationService authenticationService;
+    private final UserRepository userRepository;
+    private final RefreshTokenService refreshTokenService;
     private Logger logger= LogManager.getLogger(AuthController.class);
 
-    public AuthController(AuthenticationService authenticationService) {
+    public AuthController(AuthenticationService authenticationService, UserRepository userRepository, RefreshTokenService refreshTokenService) {
         this.authenticationService = authenticationService;
+        this.userRepository = userRepository;
+        this.refreshTokenService = refreshTokenService;
     }
 
     // Verify user by the app
@@ -123,5 +134,24 @@ public class AuthController {
             logger.error(e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponse> refresh(@RequestBody @Valid RefreshRequest req) {
+        return ResponseEntity.ok(authenticationService.refresh(req));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestBody @Valid LogoutRequest req) {
+        logger.info("Logout user inside auth controller");
+        authenticationService.logOut(req);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/logout-all")
+    public ResponseEntity<Void> logoutAll(@AuthenticationPrincipal UserDetails user) {
+        User u = userRepository.findUserByEmailIgnoreCase(user.getUsername()).orElseThrow();
+        refreshTokenService.revokeAllForUser(u.getId());
+        return ResponseEntity.noContent().build();
     }
 }
