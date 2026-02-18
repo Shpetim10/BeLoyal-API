@@ -1,7 +1,7 @@
 package com.shabanaj.beloyal.model.Enums;
 
 public enum Role {
-    SUPER_ADMIN(1,"Superadmin"),
+    SUPER_ADMIN(1,"Super Admin"),
     ADMIN(2,"Admin"),
     BUSINESS_ADMIN(3,"Business Admin"),
     STAFF(4,"Staff"),

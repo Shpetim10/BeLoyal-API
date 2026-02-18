@@ -4,6 +4,7 @@ import com.shabanaj.beloyal.auth.dto.LogoutRequest;
 import com.shabanaj.beloyal.auth.dto.RefreshRequest;
 import com.shabanaj.beloyal.auth.dto.LoginRequest;
 import com.shabanaj.beloyal.auth.dto.LoginResponse;
+import com.shabanaj.beloyal.auth.service.LoginService;
 import com.shabanaj.beloyal.registration.dto.businessRegistration.SubmitBusinessApplicationRequest;
 import com.shabanaj.beloyal.registration.dto.businessRegistration.SubmitBusinessApplicationResponse;
 import com.shabanaj.beloyal.registration.dto.businessRegistration.VerifyOwnershipRequest;
@@ -37,13 +38,15 @@ public class AuthController {
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
     private final BusinessRegistrationService businessRegistrationService;
+    private final LoginService loginService;
     private Logger logger= LogManager.getLogger(AuthController.class);
 
-    public AuthController(AuthenticationService authenticationService, UserRepository userRepository, RefreshTokenService refreshTokenService, BusinessRegistrationService businessRegistrationService) {
+    public AuthController(AuthenticationService authenticationService, UserRepository userRepository, RefreshTokenService refreshTokenService, BusinessRegistrationService businessRegistrationService, LoginService loginService) {
         this.authenticationService = authenticationService;
         this.userRepository = userRepository;
         this.refreshTokenService = refreshTokenService;
         this.businessRegistrationService = businessRegistrationService;
+        this.loginService = loginService;
     }
 
     // Verify user by the app
@@ -137,7 +140,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest loginRequest){
         try{
-            return ResponseEntity.ok(authenticationService.loginUser(loginRequest));
+            return ResponseEntity.ok(loginService.login(loginRequest));
         }catch(Exception e){
             logger.error(e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());

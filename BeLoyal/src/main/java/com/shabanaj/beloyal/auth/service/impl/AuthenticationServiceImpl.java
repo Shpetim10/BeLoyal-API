@@ -1,11 +1,15 @@
 package com.shabanaj.beloyal.auth.service.impl;
 
+import com.shabanaj.beloyal.auth.policy.BusinessAccessPolicy;
+import com.shabanaj.beloyal.auth.policy.LoginPolicy;
 import com.shabanaj.beloyal.auth.service.AuthenticationService;
 import com.shabanaj.beloyal.common.Configurations.SystemSettings;
 import com.shabanaj.beloyal.auth.dto.LogoutRequest;
 import com.shabanaj.beloyal.auth.dto.RefreshRequest;
 import com.shabanaj.beloyal.auth.dto.LoginRequest;
 import com.shabanaj.beloyal.auth.dto.LoginResponse;
+import com.shabanaj.beloyal.common.Helpers.EmailNormalizer;
+import com.shabanaj.beloyal.common.Helpers.UserFinder;
 import com.shabanaj.beloyal.registration.dto.businessRegistration.VerifyOwnershipRequest;
 import com.shabanaj.beloyal.registration.dto.businessRegistration.VerifyOwnershipResponse;
 import com.shabanaj.beloyal.registration.dto.customerRegistraton.ActivationResponse;
@@ -30,6 +34,7 @@ import com.shabanaj.beloyal.Security.JwtService;
 import com.shabanaj.beloyal.Security.OwnershipTokenService;
 import com.shabanaj.beloyal.user.service.UserService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.security.access.AccessDeniedException;
@@ -48,37 +53,20 @@ import java.util.stream.Collectors;
 
 
 @Service
+@RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserService userService;
     private final EmailService emailService;
     private final UserRepository userRepository;
     private final CustomerProfileRepository customerProfileRepository;
-    private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService customUserDetailsService;
     private final JwtService jwtService;
     private final EmailVerificationTokenService emailVerificationTokenService;
     private final PasswordEncoder passwordEncoder;
-    private final BusinessRepository businessRepository;
-    private final BusinessMemberRepository businessMemberRepository;
     private final Logger logger= LogManager.getLogger(AuthenticationServiceImpl.class);
     private final RefreshTokenService refreshTokenService;
     private final OwnershipTokenService ownershipTokenService;
 
-    public AuthenticationServiceImpl(UserService userService, EmailService emailService, UserRepository userRepository, CustomerProfileRepository customerProfileRepository, AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService, JwtService jwtService, EmailVerificationTokenService emailVerificationTokenService, PasswordEncoder passwordEncoder, BusinessRepository businessRepository, BusinessMemberRepository businessMemberRepository, RefreshTokenService refreshTokenService, OwnershipTokenService ownershipTokenService) {
-        this.userService = userService;
-        this.emailService = emailService;
-        this.userRepository = userRepository;
-        this.customerProfileRepository = customerProfileRepository;
-        this.authenticationManager = authenticationManager;
-        this.customUserDetailsService = customUserDetailsService;
-        this.jwtService = jwtService;
-        this.emailVerificationTokenService = emailVerificationTokenService;
-        this.passwordEncoder = passwordEncoder;
-        this.businessRepository = businessRepository;
-        this.businessMemberRepository = businessMemberRepository;
-        this.refreshTokenService = refreshTokenService;
-        this.ownershipTokenService = ownershipTokenService;
-    }
 
     @Override
     @Transactional
@@ -160,91 +148,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .profileComplete(profileComplete)
                 .alreadyVerified(alreadyVerified)
                 .build();
-    }
-
-    @Override
-    public LoginResponse loginUser(LoginRequest request) {
-        String email = request.getEmail().trim().toLowerCase();
-
-        User user = userRepository.findUserByEmailIgnoreCase(email)
-                .orElseThrow(InvalidCredentialsException::new);
-
-        LocalDateTime now = LocalDateTime.now();
-
-        // Lock handling
-        if (user.getStatus() == UserStatus.LOCKED) {
-            if (user.getLockedUntil() != null && user.getLockedUntil().isAfter(now)) {
-                throw new UserIsLockedException();
-            }
-            logger.info("Lock time has passed");
-
-            // lock expired -> unlock
-            user.setStatus(UserStatus.ENABLED);
-            user.setLockedUntil(null);
-            user.setFailedLoginAttempts(0);
-            userRepository.save(user);
-        }
-
-        // Disabled handling
-        if (user.getStatus() != UserStatus.ENABLED && user.getStatus()!= UserStatus.PENDING_VERIFICATION) {
-            throw new UserIsDisabledException();
-        }
-
-        // Handle inactive business and staff, if he is not customer
-        if ((user.getRoles().contains(Role.STAFF) || user.getRoles().contains(Role.BUSINESS_ADMIN)) && !user.getRoles().contains(Role.CUSTOMER)) {
-            BusinessMember businessMember= businessMemberRepository.findByUser(user)
-                    .orElseThrow(()-> new AccessDeniedException("Business Member Not Found"));
-
-            logger.info("Business Member has been found");
-
-            if (!businessMember.getMemberStatus().equals(UserStatus.ENABLED) || !businessMember.getBusiness().getBusinessStatus().equals(BusinessStatus.ACTIVE)) {
-                throw new InactiveBusinessException("Staff or business is not active");
-            }
-            logger.info("Business and Member has been activated");
-        }
-
-        try {
-            Authentication auth = new UsernamePasswordAuthenticationToken(email, request.getPassword());
-            authenticationManager.authenticate(auth);
-        } catch (AuthenticationException ex) {
-            int attempts = user.getFailedLoginAttempts() + 1;
-            user.setFailedLoginAttempts(attempts);
-
-            if (attempts >= SystemSettings.MAX_LOGIN_ATTEMPTS) {
-                user.setStatus(UserStatus.LOCKED);
-                user.setLockedUntil(now.plusMinutes(SystemSettings.LOCK_MINUTES));
-            }
-
-            userRepository.save(user);
-            throw new InvalidCredentialsException();
-        }
-
-        // Success bookkeeping
-        user.setFailedLoginAttempts(0);
-        user.setLockedUntil(null);
-        user.setLastLoginAt(now);
-        userRepository.save(user);
-
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
-
-        String access = jwtService.generateAccessToken(userDetails);
-
-        // create refresh token
-        String refresh = refreshTokenService.create(user, null, null);
-
-        LoginResponse res = new LoginResponse();
-        res.setAccessToken(access);
-        res.setRefreshToken(refresh);
-        res.setAccessTokenExpiresInSeconds(15 * 60);
-        res.setRoles(user.getRoles());
-        res.setEmailVerified(user.getEmailVerifiedAt() != null);
-
-        res.setCustomerProfileComplete(
-                user.getRoles().contains(Role.CUSTOMER) &&
-                        customerProfileRepository.findByUser(user).isPresent()
-        );
-
-        return res;
     }
 
 

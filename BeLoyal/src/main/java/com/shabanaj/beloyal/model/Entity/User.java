@@ -100,6 +100,33 @@ public class User {
         if (username != null) username = username.trim().toLowerCase();
     }
 
+    // Domain Methods
+    public void unlock() {
+        this.status = UserStatus.ENABLED;
+        this.lockedUntil = null;
+        this.failedLoginAttempts = 0;
+    }
+
+    public boolean isLockActive(LocalDateTime now) {
+        return this.status == UserStatus.LOCKED
+                && this.lockedUntil != null
+                && this.lockedUntil.isAfter(now);
+    }
+
+    public void recordFailedLogin(LocalDateTime now, int maxAttempts, int lockMinutes) {
+        this.failedLoginAttempts++;
+        if (this.failedLoginAttempts >= maxAttempts) {
+            this.status = UserStatus.LOCKED;
+            this.lockedUntil = now.plusMinutes(lockMinutes);
+        }
+    }
+
+    public void recordSuccessfulLogin(LocalDateTime now) {
+        this.failedLoginAttempts = 0;
+        this.lockedUntil = null;
+        this.lastLoginAt = now;
+    }
+
     // Getters/Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

@@ -2,6 +2,7 @@ package com.shabanaj.beloyal.auth.dto;
 
 import com.shabanaj.beloyal.model.Enums.Role;
 
+import java.util.List;
 import java.util.Set;
 
 public class LoginResponse {
@@ -11,6 +12,7 @@ public class LoginResponse {
     private Set<Role> roles;
     private boolean emailVerified;
     private boolean customerProfileComplete;
+    private List<BusinessProfileInfo> businessProfiles;
 
     public String getAccessToken() {
         return accessToken;
@@ -58,5 +60,13 @@ public class LoginResponse {
 
     public void setCustomerProfileComplete(boolean customerProfileComplete) {
         this.customerProfileComplete = customerProfileComplete;
+    }
+
+    public List<BusinessProfileInfo> getBusinessProfiles() {
+        return businessProfiles;
+    }
+
+    public void setBusinessProfiles(List<BusinessProfileInfo> businessProfiles) {
+        this.businessProfiles = businessProfiles;
     }
 }

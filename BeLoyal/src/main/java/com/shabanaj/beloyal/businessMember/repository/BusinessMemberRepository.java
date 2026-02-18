@@ -10,6 +10,6 @@ import java.util.Optional;
 public interface BusinessMemberRepository extends JpaRepository<BusinessMember, Long> {
     boolean existsByUser_IdAndBusiness_Id(Long userId, Long businessId);
     Optional<BusinessMember> findByUser_IdAndBusiness_Id(Long userId, Long businessId);
-    Optional<BusinessMember> findByUser(User user);
+    List<BusinessMember> findByUser(User user);
     List<BusinessMember> findAllByBusiness_Id(Long businessId);
 }
