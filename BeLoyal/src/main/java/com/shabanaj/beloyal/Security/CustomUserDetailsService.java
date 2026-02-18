@@ -1,17 +1,11 @@
 package com.shabanaj.beloyal.Security;
 
-import com.shabanaj.beloyal.Entity.User;
-import com.shabanaj.beloyal.Repository.UserRepository;
-import com.shabanaj.beloyal.Service.UserService;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import com.shabanaj.beloyal.model.Entity.User;
+import com.shabanaj.beloyal.user.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {

@@ -1,14 +1,13 @@
 package com.shabanaj.beloyal.Security;
 
-import com.shabanaj.beloyal.Entity.User;
-import com.shabanaj.beloyal.Enums.UserStatus;
+import com.shabanaj.beloyal.model.Entity.User;
+import com.shabanaj.beloyal.model.Enums.UserStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class UserPrincipal implements UserDetails {
