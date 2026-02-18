@@ -1,11 +1,16 @@
 package com.shabanaj.beloyal.Service.impl;
 
-import com.shabanaj.beloyal.Dto.Registration.BusinessProfileRegisterDto;
+import com.shabanaj.beloyal.Dto.Registration.businessRegistration.BusinessRegistrationDto;
 import com.shabanaj.beloyal.Entity.Business;
-import com.shabanaj.beloyal.Entity.User;
+import com.shabanaj.beloyal.Enums.BusinessStatus;
+import com.shabanaj.beloyal.Exception.BusinessNotFound;
 import com.shabanaj.beloyal.Repository.BusinessRepository;
 import com.shabanaj.beloyal.Service.BusinessService;
 import org.springframework.stereotype.Service;
+
+import java.security.InvalidParameterException;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class BusinessServiceImpl implements BusinessService {
@@ -16,22 +21,42 @@ public class BusinessServiceImpl implements BusinessService {
     }
 
     @Override
-    public Business createBusinessProfile(User user, BusinessProfileRegisterDto dto) {
-        Business business = new Business();
+    public Business createBusiness(BusinessRegistrationDto dto) {
+        if(dto==null){
+            throw new InvalidParameterException("BusinessRegistrationDto is null");
+        }
 
+        Business business = new Business();
         business.setBusinessName(dto.getBusinessName());
         business.setBusinessType(dto.getBusinessType());
         business.setBusinessDescription(dto.getBusinessDescription());
-        business.setLogoUrl(dto.getLogoUrl());
+        business.setLogoPath(dto.getLogoUrl());
         business.setAddress(dto.getAddress());
         business.setCity(dto.getCity());
         business.setCountry(dto.getCountry());
         business.setWebsiteUrl(dto.getWebsiteUrl());
         business.setVatId(dto.getVatId());
-        business.setBusinessPhoneNumber(dto.getPhoneNumber());
-        business.setBusinessEmail(dto.getEmail());
-        business.setRating(0.0);
+        business.setBusinessPhoneNumber(dto.getBusinessPhoneNumber());
+        business.setBusinessEmail(dto.getBusinessEmail());
+        business.setBusinessStatus(BusinessStatus.PENDING_APPROVAL);
+        business.setSubmittedAt(LocalDateTime.now());
 
         return businessRepository.save(business);
+    }
+
+    @Override
+    public void updateBusiness(Business business) {
+
+    }
+
+    @Override
+    public Business getBusinessById(Long businessId) {
+        Optional<Business> business=businessRepository.findById(businessId);
+
+        if(business.isEmpty()){
+            throw new BusinessNotFound();
+        }
+
+        return business.get();
     }
 }

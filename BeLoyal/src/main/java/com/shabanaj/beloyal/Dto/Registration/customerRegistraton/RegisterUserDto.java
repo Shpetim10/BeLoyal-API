@@ -1,10 +1,7 @@
-package com.shabanaj.beloyal.Dto.Registration;
+package com.shabanaj.beloyal.Dto.Registration.customerRegistraton;
 
-import com.shabanaj.beloyal.Enums.Role;
 import com.shabanaj.beloyal.Validation.Annotation.*;
 import jakarta.validation.constraints.*;
-
-import java.util.Set;
 
 public class RegisterUserDto {
     @NotBlank

@@ -1,6 +1,6 @@
 package com.shabanaj.beloyal.Service.impl;
 
-import com.shabanaj.beloyal.Dto.Registration.CustomerProfileRegisterDto;
+import com.shabanaj.beloyal.Dto.Registration.customerRegistraton.CustomerProfileRegisterDto;
 import com.shabanaj.beloyal.Entity.CustomerProfile;
 import com.shabanaj.beloyal.Entity.User;
 import com.shabanaj.beloyal.Exception.CustomerProfileExistsException;

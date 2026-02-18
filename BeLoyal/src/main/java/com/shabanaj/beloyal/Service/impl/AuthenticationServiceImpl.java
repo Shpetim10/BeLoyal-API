@@ -5,8 +5,10 @@ import com.shabanaj.beloyal.Dto.Auth.LogoutRequest;
 import com.shabanaj.beloyal.Dto.Auth.RefreshRequest;
 import com.shabanaj.beloyal.Dto.Login.LoginRequest;
 import com.shabanaj.beloyal.Dto.Login.LoginResponse;
-import com.shabanaj.beloyal.Dto.Registration.ActivationResponse;
-import com.shabanaj.beloyal.Dto.Registration.RegisterUserDto;
+import com.shabanaj.beloyal.Dto.Registration.businessRegistration.VerifyOwnershipRequest;
+import com.shabanaj.beloyal.Dto.Registration.businessRegistration.VerifyOwnershipResponse;
+import com.shabanaj.beloyal.Dto.Registration.customerRegistraton.ActivationResponse;
+import com.shabanaj.beloyal.Dto.Registration.customerRegistraton.RegisterUserDto;
 import com.shabanaj.beloyal.Entity.BusinessMember;
 import com.shabanaj.beloyal.Entity.EmailVerificationToken;
 import com.shabanaj.beloyal.Entity.RefreshToken;
@@ -21,6 +23,7 @@ import com.shabanaj.beloyal.Repository.CustomerProfileRepository;
 import com.shabanaj.beloyal.Repository.UserRepository;
 import com.shabanaj.beloyal.Security.CustomUserDetailsService;
 import com.shabanaj.beloyal.Security.JwtService;
+import com.shabanaj.beloyal.Security.OwnershipTokenService;
 import com.shabanaj.beloyal.Service.*;
 import jakarta.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
@@ -35,6 +38,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -54,8 +58,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final BusinessMemberRepository businessMemberRepository;
     private final Logger logger= LogManager.getLogger(AuthenticationServiceImpl.class);
     private final RefreshTokenService refreshTokenService;
+    private final OwnershipTokenService ownershipTokenService;
 
-    public AuthenticationServiceImpl(UserService userService, EmailService emailService, UserRepository userRepository, CustomerProfileRepository customerProfileRepository, AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService, JwtService jwtService, EmailVerificationTokenService emailVerificationTokenService, PasswordEncoder passwordEncoder, BusinessRepository businessRepository, BusinessMemberRepository businessMemberRepository, RefreshTokenService refreshTokenService) {
+    public AuthenticationServiceImpl(UserService userService, EmailService emailService, UserRepository userRepository, CustomerProfileRepository customerProfileRepository, AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService, JwtService jwtService, EmailVerificationTokenService emailVerificationTokenService, PasswordEncoder passwordEncoder, BusinessRepository businessRepository, BusinessMemberRepository businessMemberRepository, RefreshTokenService refreshTokenService, OwnershipTokenService ownershipTokenService) {
         this.userService = userService;
         this.emailService = emailService;
         this.userRepository = userRepository;
@@ -68,6 +73,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         this.businessRepository = businessRepository;
         this.businessMemberRepository = businessMemberRepository;
         this.refreshTokenService = refreshTokenService;
+        this.ownershipTokenService = ownershipTokenService;
     }
 
     @Override
@@ -121,17 +127,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         emailVerificationTokenService.markTokenAsUsed(activationToken);
 
-        // Generate jwt token
         UserDetails userDetails= customUserDetailsService.loadUserByUsername(currentUser.getEmail());
-        String jwt= jwtService.generateToken(userDetails);
+        // Generate access token
+        String jwt = jwtService.generateAccessToken(userDetails);
+        // create refresh token
+        String refresh = refreshTokenService.create(currentUser, null, null);
 
         currentUser.setLastLoginAt(LocalDateTime.now());
         userRepository.save(currentUser);
 
-        return buildActivationResponse(currentUser, jwt, false);
+        return buildActivationResponse(currentUser, jwt, refresh,false);
     }
 
-    private ActivationResponse buildActivationResponse(User user, String jwtToken, boolean alreadyVerified) {
+    private ActivationResponse buildActivationResponse(User user, String jwtToken, String refreshToken, boolean alreadyVerified) {
         Set<String> roles = user.getRoles().stream()
                 .map(Role::name)
                 .collect(Collectors.toSet());
@@ -140,7 +148,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         return ActivationResponse.builder()
                 .message(alreadyVerified ? "Already verified - logged in successfully" : "Email verified successfully!")
-                .token(jwtToken)
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken)
                 .tokenType("Bearer")
                 .roles(roles)
                 .emailVerified(true)
@@ -150,7 +159,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    @Transactional
     public LoginResponse loginUser(LoginRequest request) {
         String email = request.getEmail().trim().toLowerCase();
 
@@ -173,13 +181,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             userRepository.save(user);
         }
 
-        logger.info("User is not locked");
         // Disabled handling
         if (user.getStatus() != UserStatus.ENABLED && user.getStatus()!= UserStatus.PENDING_VERIFICATION) {
             throw new UserIsDisabledException();
         }
-
-        logger.info("User is enabled or pending verification");
 
         // Handle inactive business and staff, if he is not customer
         if ((user.getRoles().contains(Role.STAFF) || user.getRoles().contains(Role.BUSINESS_ADMIN)) && !user.getRoles().contains(Role.CUSTOMER)) {
@@ -281,5 +286,28 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public void logOut(LogoutRequest request){
         logger.info("Logout inside auth service");
         refreshTokenService.revoke(request.refreshToken());
+    }
+
+    @Override
+    public VerifyOwnershipResponse verifyOwnership(VerifyOwnershipRequest verifyOwnershipRequest) {
+        String email = verifyOwnershipRequest.getEmail().trim().toLowerCase();
+
+        Optional<User> user= userRepository.findUserByEmailIgnoreCase(email);
+
+        if(!user.isPresent()){
+            throw new InvalidCredentialsException();
+        }
+
+        if(!passwordEncoder.matches(verifyOwnershipRequest.getPassword(),user.get().getPasswordHash())){
+            throw new InvalidCredentialsException();
+        }
+
+        String ownershipToken= ownershipTokenService.issue(user.get().getId(), user.get().getEmail());
+
+        VerifyOwnershipResponse res = new VerifyOwnershipResponse();
+        res.setApproved(true);
+        res.setEmailVerified(user.get().getEmailVerifiedAt() != null);
+        res.setOwnershipToken(ownershipToken);
+        return res;
     }
 }

@@ -1,4 +1,4 @@
-package com.shabanaj.beloyal.Dto.Registration;
+package com.shabanaj.beloyal.Dto.Registration.customerRegistraton;
 
 import com.shabanaj.beloyal.Enums.Gender;
 

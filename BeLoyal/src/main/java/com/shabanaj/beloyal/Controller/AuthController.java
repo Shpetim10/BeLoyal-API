@@ -4,14 +4,21 @@ import com.shabanaj.beloyal.Dto.Auth.LogoutRequest;
 import com.shabanaj.beloyal.Dto.Auth.RefreshRequest;
 import com.shabanaj.beloyal.Dto.Login.LoginRequest;
 import com.shabanaj.beloyal.Dto.Login.LoginResponse;
-import com.shabanaj.beloyal.Dto.Registration.ActivationResponse;
-import com.shabanaj.beloyal.Dto.Registration.RegisterUserDto;
+import com.shabanaj.beloyal.Dto.Registration.businessRegistration.SubmitBusinessApplicationRequest;
+import com.shabanaj.beloyal.Dto.Registration.businessRegistration.SubmitBusinessApplicationResponse;
+import com.shabanaj.beloyal.Dto.Registration.businessRegistration.VerifyOwnershipRequest;
+import com.shabanaj.beloyal.Dto.Registration.businessRegistration.VerifyOwnershipResponse;
+import com.shabanaj.beloyal.Dto.Registration.customerRegistraton.ActivationResponse;
+import com.shabanaj.beloyal.Dto.Registration.customerRegistraton.RegisterUserDto;
 import com.shabanaj.beloyal.Entity.User;
+import com.shabanaj.beloyal.Exception.InvalidCredentialsException;
 import com.shabanaj.beloyal.Exception.TokenExpiredException;
 import com.shabanaj.beloyal.Exception.TokenIsNotValidException;
 import com.shabanaj.beloyal.Repository.UserRepository;
 import com.shabanaj.beloyal.Service.AuthenticationService;
+import com.shabanaj.beloyal.Service.BusinessRegistrationService;
 import com.shabanaj.beloyal.Service.RefreshTokenService;
+import io.micrometer.core.instrument.config.validate.Validated;
 import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,17 +32,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/api/beloyal/auth")
+@RequestMapping("/api/besahub/auth")
 public class AuthController {
     private final AuthenticationService authenticationService;
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
+    private final BusinessRegistrationService businessRegistrationService;
     private Logger logger= LogManager.getLogger(AuthController.class);
 
-    public AuthController(AuthenticationService authenticationService, UserRepository userRepository, RefreshTokenService refreshTokenService) {
+    public AuthController(AuthenticationService authenticationService, UserRepository userRepository, RefreshTokenService refreshTokenService, BusinessRegistrationService businessRegistrationService) {
         this.authenticationService = authenticationService;
         this.userRepository = userRepository;
         this.refreshTokenService = refreshTokenService;
+        this.businessRegistrationService = businessRegistrationService;
     }
 
     // Verify user by the app
@@ -153,5 +162,26 @@ public class AuthController {
         User u = userRepository.findUserByEmailIgnoreCase(user.getUsername()).orElseThrow();
         refreshTokenService.revokeAllForUser(u.getId());
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/verify-ownership")
+    public ResponseEntity<VerifyOwnershipResponse> verifyOwnership(@RequestBody @Valid VerifyOwnershipRequest req) {
+        try{
+            VerifyOwnershipResponse response = authenticationService.verifyOwnership(req);
+
+            return ResponseEntity.ok(response);
+        } catch (InvalidCredentialsException e) {
+            VerifyOwnershipResponse response = new  VerifyOwnershipResponse();
+            response.setApproved(false);
+            response.setEmailVerified(false);
+            response.setOwnershipToken(null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+    }
+
+    @PostMapping("/register-business")
+    public ResponseEntity<SubmitBusinessApplicationResponse> registerBusiness(@RequestBody @Valid SubmitBusinessApplicationRequest req) {
+        SubmitBusinessApplicationResponse response =  businessRegistrationService.registerBusiness(req);
+        return ResponseEntity.ok(response);
     }
 }

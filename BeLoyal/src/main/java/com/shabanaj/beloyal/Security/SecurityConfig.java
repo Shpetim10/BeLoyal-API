@@ -47,24 +47,23 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/.well-known/assetlinks.json",
-
-                                "/api/beloyal/auth/register",
-                                "/api/beloyal/auth/activate",
-                                "/api/beloyal/auth/login",
-                                "/api/beloyal/auth/refresh",
-                                "/api/beloyal/auth/logout",
-                                "/api/beloyal/auth/forgot-password",
-                                "/api/beloyal/auth/reset-password",
-
+                                "/api/besahub/auth/register",
+                                "/api/besahub/auth/activate",
+                                "/api/besahub/auth/login",
+                                "/api/besahub/auth/refresh",
+                                "/api/besahub/auth/logout",
+                                "/api/besahub/auth/forgot-password",
+                                "/api/besahub/auth/reset-password",
+                                "/api/besahub/auth/verify-ownership",
+                                "/api/besahub/auth/register-business",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
                                 "/swagger-ui/**"
                         ).permitAll()
-
-                        .requestMatchers("/api/beloyal/admin/**").hasRole("SUPER_ADMIN")
-                        .requestMatchers("/api/beloyal/business/**").hasAnyRole("BUSINESS_ADMIN","SUPER_ADMIN")
-                        .requestMatchers("/api/beloyal/customer/**").hasRole("CUSTOMER")
-                        .requestMatchers("/api/beloyal/staff/**").hasAnyRole("STAFF","BUSINESS_ADMIN")
+                        .requestMatchers("/api/besahub/admin/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/api/besahub/business/**").hasAnyRole("BUSINESS_ADMIN","SUPER_ADMIN")
+                        .requestMatchers("/api/besahub/customer/**").hasRole("CUSTOMER")
+                        .requestMatchers("/api/besahub/staff/**").hasAnyRole("STAFF","BUSINESS_ADMIN")
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(userDetailsService)

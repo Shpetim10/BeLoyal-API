@@ -1,6 +1,6 @@
 package com.shabanaj.beloyal.Controller;
 
-import com.shabanaj.beloyal.Dto.Registration.CustomerProfileRegisterDto;
+import com.shabanaj.beloyal.Dto.Registration.customerRegistraton.CustomerProfileRegisterDto;
 import com.shabanaj.beloyal.Entity.CustomerProfile;
 import com.shabanaj.beloyal.Entity.User;
 import com.shabanaj.beloyal.Security.UserPrincipal;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/beloyal/customer")
+@RequestMapping("/api/besahub/customer")
 public class CustomerProfileController {
     private final CustomerProfileService customerProfileService;
     private final UserService userService;

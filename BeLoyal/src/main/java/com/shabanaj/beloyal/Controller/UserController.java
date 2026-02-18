@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 @Controller
-@RequestMapping("/api/beloyal/admin/users")
+@RequestMapping("/api/besahub/admin/users")
 public class UserController {
     private final UserService userService;
 

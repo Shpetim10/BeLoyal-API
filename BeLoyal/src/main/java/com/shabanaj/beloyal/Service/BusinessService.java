@@ -1,9 +1,10 @@
 package com.shabanaj.beloyal.Service;
 
-import com.shabanaj.beloyal.Dto.Registration.BusinessProfileRegisterDto;
+import com.shabanaj.beloyal.Dto.Registration.businessRegistration.BusinessRegistrationDto;
 import com.shabanaj.beloyal.Entity.Business;
-import com.shabanaj.beloyal.Entity.User;
 
 public interface BusinessService {
-    Business createBusinessProfile(User user, BusinessProfileRegisterDto dto);
+    Business createBusiness(BusinessRegistrationDto dto);
+    void updateBusiness(Business business);
+    Business getBusinessById(Long businessId);
 }

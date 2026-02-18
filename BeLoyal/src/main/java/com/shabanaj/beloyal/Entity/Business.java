@@ -33,7 +33,7 @@ public class Business {
     @Column(name = "business_description", length = 1000)
     private String businessDescription;
 
-    private String logoUrl;
+    private String logoPath;
 
     private String address;
 
@@ -44,8 +44,7 @@ public class Business {
 
     private String websiteUrl;
 
-    // Consider making VAT unique only if your business rule requires it
-    @Column(name = "vat_id", length = 60)
+    @Column(name = "vat_id", length = 60, nullable = false, unique = true)
     private String vatId;
 
     @Column(nullable = false)
@@ -61,6 +60,18 @@ public class Business {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BusinessStatus businessStatus = BusinessStatus.PENDING_APPROVAL;
+
+    @Column
+    private LocalDateTime submittedAt;
+
+    @Column
+    private LocalDateTime reviewedAt;
+
+    @Column(length=2000)
+    private String rejectionReason;
+
+    @Column
+    private Long reviewedByAdminId;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -84,8 +95,8 @@ public class Business {
     public String getBusinessDescription() { return businessDescription; }
     public void setBusinessDescription(String businessDescription) { this.businessDescription = businessDescription; }
 
-    public String getLogoUrl() { return logoUrl; }
-    public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; }
+    public String getLogoPath() { return logoPath; }
+    public void setLogoPath(String logoPath) { this.logoPath = logoPath; }
 
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
@@ -116,4 +127,36 @@ public class Business {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+
+    public LocalDateTime getSubmittedAt() {
+        return submittedAt;
+    }
+
+    public void setSubmittedAt(LocalDateTime submittedAt) {
+        this.submittedAt = submittedAt;
+    }
+
+    public LocalDateTime getReviewedAt() {
+        return reviewedAt;
+    }
+
+    public void setReviewedAt(LocalDateTime reviewedAt) {
+        this.reviewedAt = reviewedAt;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
+
+    public Long getReviewedByAdminId() {
+        return reviewedByAdminId;
+    }
+
+    public void setReviewedByAdminId(Long reviewedByAdminId) {
+        this.reviewedByAdminId = reviewedByAdminId;
+    }
 }

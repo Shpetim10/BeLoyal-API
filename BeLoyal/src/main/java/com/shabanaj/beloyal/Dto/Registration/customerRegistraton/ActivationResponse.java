@@ -1,4 +1,4 @@
-package com.shabanaj.beloyal.Dto.Registration;
+package com.shabanaj.beloyal.Dto.Registration.customerRegistraton;
 
 
 import lombok.Builder;
@@ -10,7 +10,8 @@ import java.util.Set;
 @Builder
 public class ActivationResponse {
     private String message;
-    private String token;
+    private String accessToken;
+    private String refreshToken;
     private String tokenType;
     private Set<String> roles;
     private boolean emailVerified;

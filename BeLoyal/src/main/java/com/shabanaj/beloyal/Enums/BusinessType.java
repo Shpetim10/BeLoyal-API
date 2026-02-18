@@ -5,7 +5,8 @@ public enum BusinessType {
     BAR(2,"Bar",""),
     CAFE(3,"Cafe",""),
     PUB(4,"Pub",""),
-    FAST_FOOD(5,"Fast Food",""),;
+    FAST_FOOD(5,"Fast Food",""),
+    OTHER(6,"Other",""),;
 
     Integer id;
     String name;
