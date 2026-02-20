@@ -1,5 +1,6 @@
 package com.shabanaj.beloyal.businessMember.repository;
 
+import com.shabanaj.beloyal.model.Entity.Business;
 import com.shabanaj.beloyal.model.Entity.BusinessMember;
 import com.shabanaj.beloyal.model.Entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,5 +12,6 @@ public interface BusinessMemberRepository extends JpaRepository<BusinessMember, 
     boolean existsByUser_IdAndBusiness_Id(Long userId, Long businessId);
     Optional<BusinessMember> findByUser_IdAndBusiness_Id(Long userId, Long businessId);
     List<BusinessMember> findByUser(User user);
-    List<BusinessMember> findAllByBusiness_Id(Long businessId);
+    List<BusinessMember> findAllByBusiness(Business business);
+    boolean existsByBusinessIdAndUserIdAndRoleIn(Long businessId, Long userId, List<String> roles);
 }

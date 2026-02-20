@@ -1,15 +1,16 @@
-package com.shabanaj.beloyal.registration.service.impl;
+package com.shabanaj.beloyal.businessMember.service.impl;
 
 import com.shabanaj.beloyal.model.Entity.Business;
 import com.shabanaj.beloyal.model.Entity.BusinessMember;
 import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.model.Enums.Role;
 import com.shabanaj.beloyal.businessMember.repository.BusinessMemberRepository;
-import com.shabanaj.beloyal.registration.service.BusinessMemberService;
+import com.shabanaj.beloyal.businessMember.service.BusinessMemberService;
 import org.springframework.stereotype.Service;
 
 import java.security.InvalidParameterException;
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class BusinessMemberServiceImpl implements BusinessMemberService {
@@ -31,5 +32,10 @@ public class BusinessMemberServiceImpl implements BusinessMemberService {
         businessMember.setRole(role);
         businessMember.setHiredAt(LocalDate.now());
         return businessMemberRepository.save(businessMember);
+    }
+
+    @Override
+    public List<BusinessMember> getBusinessMembersByBusiness(Business business) {
+        return businessMemberRepository.findAllByBusiness(business);
     }
 }

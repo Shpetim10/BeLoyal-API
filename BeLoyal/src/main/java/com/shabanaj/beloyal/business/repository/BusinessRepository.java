@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface BusinessRepository extends JpaRepository<Business, Long> {
     List<Business> findAllByBusinessStatus(BusinessStatus businessStatus);
     Optional<Business> findBusinessByVatId(String vatId);
+    List<Business> getBusinessesByBusinessStatus(BusinessStatus businessStatus);
 }

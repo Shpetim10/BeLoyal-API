@@ -127,6 +127,12 @@ public class User {
         this.lastLoginAt = now;
     }
 
+    public void activateAfterEmail(){
+        this.setStatus(UserStatus.ENABLED);
+        this.setEmailVerified(true);
+        this.setEmailVerifiedAt(LocalDateTime.now());
+    }
+
     // Getters/Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

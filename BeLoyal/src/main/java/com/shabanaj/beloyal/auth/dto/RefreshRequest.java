@@ -2,5 +2,5 @@ package com.shabanaj.beloyal.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record RefreshRequest(@NotBlank String refreshToken, @NotBlank String accessToken) {
+public record RefreshRequest(@NotBlank String refreshToken, String accessToken) {
 }

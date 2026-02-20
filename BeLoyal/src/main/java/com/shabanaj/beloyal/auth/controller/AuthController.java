@@ -15,11 +15,14 @@ import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.common.Exception.InvalidCredentialsException;
 import com.shabanaj.beloyal.common.Exception.TokenExpiredException;
 import com.shabanaj.beloyal.common.Exception.TokenIsNotValidException;
+import com.shabanaj.beloyal.registration.service.CustomerRegistrationService;
 import com.shabanaj.beloyal.user.repository.UserRepository;
 import com.shabanaj.beloyal.auth.service.AuthenticationService;
 import com.shabanaj.beloyal.registration.service.BusinessRegistrationService;
 import com.shabanaj.beloyal.token.service.RefreshTokenService;
+import com.shabanaj.beloyal.user.service.UserActivationService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -33,28 +36,24 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/api/besahub/auth")
+@RequiredArgsConstructor
 public class AuthController {
     private final AuthenticationService authenticationService;
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
     private final BusinessRegistrationService businessRegistrationService;
     private final LoginService loginService;
-    private Logger logger= LogManager.getLogger(AuthController.class);
+    private final UserActivationService userActivationService;
+    private final CustomerRegistrationService customerRegistrationService;
 
-    public AuthController(AuthenticationService authenticationService, UserRepository userRepository, RefreshTokenService refreshTokenService, BusinessRegistrationService businessRegistrationService, LoginService loginService) {
-        this.authenticationService = authenticationService;
-        this.userRepository = userRepository;
-        this.refreshTokenService = refreshTokenService;
-        this.businessRegistrationService = businessRegistrationService;
-        this.loginService = loginService;
-    }
+    private Logger logger= LogManager.getLogger(AuthController.class);
 
     // Verify user by the app
     @GetMapping("/verify-email")
     public ResponseEntity<?> activateAccountFromApp(@RequestParam String token) {
         try {
             // Activate user and get authentication details
-            ActivationResponse response = authenticationService.activateUser(token);
+            ActivationResponse response = userActivationService.activateUser(token);
 
             return ResponseEntity.ok(response);
 
@@ -85,7 +84,7 @@ public class AuthController {
     public ResponseEntity<?> activateAccount(@RequestParam String token) {
         try {
             // Activate user and get authentication details
-            ActivationResponse response = authenticationService.activateUser(token);
+            ActivationResponse response = userActivationService.activateUser(token);
 
             return ResponseEntity.ok(response);
 
@@ -126,24 +125,13 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody @Valid RegisterUserDto dto) {
-        try{
-            authenticationService.registerCustomer(dto);
-
-            return  ResponseEntity.ok("User successfully registered!");
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
-        }
-    }
-
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest loginRequest){
         try{
             return ResponseEntity.ok(loginService.login(loginRequest));
         }catch(Exception e){
             logger.error(e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
@@ -179,11 +167,5 @@ public class AuthController {
             response.setOwnershipToken(null);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
-    }
-
-    @PostMapping("/register-business")
-    public ResponseEntity<SubmitBusinessApplicationResponse> registerBusiness(@RequestBody @Valid SubmitBusinessApplicationRequest req) {
-        SubmitBusinessApplicationResponse response =  businessRegistrationService.registerBusiness(req);
-        return ResponseEntity.ok(response);
     }
 }

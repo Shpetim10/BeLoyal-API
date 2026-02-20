@@ -61,6 +61,14 @@ public class BusinessMember {
         this.memberStatus = MemberStatus.ACTIVE;
     }
 
+    // Domain helpers
+    public void activate(){
+        this.memberStatus = MemberStatus.ACTIVE;
+    }
+
+    public void deactivate(){
+        this.memberStatus = MemberStatus.INACTIVE;
+    }
     // Getters/Setters
     public Long getId() { return id; }
 

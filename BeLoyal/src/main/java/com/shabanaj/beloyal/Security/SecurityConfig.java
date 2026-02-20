@@ -1,7 +1,9 @@
 package com.shabanaj.beloyal.Security;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -26,12 +28,11 @@ public class SecurityConfig implements WebMvcConfigurer {
     private final CustomUserDetailsService userDetailsService;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter,
-                          CustomUserDetailsService userDetailsService) {
+            CustomUserDetailsService userDetailsService) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.userDetailsService = userDetailsService;
     }
 
-    // ADD THIS METHOD
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/.well-known/**")
@@ -44,26 +45,25 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, res, e) -> {
+                            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
+                        })
+                        .accessDeniedHandler((req, res, e) -> {
+                            res.setStatus(HttpServletResponse.SC_FORBIDDEN); // 403
+                        })
+                )
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 "/.well-known/assetlinks.json",
-                                "/api/besahub/auth/register",
-                                "/api/besahub/auth/activate",
-                                "/api/besahub/auth/login",
-                                "/api/besahub/auth/refresh",
-                                "/api/besahub/auth/logout",
-                                "/api/besahub/auth/forgot-password",
-                                "/api/besahub/auth/reset-password",
-                                "/api/besahub/auth/verify-ownership",
-                                "/api/besahub/auth/register-business",
+                                "/api/besahub/auth/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
                                 "/swagger-ui/**"
                         ).permitAll()
                         .requestMatchers("/api/besahub/admin/**").hasRole("SUPER_ADMIN")
-                        .requestMatchers("/api/besahub/business/**").hasAnyRole("BUSINESS_ADMIN","SUPER_ADMIN")
                         .requestMatchers("/api/besahub/customer/**").hasRole("CUSTOMER")
-                        .requestMatchers("/api/besahub/staff/**").hasAnyRole("STAFF","BUSINESS_ADMIN")
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(userDetailsService)
@@ -71,7 +71,6 @@ public class SecurityConfig implements WebMvcConfigurer {
 
         return http.build();
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -84,10 +83,9 @@ public class SecurityConfig implements WebMvcConfigurer {
         config.setAllowedOrigins(List.of(
                 "http://localhost:*",
                 "https://*.trycloudflare.com",
-                "https://fits-females-diana-leads.trycloudflare.com"
-        ));
-        config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization","Content-Type"));
+                "https://fits-females-diana-leads.trycloudflare.com"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

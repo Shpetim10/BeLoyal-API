@@ -12,12 +12,12 @@ import com.shabanaj.beloyal.registration.service.CustomerProfileService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CustomerProfileImpl implements CustomerProfileService {
+public class CustomerProfileServiceImpl implements CustomerProfileService {
     private final UserRepository userRepository;
     private final CustomerProfileRepository customerProfileRepository;
     private final ReferralCodeGenerator referralCodeGenerator;
 
-    public CustomerProfileImpl(UserRepository userRepository, CustomerProfileRepository customerProfileRepository, ReferralCodeGenerator referralCodeGenerator) {
+    public CustomerProfileServiceImpl(UserRepository userRepository, CustomerProfileRepository customerProfileRepository, ReferralCodeGenerator referralCodeGenerator) {
         this.userRepository = userRepository;
         this.customerProfileRepository = customerProfileRepository;
         this.referralCodeGenerator = referralCodeGenerator;

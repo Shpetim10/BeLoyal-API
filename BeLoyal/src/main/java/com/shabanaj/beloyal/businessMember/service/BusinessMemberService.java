@@ -1,10 +1,13 @@
-package com.shabanaj.beloyal.registration.service;
+package com.shabanaj.beloyal.businessMember.service;
 
 import com.shabanaj.beloyal.model.Entity.Business;
 import com.shabanaj.beloyal.model.Entity.BusinessMember;
 import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.model.Enums.Role;
 
+import java.util.List;
+
 public interface BusinessMemberService {
     BusinessMember createBusinessMember(User user, Business business, Role role);
+    List<BusinessMember> getBusinessMembersByBusiness(Business business);
 }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -58,5 +59,10 @@ public class BusinessServiceImpl implements BusinessService {
         }
 
         return business.get();
+    }
+
+    @Override
+    public List<Business> getPendingBusinesses() {
+        return businessRepository.getBusinessesByBusinessStatus(BusinessStatus.PENDING_APPROVAL);
     }
 }

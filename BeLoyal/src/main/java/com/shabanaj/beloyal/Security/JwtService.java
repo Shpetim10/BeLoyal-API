@@ -30,7 +30,7 @@ public class JwtService {
         Date exp = new Date(now.getTime() + accessTtl * 60_000);
 
         return Jwts.builder()
-                .setSubject(userDetails.getUsername())  // email
+                .setSubject(userDetails.getUsername()) // email
                 .setIssuedAt(now)
                 .setExpiration(exp)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -55,7 +55,7 @@ public class JwtService {
                 .setClaims(claims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + accessTtl))
+                .setExpiration(new Date(now.getTime() + accessTtl * 60_000))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

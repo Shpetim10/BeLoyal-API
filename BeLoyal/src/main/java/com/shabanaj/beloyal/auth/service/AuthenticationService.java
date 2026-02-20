@@ -10,7 +10,6 @@ import com.shabanaj.beloyal.registration.dto.customerRegistraton.ActivationRespo
 import com.shabanaj.beloyal.registration.dto.customerRegistraton.RegisterUserDto;
 
 public interface AuthenticationService {
-    void registerCustomer(RegisterUserDto dto);
     ActivationResponse activateUser(String token);
     void resendVerificationEmail(String email);
     LoginResponse refresh(RefreshRequest refreshRequest);

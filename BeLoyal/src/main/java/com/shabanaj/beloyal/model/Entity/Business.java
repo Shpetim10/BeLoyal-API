@@ -10,6 +10,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 
 @Entity
@@ -81,6 +82,20 @@ public class Business {
     private LocalDateTime updatedAt;
 
     public Business() {}
+
+    // Domain helpers
+    public void activate(Long adminId, Clock clock) {
+        this.businessStatus = BusinessStatus.ACTIVE;
+        this.reviewedAt = LocalDateTime.now(clock);
+        this.reviewedByAdminId = adminId;
+    }
+
+    public void reject(Long adminId, Clock clock, String reason) {
+        this.businessStatus = BusinessStatus.REJECTED;
+        this.reviewedAt = LocalDateTime.now(clock);
+        this.reviewedByAdminId = adminId;
+        this.rejectionReason = reason;
+    }
 
     // Getters/Setters
     public Long getId() { return id; }
