@@ -21,7 +21,7 @@ public class BusinessMemberServiceImpl implements BusinessMemberService {
     }
 
     @Override
-    public BusinessMember createBusinessMember(User user, Business business, Role role) {
+    public BusinessMember createBusinessMember(User user, Business business, Role role, LocalDate date) {
         if(user==null || business==null || role==null){
             throw new InvalidParameterException("There are some missing parameters");
         }
@@ -30,7 +30,7 @@ public class BusinessMemberServiceImpl implements BusinessMemberService {
         businessMember.setBusiness(business);
         businessMember.setUser(user);
         businessMember.setRole(role);
-        businessMember.setHiredAt(LocalDate.now());
+        businessMember.setHiredAt(date);
         return businessMemberRepository.save(businessMember);
     }
 

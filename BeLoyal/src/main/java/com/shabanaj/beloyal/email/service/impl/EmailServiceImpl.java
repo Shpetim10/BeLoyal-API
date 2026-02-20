@@ -3,9 +3,11 @@ package com.shabanaj.beloyal.email.service.impl;
 import com.shabanaj.beloyal.email.dto.EmailHtmlTemplates;
 import com.shabanaj.beloyal.model.Entity.Business;
 import com.shabanaj.beloyal.model.Entity.BusinessMember;
+import com.shabanaj.beloyal.model.Entity.StaffInviteToken;
 import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.email.dto.SendEmailEvent;
 import com.shabanaj.beloyal.email.service.EmailService;
+import com.shabanaj.beloyal.model.Enums.Role;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Value("${app.activation.base-url}")
     private String activationBaseUrl;
+
+    @Value("${app.staff.accept-invitation.base-url}")
+    private String staffRegistrationBaseUrl;
 
     public EmailServiceImpl(ApplicationEventPublisher publisher, EmailHtmlTemplates emailHtmlTemplates) {
         this.publisher = publisher;
@@ -76,6 +81,16 @@ public class EmailServiceImpl implements EmailService {
 
         String content= emailHtmlTemplates.buildBusinessRejectionEmailHtml(members.get(0).getUser(), business, rejectionReason);
         sendMail(business.getBusinessEmail(), subject, content);
+    }
+
+    @Override
+    public void sendStaffInvitationEmail(StaffInviteToken token, Business business, Role role){
+        String inviteUrl = activationBaseUrl + "?token=" + token.getToken()+"&existing="+token.isExistingUser();
+
+        String subject = "Invitation for "+business.getBusinessName()+ " staff";
+        String content = emailHtmlTemplates.buildStaffInvitationEmailHtml(business, role.name(), inviteUrl, inviteUrl);
+
+        sendMail(token.getUser().getEmail(), subject, content);
     }
 
     // Helpers

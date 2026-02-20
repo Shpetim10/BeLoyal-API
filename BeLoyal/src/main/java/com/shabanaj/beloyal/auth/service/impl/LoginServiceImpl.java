@@ -6,12 +6,10 @@ import com.shabanaj.beloyal.auth.dto.LoginResponse;
 import com.shabanaj.beloyal.auth.policy.BusinessAccessPolicy;
 import com.shabanaj.beloyal.auth.policy.LoginPolicy;
 import com.shabanaj.beloyal.auth.service.AuthenticationAttemptService;
-import com.shabanaj.beloyal.auth.service.AuthenticationService;
 import com.shabanaj.beloyal.auth.service.LoginService;
 import com.shabanaj.beloyal.auth.service.TokenIssuerService;
 import com.shabanaj.beloyal.common.Helpers.EmailNormalizer;
 import com.shabanaj.beloyal.common.Helpers.UserFinder;
-import com.shabanaj.beloyal.model.Entity.BusinessMember;
 import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +18,6 @@ import org.springframework.stereotype.Service;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +34,7 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public LoginResponse login(LoginRequest request) {
         String email = emailNormalizer.normalizeEmail(request.getEmail());
-        User user = userFinder.findByEmail(email);
+        User user = userFinder.findByEmailOrThrows(email);
 
         loginPolicy.validateOrThrow(user);
         List<BusinessProfileInfo> accessibleBusinessProfiles= businessAccessPolicy.getAccessibleProfiles(user);

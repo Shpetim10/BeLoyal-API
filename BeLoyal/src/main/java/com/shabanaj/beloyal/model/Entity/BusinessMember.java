@@ -40,7 +40,7 @@ public class BusinessMember {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "member_status", nullable = false)
-    private MemberStatus memberStatus = MemberStatus.ACTIVE;
+    private MemberStatus memberStatus = MemberStatus.INACTIVE;
 
     @Column(name = "hired_at")
     private LocalDate hiredAt;

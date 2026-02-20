@@ -1,4 +1,4 @@
-package com.shabanaj.beloyal.registration.service.impl;
+package com.shabanaj.beloyal.customer.service.impl;
 
 import com.shabanaj.beloyal.registration.dto.customerRegistraton.CustomerProfileRegisterDto;
 import com.shabanaj.beloyal.model.Entity.CustomerProfile;
@@ -8,7 +8,7 @@ import com.shabanaj.beloyal.common.Exception.UserNotFound;
 import com.shabanaj.beloyal.common.Helpers.ReferralCodeGenerator;
 import com.shabanaj.beloyal.customer.repository.CustomerProfileRepository;
 import com.shabanaj.beloyal.user.repository.UserRepository;
-import com.shabanaj.beloyal.registration.service.CustomerProfileService;
+import com.shabanaj.beloyal.customer.service.CustomerProfileService;
 import org.springframework.stereotype.Service;
 
 @Service

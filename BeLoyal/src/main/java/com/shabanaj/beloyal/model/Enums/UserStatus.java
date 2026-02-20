@@ -6,5 +6,6 @@ public enum UserStatus {
     REJECTED,
     BLOCKED,
     PENDING_VERIFICATION,
-    LOCKED
+    LOCKED,
+    INVITED
 }

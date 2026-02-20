@@ -842,6 +842,221 @@ public class EmailHtmlTemplates {
                 );
     }
 
+    public String buildStaffInvitationEmailHtml(
+            Business business,
+            String roleName,
+            String deepLinkUrl,
+            String fallbackWebUrl
+    ) {
+        String brandName = "Besa Hub";
+        String supportEmail = "support@besahub.app";
+
+        String name = "there";
+        String businessName = safe(business.getBusinessName(), "our business");
+        String role = safe(roleName, "Staff");
+
+        // Always escape URLs used in href/text (and also HTML-escape everything else)
+        String deeplink = safe(deepLinkUrl, "");
+        String fallback = safe(fallbackWebUrl, "");
+
+        return """
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="x-apple-disable-message-reformatting">
+  <title>You’re invited to join %s</title>
+  <!--[if mso]>
+  <style type="text/css">
+    body, table, td { font-family: Arial, sans-serif !important; }
+  </style>
+  <![endif]-->
+</head>
+<body style="margin:0; padding:0; background:#F3F4F6;">
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent;">
+    You’ve been invited to join %s on Besa Hub. Tap to complete your profile in the app.
+  </div>
+
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%%" style="background:#F3F4F6; padding: 24px 0;">
+    <tr>
+      <td align="center" style="padding: 0 16px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" width="600"
+               style="width:600px; max-width:600px; border-collapse:separate;">
+
+          <!-- Header / Banner -->
+          <tr>
+            <td style="
+              background: linear-gradient(135deg, #0EA5E9 0%%, #6366F1 55%%, #A855F7 100%%);
+              border-radius: 18px 18px 0 0;
+              padding: 26px 28px;
+              color:#FFFFFF;">
+              <table role="presentation" width="100%%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td>
+                    <div style="font-size:14px; letter-spacing:0.12em; opacity:0.9; text-transform:uppercase;">
+                      %s
+                    </div>
+                    <div style="font-size:28px; line-height:1.15; font-weight:800; margin-top:6px;">
+                      You’re invited ✨
+                    </div>
+                    <div style="font-size:15px; line-height:1.5; margin-top:10px; opacity:0.95;">
+                      Hi %s — <strong>%s</strong> invited you to join their team as <strong>%s</strong>.
+                    </div>
+                  </td>
+                  <td align="right" style="vertical-align:top;">
+                    <div style="
+                      display:inline-block;
+                      background: rgba(255,255,255,0.18);
+                      border: 1px solid rgba(255,255,255,0.30);
+                      padding: 10px 12px;
+                      border-radius: 999px;
+                      font-size: 12px;
+                      font-weight: 700;">
+                      INVITATION
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Main Card -->
+          <tr>
+            <td style="background:#FFFFFF; border-radius:0 0 18px 18px; padding: 24px 28px; box-shadow: 0 10px 25px rgba(17,24,39,0.06);">
+
+              <div style="font-size:16px; line-height:1.65; color:#111827;">
+                To accept this invitation, open the app and complete your profile. Once completed,
+                you’ll get access to the management tools for <strong>%s</strong>.
+              </div>
+
+              <div style="margin-top:14px; padding:14px 14px; background:#F9FAFB; border:1px solid #E5E7EB; border-radius:14px;">
+                <div style="font-size:14px; color:#111827; line-height:1.6;">
+                  🔒 <strong>Security tip:</strong> This link is personal. Don’t forward it.
+                </div>
+              </div>
+
+              <!-- Steps -->
+              <div style="margin-top:20px; padding:16px; border-radius:14px; background:#EEF2FF; border:1px solid #E0E7FF;">
+                <div style="font-size:15px; font-weight:800; color:#111827; margin-bottom:10px;">
+                  What you’ll do next
+                </div>
+                <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="border-collapse:separate;">
+                  <tr>
+                    <td style="vertical-align:top; padding:8px 0; width:28px;">
+                      <div style="width:22px; height:22px; border-radius:999px; background:#4F46E5; color:#FFFFFF; font-weight:800; font-size:12px; text-align:center; line-height:22px;">
+                        1
+                      </div>
+                    </td>
+                    <td style="padding:7px 0; color:#111827; font-size:14px;">
+                      Tap the button below to open Besa Hub.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align:top; padding:8px 0;">
+                      <div style="width:22px; height:22px; border-radius:999px; background:#4F46E5; color:#FFFFFF; font-weight:800; font-size:12px; text-align:center; line-height:22px;">
+                        2
+                      </div>
+                    </td>
+                    <td style="padding:7px 0; color:#111827; font-size:14px;">
+                      Complete your profile (required for staff access).
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align:top; padding:8px 0;">
+                      <div style="width:22px; height:22px; border-radius:999px; background:#4F46E5; color:#FFFFFF; font-weight:800; font-size:12px; text-align:center; line-height:22px;">
+                        3
+                      </div>
+                    </td>
+                    <td style="padding:7px 0; color:#111827; font-size:14px;">
+                      You’ll land in the management area for %s.
+                    </td>
+                  </tr>
+                </table>
+              </div>
+
+              <!-- CTA Button -->
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:22px;">
+                <tr>
+                  <td>
+                    <a href="%s"
+                       style="
+                         display:inline-block;
+                         background: linear-gradient(135deg, #0EA5E9 0%%, #6366F1 55%%, #A855F7 100%%);
+                         color:#FFFFFF;
+                         text-decoration:none;
+                         padding: 12px 18px;
+                         border-radius: 12px;
+                         font-weight: 800;
+                         font-size: 14px;">
+                      Accept invitation & complete profile
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <div style="margin-top:10px; font-size:12px; color:#6B7280; line-height:1.5;">
+                If the button doesn’t work, copy and paste this link into your browser:<br>
+                <span style="word-break:break-all; color:#4F46E5;">%s</span>
+              </div>
+
+              <!-- Fallback -->
+              <div style="margin-top:14px; padding:14px; background:#FFF7ED; border:1px solid #FED7AA; border-radius:14px;">
+                <div style="font-size:13px; color:#7C2D12; line-height:1.6;">
+                  📲 <strong>Don’t have the app?</strong> Use this link to continue in the browser (or install the app):<br>
+                  <a href="%s" style="color:#7C2D12; text-decoration:underline; word-break:break-all;">%s</a>
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div style="margin-top:22px; padding-top:16px; border-top:1px solid #E5E7EB; font-size:12px; line-height:1.6; color:#6B7280;">
+                Need help? Contact us at <a href="mailto:%s" style="color:#4F46E5; text-decoration:none;">%s</a>.
+                <br><br>
+                — %s Team
+              </div>
+
+            </td>
+          </tr>
+
+          <tr><td style="height:14px;"></td></tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+"""
+                .formatted(
+                        escape(brandName),
+                        escape(businessName),
+                        escape(brandName),
+                        escape(name),
+                        escape(businessName),
+                        escape(role),
+                        escape(businessName),
+                        escape(businessName),
+                        escapeUrl(deeplink),
+                        escape( deeplink ),   // shown as text
+                        escapeUrl(fallback),
+                        escape(fallback),
+                        escape(supportEmail),
+                        escape(supportEmail),
+                        escape(brandName)
+                );
+    }
+
+
+    /** For link href attributes */
+    private static String escapeUrl(String url) {
+        if (url == null) return "";
+        // basic attribute-safe escaping
+        return url.replace("&", "&amp;")
+                .replace("\"", "&quot;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;");
+    }
+
     /** Null/blank safe string. */
     private static String safe(String value, String fallback) {
         if (value == null) return fallback;

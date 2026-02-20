@@ -4,7 +4,7 @@ import com.shabanaj.beloyal.registration.dto.customerRegistraton.CustomerProfile
 import com.shabanaj.beloyal.model.Entity.CustomerProfile;
 import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.Security.UserPrincipal;
-import com.shabanaj.beloyal.registration.service.CustomerProfileService;
+import com.shabanaj.beloyal.customer.service.CustomerProfileService;
 import com.shabanaj.beloyal.user.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

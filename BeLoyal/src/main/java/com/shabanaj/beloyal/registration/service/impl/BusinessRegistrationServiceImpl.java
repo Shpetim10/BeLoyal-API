@@ -24,6 +24,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.security.InvalidParameterException;
+import java.time.Clock;
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +38,7 @@ public class BusinessRegistrationServiceImpl implements BusinessRegistrationServ
     private final OwnershipTokenService ownershipTokenService;
     private final UserRegistrationBuilderService userRegistrationBuilderService;
     private final BusinessApplicationValidatorService businessApplicationValidatorService;
+    private final Clock clock;
 
     @Override
     @Transactional
@@ -73,7 +76,7 @@ public class BusinessRegistrationServiceImpl implements BusinessRegistrationServ
 
         Business business=businessService.createBusiness(submitBusinessApplicationRequest.getBusinessRegistrationDto());
 
-        businessMemberService.createBusinessMember(businessAdmin, business, Role.BUSINESS_ADMIN);
+        businessMemberService.createBusinessMember(businessAdmin, business, Role.BUSINESS_ADMIN, LocalDate.now(clock));
 
         emailService.sendBusinessRegistrationEmail(businessAdmin, business);
 

@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/besahub/auth")
 @RequiredArgsConstructor
@@ -17,13 +19,9 @@ public class CustomerRegistrationController {
     private final CustomerRegistrationService customerRegistrationService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody @Valid RegisterUserDto dto) {
-        try{
-            customerRegistrationService.createCustomer(dto);
+    public ResponseEntity<Map<String, String>> registerUser(@RequestBody @Valid RegisterUserDto dto) {
+        customerRegistrationService.createCustomer(dto);
 
-            return  ResponseEntity.ok("User successfully registered!");
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
-        }
+        return  ResponseEntity.ok(Map.of("message","User successfully registered!"));
     }
 }
