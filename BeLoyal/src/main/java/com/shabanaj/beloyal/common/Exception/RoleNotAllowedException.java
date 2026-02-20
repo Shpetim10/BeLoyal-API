@@ -1,7 +1,9 @@
 package com.shabanaj.beloyal.common.Exception;
 
-public class RoleNotAllowedException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class RoleNotAllowedException extends ApiException {
     public RoleNotAllowedException() {
-        super("A customer cannot have this role!");
+        super(HttpStatus.BAD_REQUEST, "A customer cannot have this role!");
     }
 }

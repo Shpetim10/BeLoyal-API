@@ -1,10 +1,12 @@
 package com.shabanaj.beloyal.common.Exception;
 
-public class CustomerProfileNotFound extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class CustomerProfileNotFound extends ApiException {
     public CustomerProfileNotFound(String message) {
-        super(message);
+        super(HttpStatus.NOT_FOUND, message);
     }
     public CustomerProfileNotFound() {
-        super("Customer profile was not found!");
+        super(HttpStatus.NOT_FOUND, "Customer profile was not found!");
     }
 }

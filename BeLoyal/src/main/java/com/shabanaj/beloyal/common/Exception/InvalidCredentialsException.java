@@ -1,7 +1,9 @@
 package com.shabanaj.beloyal.common.Exception;
 
-public class InvalidCredentialsException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class InvalidCredentialsException extends ApiException {
     public InvalidCredentialsException() {
-        super("Invalid email or password");
+        super(HttpStatus.BAD_REQUEST, "Invalid email or password");
     }
 }

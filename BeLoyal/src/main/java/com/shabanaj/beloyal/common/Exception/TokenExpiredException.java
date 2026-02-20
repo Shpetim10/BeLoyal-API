@@ -1,7 +1,9 @@
 package com.shabanaj.beloyal.common.Exception;
 
-public class TokenExpiredException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class TokenExpiredException extends ApiException {
     public TokenExpiredException(String message) {
-        super(message);
+        super(HttpStatus.LOCKED, message);
     }
 }

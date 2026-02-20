@@ -12,7 +12,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "customer_profiles")
+@Table(name = "customer_profiles",
+        uniqueConstraints = {
+            @UniqueConstraint(name = "uk_customer_profile_user", columnNames = "user_id"),
+            @UniqueConstraint(name = "uk_customer_profile_referral_code", columnNames = "referral_code")
+        }
+)
 @EntityListeners(AuditingEntityListener.class)
 public class CustomerProfile {
 

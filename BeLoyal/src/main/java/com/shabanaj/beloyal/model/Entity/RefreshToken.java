@@ -9,7 +9,10 @@ import java.time.LocalDateTime;
 @Table(name="refresh_tokens", indexes = {
         @Index(name="idx_refresh_user", columnList = "user_id"),
         @Index(name="idx_refresh_hash", columnList = "tokenHash", unique = true)
-})
+},
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_refresh_token_token_hash", columnNames = "token_hash")
+        })
 public class RefreshToken {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

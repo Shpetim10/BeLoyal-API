@@ -1,7 +1,9 @@
 package com.shabanaj.beloyal.common.Exception;
 
-public class InactiveBusinessException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class InactiveBusinessException extends ApiException {
     public InactiveBusinessException(String message) {
-        super(message);
+        super(HttpStatus.LOCKED, message);
     }
 }

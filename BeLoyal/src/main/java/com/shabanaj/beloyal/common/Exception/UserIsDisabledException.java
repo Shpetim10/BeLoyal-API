@@ -1,7 +1,9 @@
 package com.shabanaj.beloyal.common.Exception;
 
-public class UserIsDisabledException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class UserIsDisabledException extends ApiException {
     public UserIsDisabledException() {
-        super("User is disabled!");
+        super(HttpStatus.LOCKED, "User is disabled!");
     }
 }

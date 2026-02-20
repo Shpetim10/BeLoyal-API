@@ -1,7 +1,9 @@
 package com.shabanaj.beloyal.common.Exception;
 
-public class UserIsLockedException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class UserIsLockedException extends ApiException {
     public UserIsLockedException() {
-        super("User is temporarily locked!");
+        super(HttpStatus.LOCKED, "User is temporarily locked!");
     }
 }

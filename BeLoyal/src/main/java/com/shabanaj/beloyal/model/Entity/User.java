@@ -18,7 +18,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_users_email", columnNames = "email"),
+                @UniqueConstraint(name = "uk_users_username", columnNames = "username")
+        })
 @EntityListeners(AuditingEntityListener.class)
 public class User {
 

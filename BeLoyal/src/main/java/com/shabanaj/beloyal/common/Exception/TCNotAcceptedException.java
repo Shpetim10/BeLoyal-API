@@ -1,7 +1,9 @@
 package com.shabanaj.beloyal.common.Exception;
 
-public class TCNotAcceptedException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class TCNotAcceptedException extends ApiException {
     public TCNotAcceptedException() {
-        super("Terms & Conditions are not accepted!");
+        super(HttpStatus.BAD_REQUEST, "Terms & Conditions are not accepted!");
     }
 }

@@ -1,10 +1,12 @@
 package com.shabanaj.beloyal.common.Exception;
 
-public class WaiterProfileNotFound extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class WaiterProfileNotFound extends ApiException {
     public WaiterProfileNotFound(String message) {
-        super(message);
+        super(HttpStatus.NOT_FOUND, message);
     }
     public WaiterProfileNotFound() {
-        super("Waiter profile was not found!");
+        super(HttpStatus.NOT_FOUND, "Waiter profile was not found!");
     }
 }

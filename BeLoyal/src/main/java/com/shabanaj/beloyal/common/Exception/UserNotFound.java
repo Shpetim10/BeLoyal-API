@@ -1,10 +1,12 @@
 package com.shabanaj.beloyal.common.Exception;
 
-public class UserNotFound extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class UserNotFound extends ApiException {
     public UserNotFound() {
-        super("User was not found!");
+        super(HttpStatus.NOT_FOUND, "User was not found!");
     }
     public UserNotFound(String message) {
-        super(message);
+        super(HttpStatus.NOT_FOUND, message);
     }
 }

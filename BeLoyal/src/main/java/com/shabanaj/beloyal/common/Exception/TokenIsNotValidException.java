@@ -1,10 +1,12 @@
 package com.shabanaj.beloyal.common.Exception;
 
-public class TokenIsNotValidException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class TokenIsNotValidException extends ApiException {
     public TokenIsNotValidException(String message) {
-        super(message);
+        super(HttpStatus.BAD_REQUEST, message);
     }
     public TokenIsNotValidException() {
-        super("Token is not valid!");
+        super(HttpStatus.BAD_REQUEST, "Token is not valid!");
     }
 }

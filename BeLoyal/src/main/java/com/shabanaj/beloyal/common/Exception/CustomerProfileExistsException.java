@@ -1,7 +1,9 @@
 package com.shabanaj.beloyal.common.Exception;
 
-public class CustomerProfileExistsException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class CustomerProfileExistsException extends ApiException {
     public CustomerProfileExistsException() {
-        super("This user already has a customer profile!");
+        super(HttpStatus.BAD_REQUEST, "This user already has a customer profile!");
     }
 }

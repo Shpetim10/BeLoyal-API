@@ -1,10 +1,12 @@
 package com.shabanaj.beloyal.common.Exception;
 
-public class BusinessNotFound extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class BusinessNotFound extends ApiException {
     public BusinessNotFound(String message) {
-        super(message);
+        super(HttpStatus.NOT_FOUND, message);
     }
     public BusinessNotFound() {
-        super("Business profile was not found!");
+        super(HttpStatus.NOT_FOUND, "Business profile was not found!");
     }
 }
