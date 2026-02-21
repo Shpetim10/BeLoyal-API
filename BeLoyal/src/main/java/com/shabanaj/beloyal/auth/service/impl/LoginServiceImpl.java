@@ -44,7 +44,6 @@ public class LoginServiceImpl implements LoginService {
         user.recordSuccessfulLogin(LocalDateTime.now(clock));
         userRepository.save(user);
 
-        System.out.println("User roles: "+user.getRoles());
         return tokenIssuer.issue(user, accessibleBusinessProfiles);
     }
 }

@@ -1,5 +1,6 @@
 package com.shabanaj.beloyal.business.service;
 
+import com.shabanaj.beloyal.model.Enums.BusinessStatus;
 import com.shabanaj.beloyal.registration.dto.businessRegistration.BusinessRegistrationDto;
 import com.shabanaj.beloyal.model.Entity.Business;
 
@@ -10,4 +11,6 @@ public interface BusinessService {
     void updateBusiness(Business business);
     Business getBusinessById(Long businessId);
     List<Business> getPendingBusinesses();
+    List<Business> getBusinessesByStatus(BusinessStatus status);
+    List<Business> getAllBusinesses();
 }

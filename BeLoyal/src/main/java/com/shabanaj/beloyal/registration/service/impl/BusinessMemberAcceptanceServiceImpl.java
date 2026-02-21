@@ -3,6 +3,7 @@ package com.shabanaj.beloyal.registration.service.impl;
 import com.shabanaj.beloyal.businessMember.repository.BusinessMemberRepository;
 import com.shabanaj.beloyal.businessMember.service.BusinessMemberService;
 import com.shabanaj.beloyal.email.service.EmailService;
+import com.shabanaj.beloyal.model.Entity.BusinessMember;
 import com.shabanaj.beloyal.model.Entity.EmailVerificationToken;
 import com.shabanaj.beloyal.model.Entity.StaffInviteToken;
 import com.shabanaj.beloyal.model.Entity.User;
@@ -59,15 +60,15 @@ public class BusinessMemberAcceptanceServiceImpl implements BusinessMemberAccept
         // Send activation email
         EmailVerificationToken emailVerificationToken= emailVerificationTokenService.generateEmailVerificationToken(user);
         emailService.sendActivationEmail(user, emailVerificationToken.getToken());
+
         user.setStatus(UserStatus.PENDING_VERIFICATION);
         userService.createUser(user);
 
         // mark token as used
-        token.setUsed(true);
-        staffInviteTokenRepository.save(token);
+        staffInviteTokenService.markTokenAsUsed(token.getToken());
 
         //persist as member
-        businessMemberService.createBusinessMember(user,token.getBusiness() ,token.getRole(), token.getHiredAt());
+        businessMemberService.changeStatusAndSave(user, token.getBusiness(), BusinessMember.MemberStatus.ACTIVE);
     }
 
     @Override
@@ -86,11 +87,6 @@ public class BusinessMemberAcceptanceServiceImpl implements BusinessMemberAccept
         staffInviteTokenRepository.save(staffInviteToken);
 
         //persist as member
-        businessMemberService.createBusinessMember(
-                staffInviteToken.getUser(),
-                staffInviteToken.getBusiness(),
-                staffInviteToken.getRole(),
-                staffInviteToken.getHiredAt()
-        );
+        businessMemberService.changeStatusAndSave(staffInviteToken.getUser(), staffInviteToken.getBusiness(), BusinessMember.MemberStatus.ACTIVE);
     }
 }

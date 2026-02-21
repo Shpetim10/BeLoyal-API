@@ -22,7 +22,7 @@ public class StaffInviteTokenTokenServiceImpl implements StaffInviteTokenService
     private final Clock clock;
 
     @Override
-    public StaffInviteToken generateStaffInviteToken(User user, Business business, LocalDate hiredAt, boolean isExistingUser) {
+    public StaffInviteToken generateStaffInviteToken(User user, Business business, boolean isExistingUser) {
         String token = UUID.randomUUID().toString();
 
         StaffInviteToken staffInviteToken = new StaffInviteToken();
@@ -31,7 +31,6 @@ public class StaffInviteTokenTokenServiceImpl implements StaffInviteTokenService
         staffInviteToken.setExpiresAt(LocalDateTime.now(clock).plusHours(72));
         staffInviteToken.setExistingUser(isExistingUser);
         staffInviteToken.setBusiness(business);
-        staffInviteToken.setHiredAt(hiredAt);
 
         return staffInviteTokenRepository.save(staffInviteToken);
     }

@@ -16,7 +16,7 @@ import java.util.Map;
 public class BusinessMemberInvitationController {
     private final BusinessMemberInvitationService  businessMemberInvitationService;
 
-    @PostMapping("/{businessId}/staff/invitations")
+    @PostMapping("/{businessId}/staff/invite")
     @PreAuthorize("@businessSecurity.hasAccess(#businessId, authentication, 'BUSINESS_ADMIN')")
     public ResponseEntity<Map<String, String>> inviteBusinessMember(@PathVariable Long businessId, @RequestBody @Valid BusinessMemberInviteDto dto) {
         businessMemberInvitationService.invite(dto, businessId);

@@ -19,7 +19,8 @@ public class BusinessMember {
 
     public enum MemberStatus {
         ACTIVE,
-        INACTIVE
+        INACTIVE,
+        INVITE
     }
 
     @Id
@@ -40,7 +41,7 @@ public class BusinessMember {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "member_status", nullable = false)
-    private MemberStatus memberStatus = MemberStatus.INACTIVE;
+    private MemberStatus memberStatus = MemberStatus.INVITE;
 
     @Column(name = "hired_at")
     private LocalDate hiredAt;

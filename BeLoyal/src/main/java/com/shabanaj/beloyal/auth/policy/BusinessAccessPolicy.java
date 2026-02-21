@@ -13,18 +13,18 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Component
 @RequiredArgsConstructor
 public class BusinessAccessPolicy {
     private final BusinessMemberRepository businessMemberRepository;
-    private final Logger logger= LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public List<BusinessProfileInfo> getAccessibleProfiles(User user) {
-        if (!isStaffOrAdmin(user)) return List.of();
+        if (!isStaffOrAdmin(user))
+            return List.of();
 
         List<BusinessMember> userRoles = businessMemberRepository.findByUser(user);
-        List<BusinessProfileInfo> accessibleProfiles= new ArrayList<>();
+        List<BusinessProfileInfo> accessibleProfiles = new ArrayList<>();
 
         for (BusinessMember userRole : userRoles) {
             boolean memberEnabled = userRole.getMemberStatus() == BusinessMember.MemberStatus.ACTIVE;
@@ -35,6 +35,8 @@ public class BusinessAccessPolicy {
             businessProfileInfo.setBusinessName(userRole.getBusiness().getBusinessName());
             businessProfileInfo.setRole(userRole.getRole());
             businessProfileInfo.setActive(memberEnabled && businessActive);
+            businessProfileInfo.setStatus(userRole.getBusiness().getBusinessStatus().name());
+            businessProfileInfo.setRejectionReason(userRole.getBusiness().getRejectionReason());
 
             accessibleProfiles.add(businessProfileInfo);
         }

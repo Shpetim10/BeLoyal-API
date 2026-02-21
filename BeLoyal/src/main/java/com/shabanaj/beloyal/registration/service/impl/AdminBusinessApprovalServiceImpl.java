@@ -1,5 +1,6 @@
 package com.shabanaj.beloyal.registration.service.impl;
 
+import com.shabanaj.beloyal.business.repository.BusinessRepository;
 import com.shabanaj.beloyal.business.service.BusinessService;
 import com.shabanaj.beloyal.email.service.EmailService;
 import com.shabanaj.beloyal.model.Entity.Business;
@@ -20,18 +21,23 @@ public class AdminBusinessApprovalServiceImpl implements AdminBusinessApprovalSe
     private final EmailService emailService;
     private final Clock clock;
     private final BusinessMemberService businessMemberService;
+    private final BusinessRepository businessRepository;
 
     @Override
     @Transactional
     public void approveBusinessRegistration(Long businessId, Long adminId) {
         Business business = businessService.getBusinessById(businessId);
-        List<BusinessMember> memberList= businessMemberService.getBusinessMembersByBusiness(business);
+        List<BusinessMember> memberList = businessMemberService.getBusinessMembersByBusiness(business);
 
-        //activate business and members and send mails
-        business.activate(businessId, clock);
-        memberList.forEach(member -> member.activate());
+        // activate business and members and send mails
+        business.activate(adminId, clock);
+        businessRepository.save(business);
+        memberList.forEach(member -> {
+            member.activate();
+            businessMemberService.save(member);
+        });
 
-        //send mails
+        // send mails
         emailService.sendBusinessActivationEmail(memberList, business);
     }
 }

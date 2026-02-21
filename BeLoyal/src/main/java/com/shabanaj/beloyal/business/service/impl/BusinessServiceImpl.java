@@ -65,4 +65,14 @@ public class BusinessServiceImpl implements BusinessService {
     public List<Business> getPendingBusinesses() {
         return businessRepository.getBusinessesByBusinessStatus(BusinessStatus.PENDING_APPROVAL);
     }
+
+    @Override
+    public List<Business> getBusinessesByStatus(BusinessStatus status) {
+        return businessRepository.getBusinessesByBusinessStatus(status);
+    }
+
+    @Override
+    public List<Business> getAllBusinesses() {
+        return businessRepository.findAll();
+    }
 }

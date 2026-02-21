@@ -4,7 +4,6 @@ import com.shabanaj.beloyal.model.Enums.Role;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -33,12 +32,6 @@ public class StaffInviteToken {
 
     @Column
     private boolean isExistingUser;
-
-    @Column
-    private LocalDate hiredAt;
-
-    @Column(nullable = false)
-    private Role role;
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -107,19 +100,4 @@ public class StaffInviteToken {
         this.business = business;
     }
 
-    public LocalDate getHiredAt() {
-        return hiredAt;
-    }
-
-    public void setHiredAt(LocalDate hiredAt) {
-        this.hiredAt = hiredAt;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
 }

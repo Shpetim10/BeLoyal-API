@@ -27,6 +27,7 @@ public class BusinessMemberInviteServiceImpl implements BusinessMemberInvitation
     private final EmailService emailService;
     private final UserService userService;
     private final StaffInviteTokenService staffInviteTokenService;
+    private final BusinessMemberService businessMemberService;
 
     @Override
     @Transactional
@@ -46,10 +47,18 @@ public class BusinessMemberInviteServiceImpl implements BusinessMemberInvitation
         }
 
         //generate token
-        StaffInviteToken staffInviteToken = staffInviteTokenService.generateStaffInviteToken(user, business, dto.getHireDate(), isExitingUser);
+        StaffInviteToken staffInviteToken = staffInviteTokenService.generateStaffInviteToken(user, business, isExitingUser);
 
         // send email
         emailService.sendStaffInvitationEmail(staffInviteToken,business, dto.getRole());
+
+        // create business member
+        businessMemberService.createBusinessMember(
+                user,
+                business,
+                dto.getRole(),
+                dto.getHireDate()
+        );
     }
 
     private void validateFieldsOrThrow(BusinessMemberInviteDto dto, Long businessId) {

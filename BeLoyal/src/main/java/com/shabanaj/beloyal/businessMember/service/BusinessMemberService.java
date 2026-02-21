@@ -11,4 +11,8 @@ import java.util.List;
 public interface BusinessMemberService {
     BusinessMember createBusinessMember(User user, Business business, Role role, LocalDate date);
     List<BusinessMember> getBusinessMembersByBusiness(Business business);
+    List<BusinessMember> getBusinessMembersByBusinessIdAndRole(Long businessId, Role role);
+    BusinessMember getBusinessMemberByUserAndBusiness(User user, Business business);
+    void save(BusinessMember businessMember);
+    void changeStatusAndSave(User user, Business business, BusinessMember.MemberStatus status);
 }
