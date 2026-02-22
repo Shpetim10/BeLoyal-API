@@ -101,6 +101,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         boolean profileComplete = customerProfileRepository.findByUser(user).isPresent();
 
         return ActivationResponse.builder()
+                .userId(user.getId())
                 .message(alreadyVerified ? "Already verified - logged in successfully" : "Email verified successfully!")
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
@@ -139,6 +140,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String newRefresh = refreshTokenService.rotate(existing);
 
         LoginResponse res = new LoginResponse();
+        res.setUserId(user.getId());
         res.setAccessToken(newAccess);
         res.setRefreshToken(newRefresh);
         res.setAccessTokenExpiresInSeconds(15 * 60);

@@ -31,6 +31,7 @@ public class TokenIssuerServiceImpl implements TokenIssuerService {
         String refresh = refreshTokenService.create(user, null, null);
 
         LoginResponse res = new LoginResponse();
+        res.setUserId(user.getId());
         res.setAccessToken(access);
         res.setRefreshToken(refresh);
         res.setAccessTokenExpiresInSeconds(15 * 60);
@@ -39,8 +40,7 @@ public class TokenIssuerServiceImpl implements TokenIssuerService {
 
         res.setCustomerProfileComplete(
                 user.getRoles().contains(Role.CUSTOMER) &&
-                        customerProfileRepository.findByUser(user).isPresent()
-        );
+                        customerProfileRepository.findByUser(user).isPresent());
 
         res.setBusinessProfiles(businessProfiles);
         return res;

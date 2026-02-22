@@ -14,10 +14,9 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "business",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_business_vat_Id", columnNames = "vat_id")
-        })
+@Table(name = "business", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_business_vat_Id", columnNames = "vat_id")
+})
 @EntityListeners(AuditingEntityListener.class)
 public class Business {
 
@@ -40,6 +39,7 @@ public class Business {
     private String logoPath;
 
     private String address;
+    private String logoKey;
 
     @Column(nullable = false)
     private String city;
@@ -71,7 +71,7 @@ public class Business {
     @Column
     private LocalDateTime reviewedAt;
 
-    @Column(length=2000)
+    @Column(length = 2000)
     private String rejectionReason;
 
     @Column
@@ -84,7 +84,8 @@ public class Business {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    public Business() {}
+    public Business() {
+    }
 
     // Domain helpers
     public void activate(Long adminId, Clock clock) {
@@ -101,50 +102,133 @@ public class Business {
     }
 
     // Getters/Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getBusinessName() { return businessName; }
-    public void setBusinessName(String businessName) { this.businessName = businessName; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public BusinessType getBusinessType() { return businessType; }
-    public void setBusinessType(BusinessType businessType) { this.businessType = businessType; }
+    public String getBusinessName() {
+        return businessName;
+    }
 
-    public String getBusinessDescription() { return businessDescription; }
-    public void setBusinessDescription(String businessDescription) { this.businessDescription = businessDescription; }
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
+    }
 
-    public String getLogoPath() { return logoPath; }
-    public void setLogoPath(String logoPath) { this.logoPath = logoPath; }
+    public BusinessType getBusinessType() {
+        return businessType;
+    }
 
-    public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
+    public void setBusinessType(BusinessType businessType) {
+        this.businessType = businessType;
+    }
 
-    public String getCity() { return city; }
-    public void setCity(String city) { this.city = city; }
+    public String getBusinessDescription() {
+        return businessDescription;
+    }
 
-    public String getCountry() { return country; }
-    public void setCountry(String country) { this.country = country; }
+    public void setBusinessDescription(String businessDescription) {
+        this.businessDescription = businessDescription;
+    }
 
-    public String getWebsiteUrl() { return websiteUrl; }
-    public void setWebsiteUrl(String websiteUrl) { this.websiteUrl = websiteUrl; }
+    public String getLogoPath() {
+        return logoPath;
+    }
 
-    public String getVatId() { return vatId; }
-    public void setVatId(String vatId) { this.vatId = vatId; }
+    public void setLogoPath(String logoPath) {
+        this.logoPath = logoPath;
+    }
 
-    public Double getRating() { return rating; }
-    public void setRating(Double rating) { this.rating = rating; }
+    public String getLogoKey() {
+        return logoKey;
+    }
 
-    public String getBusinessPhoneNumber() { return businessPhoneNumber; }
-    public void setBusinessPhoneNumber(String businessPhoneNumber) { this.businessPhoneNumber = businessPhoneNumber; }
+    public void setLogoKey(String logoKey) {
+        this.logoKey = logoKey;
+    }
 
-    public String getBusinessEmail() { return businessEmail; }
-    public void setBusinessEmail(String businessEmail) { this.businessEmail = businessEmail; }
+    public String getAddress() {
+        return address;
+    }
 
-    public BusinessStatus getBusinessStatus() { return businessStatus; }
-    public void setBusinessStatus(BusinessStatus businessStatus) { this.businessStatus = businessStatus; }
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getWebsiteUrl() {
+        return websiteUrl;
+    }
+
+    public void setWebsiteUrl(String websiteUrl) {
+        this.websiteUrl = websiteUrl;
+    }
+
+    public String getVatId() {
+        return vatId;
+    }
+
+    public void setVatId(String vatId) {
+        this.vatId = vatId;
+    }
+
+    public Double getRating() {
+        return rating;
+    }
+
+    public void setRating(Double rating) {
+        this.rating = rating;
+    }
+
+    public String getBusinessPhoneNumber() {
+        return businessPhoneNumber;
+    }
+
+    public void setBusinessPhoneNumber(String businessPhoneNumber) {
+        this.businessPhoneNumber = businessPhoneNumber;
+    }
+
+    public String getBusinessEmail() {
+        return businessEmail;
+    }
+
+    public void setBusinessEmail(String businessEmail) {
+        this.businessEmail = businessEmail;
+    }
+
+    public BusinessStatus getBusinessStatus() {
+        return businessStatus;
+    }
+
+    public void setBusinessStatus(BusinessStatus businessStatus) {
+        this.businessStatus = businessStatus;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 
     public LocalDateTime getSubmittedAt() {
         return submittedAt;

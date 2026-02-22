@@ -30,24 +30,24 @@ public class CustomerProfileController {
     @PostMapping("/me/create-profile")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<String> createCustomerProfile(@AuthenticationPrincipal UserPrincipal principal,
-                                                        @RequestBody @Valid CustomerProfileRegisterDto dto){
-        try{
-            User user= userService.getUserOrThrow(principal.getId());
+            @RequestBody @Valid CustomerProfileRegisterDto dto) {
+        try {
+            User user = userService.getUserOrThrow(principal.getId());
             customerProfileService.createCustomerPofile(user, dto);
 
             return ResponseEntity.ok("Customer profile created successfully!");
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PostMapping("/me")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<CustomerProfile> getCustomerProfile(@AuthenticationPrincipal UserPrincipal principal){
-        try{
-            User user= userService.getUserOrThrow(principal.getId());
+    public ResponseEntity<CustomerProfile> getCustomerProfile(@AuthenticationPrincipal UserPrincipal principal) {
+        try {
+            User user = userService.getUserOrThrow(principal.getId());
             return ResponseEntity.ok(customerProfileService.getCustomerProfileByUser(user));
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
         }
     }

@@ -12,15 +12,19 @@ public class BusinessRegistrationDto {
     private String businessName;
     @NotNull
     private BusinessType businessType;
-    @NotBlank private String city;
-    @NotBlank private String businessPhoneNumber;
+    @NotBlank
+    private String city;
+    @NotBlank
+    private String businessPhoneNumber;
     @Email
-    @NotBlank private String businessEmail;
+    @NotBlank
+    private String businessEmail;
 
     private String address;
     private String country;
     private String websiteUrl;
     private String logoUrl;
+    private String logoKey;
 
     @NotBlank
     @NotNull
@@ -100,6 +104,14 @@ public class BusinessRegistrationDto {
 
     public void setLogoUrl(String logoUrl) {
         this.logoUrl = logoUrl;
+    }
+
+    public String getLogoKey() {
+        return logoKey;
+    }
+
+    public void setLogoKey(String logoKey) {
+        this.logoKey = logoKey;
     }
 
     public String getVatId() {

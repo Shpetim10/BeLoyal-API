@@ -23,7 +23,7 @@ public class BusinessServiceImpl implements BusinessService {
 
     @Override
     public Business createBusiness(BusinessRegistrationDto dto) {
-        if(dto==null){
+        if (dto == null) {
             throw new InvalidParameterException("BusinessRegistrationDto is null");
         }
 
@@ -32,6 +32,7 @@ public class BusinessServiceImpl implements BusinessService {
         business.setBusinessType(dto.getBusinessType());
         business.setBusinessDescription(dto.getBusinessDescription());
         business.setLogoPath(dto.getLogoUrl());
+        business.setLogoKey(dto.getLogoKey());
         business.setAddress(dto.getAddress());
         business.setCity(dto.getCity());
         business.setCountry(dto.getCountry());
@@ -52,9 +53,9 @@ public class BusinessServiceImpl implements BusinessService {
 
     @Override
     public Business getBusinessById(Long businessId) {
-        Optional<Business> business=businessRepository.findById(businessId);
+        Optional<Business> business = businessRepository.findById(businessId);
 
-        if(business.isEmpty()){
+        if (business.isEmpty()) {
             throw new BusinessNotFound();
         }
 

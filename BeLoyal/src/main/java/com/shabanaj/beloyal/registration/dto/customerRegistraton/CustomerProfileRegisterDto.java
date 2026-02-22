@@ -10,20 +10,9 @@ public class CustomerProfileRegisterDto {
     private String city;
     private String country;
     private String referredBy;
-    private String profileImagePath;
+    private String profileImageUrl;
+    private String profileImageKey;
     private boolean notificationEnabled;
-
-    public CustomerProfileRegisterDto() {}
-
-    public CustomerProfileRegisterDto(LocalDate birthdate, Gender gender, String city, String country, String referredBy, boolean notificationEnabled , String profileImagePath) {
-        this.birthdate = birthdate;
-        this.gender = gender;
-        this.city = city;
-        this.country = country;
-        this.referredBy = referredBy;
-        this.notificationEnabled = notificationEnabled;
-        this.profileImagePath = profileImagePath;
-    }
 
     public LocalDate getBirthdate() {
         return birthdate;
@@ -65,19 +54,27 @@ public class CustomerProfileRegisterDto {
         this.referredBy = referredBy;
     }
 
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    public String getProfileImageKey() {
+        return profileImageKey;
+    }
+
+    public void setProfileImageKey(String profileImageKey) {
+        this.profileImageKey = profileImageKey;
+    }
+
     public boolean isNotificationEnabled() {
         return notificationEnabled;
     }
 
     public void setNotificationEnabled(boolean notificationEnabled) {
         this.notificationEnabled = notificationEnabled;
-    }
-
-    public String getProfileImagePath() {
-        return profileImagePath;
-    }
-
-    public void setProfileImagePath(String profileImagePath) {
-        this.profileImagePath = profileImagePath;
     }
 }

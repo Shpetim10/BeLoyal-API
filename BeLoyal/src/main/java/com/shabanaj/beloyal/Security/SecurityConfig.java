@@ -51,8 +51,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                         })
                         .accessDeniedHandler((req, res, e) -> {
                             res.setStatus(HttpServletResponse.SC_FORBIDDEN); // 403
-                        })
-                )
+                        }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
@@ -60,12 +59,12 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 "/api/besahub/auth/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
-                                "/swagger-ui/**"
-                        ).permitAll()
+                                "/swagger-ui/**")
+                        .permitAll()
                         .requestMatchers("/api/besahub/admin/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/api/besahub/customer/**").hasRole("CUSTOMER")
-                        .anyRequest().authenticated()
-                )
+                        .requestMatchers("/api/besahub/media/images/**").authenticated()
+                        .anyRequest().authenticated())
                 .userDetailsService(userDetailsService)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

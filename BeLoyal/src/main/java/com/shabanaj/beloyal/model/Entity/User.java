@@ -54,8 +54,10 @@ public class User {
     @Column(nullable = true, unique = true, length = 30)
     private String phoneNumber;
 
-    @Column(name = "profile_image")
+    @Column(name = "profile_image_url")
     private String profileImage;
+    @Column(name="profile_image_key")
+    private String profileImageKey;
 
     // Global roles only (PLATFORM_ADMIN). Business roles are stored in BusinessMember.
     @ElementCollection(fetch = FetchType.EAGER)
@@ -161,6 +163,14 @@ public class User {
 
     public String getProfileImage() { return profileImage; }
     public void setProfileImage(String profileImage) { this.profileImage = profileImage; }
+
+    public String getProfileImageKey() {
+        return profileImageKey;
+    }
+
+    public void setProfileImageKey(String profileImageKey) {
+        this.profileImageKey = profileImageKey;
+    }
 
     public Set<Role> getRoles() { return roles; }
     public void setRoles(Set<Role> roles) { this.roles = roles; }

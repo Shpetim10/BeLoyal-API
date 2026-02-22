@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 public class LoginResponse {
+    private long userId;
     private String accessToken;
     private String refreshToken;
     private long accessTokenExpiresInSeconds;
@@ -13,6 +14,14 @@ public class LoginResponse {
     private boolean emailVerified;
     private boolean customerProfileComplete;
     private List<BusinessProfileInfo> businessProfiles;
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
 
     public String getAccessToken() {
         return accessToken;
