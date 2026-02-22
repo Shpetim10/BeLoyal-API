@@ -1,10 +1,10 @@
-package com.shabanaj.beloyal.customer.controller;
+package com.shabanaj.beloyal.userProfiles.customer.controller;
 
 import com.shabanaj.beloyal.registration.dto.customerRegistraton.CustomerProfileRegisterDto;
 import com.shabanaj.beloyal.model.Entity.CustomerProfile;
 import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.Security.UserPrincipal;
-import com.shabanaj.beloyal.customer.service.CustomerProfileService;
+import com.shabanaj.beloyal.userProfiles.customer.service.CustomerProfileService;
 import com.shabanaj.beloyal.user.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

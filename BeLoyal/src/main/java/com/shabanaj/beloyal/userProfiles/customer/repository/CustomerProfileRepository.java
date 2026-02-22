@@ -1,4 +1,4 @@
-package com.shabanaj.beloyal.customer.repository;
+package com.shabanaj.beloyal.userProfiles.customer.repository;
 
 import com.shabanaj.beloyal.model.Entity.CustomerProfile;
 import com.shabanaj.beloyal.model.Entity.User;

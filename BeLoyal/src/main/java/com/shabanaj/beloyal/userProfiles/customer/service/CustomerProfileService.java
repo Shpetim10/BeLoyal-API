@@ -1,4 +1,4 @@
-package com.shabanaj.beloyal.customer.service;
+package com.shabanaj.beloyal.userProfiles.customer.service;
 
 import com.shabanaj.beloyal.registration.dto.customerRegistraton.CustomerProfileRegisterDto;
 import com.shabanaj.beloyal.model.Entity.CustomerProfile;

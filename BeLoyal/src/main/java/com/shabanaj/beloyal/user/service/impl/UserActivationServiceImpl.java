@@ -2,13 +2,10 @@ package com.shabanaj.beloyal.user.service.impl;
 
 import com.shabanaj.beloyal.Security.CustomUserDetailsService;
 import com.shabanaj.beloyal.Security.JwtService;
-import com.shabanaj.beloyal.common.Exception.TokenExpiredException;
-import com.shabanaj.beloyal.common.Exception.TokenIsNotValidException;
-import com.shabanaj.beloyal.customer.repository.CustomerProfileRepository;
+import com.shabanaj.beloyal.userProfiles.customer.repository.CustomerProfileRepository;
 import com.shabanaj.beloyal.model.Entity.EmailVerificationToken;
 import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.model.Enums.Role;
-import com.shabanaj.beloyal.model.Enums.UserStatus;
 import com.shabanaj.beloyal.registration.dto.customerRegistraton.ActivationResponse;
 import com.shabanaj.beloyal.token.service.EmailVerificationTokenService;
 import com.shabanaj.beloyal.token.service.RefreshTokenService;

@@ -5,8 +5,7 @@ import com.shabanaj.beloyal.Security.JwtService;
 import com.shabanaj.beloyal.auth.dto.BusinessProfileInfo;
 import com.shabanaj.beloyal.auth.dto.LoginResponse;
 import com.shabanaj.beloyal.auth.service.TokenIssuerService;
-import com.shabanaj.beloyal.customer.repository.CustomerProfileRepository;
-import com.shabanaj.beloyal.model.Entity.BusinessMember;
+import com.shabanaj.beloyal.userProfiles.customer.repository.CustomerProfileRepository;
 import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.model.Enums.Role;
 import com.shabanaj.beloyal.token.service.RefreshTokenService;
@@ -15,7 +14,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
