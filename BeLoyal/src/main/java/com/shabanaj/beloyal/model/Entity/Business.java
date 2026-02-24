@@ -37,9 +37,10 @@ public class Business {
     private String businessDescription;
 
     private String logoPath;
+    private String logoKey;
 
     private String address;
-    private String logoKey;
+
 
     @Column(nullable = false)
     private String city;

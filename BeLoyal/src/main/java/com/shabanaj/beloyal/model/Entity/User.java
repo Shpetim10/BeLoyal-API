@@ -30,10 +30,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Size(max = 100)
+    @Column(nullable = false, length = 100)
     private String firstName;
 
-    @Size(max = 100)
+    @Column(nullable = false, length = 100)
     private String lastName;
 
     @Column(unique = true, nullable = false, length = 50)

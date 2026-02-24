@@ -1,6 +1,7 @@
 package com.shabanaj.beloyal.common.Configurations;
 
 import com.shabanaj.beloyal.common.Exception.ApiException;
+import com.shabanaj.beloyal.common.Exception.BadRequestException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -83,6 +84,11 @@ public class GlobalExceptionHandler {
             cur = cur.getCause();
         }
         return null;
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<Map<String, String>> handleBadRequest(BadRequestException ex) {
+        return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)

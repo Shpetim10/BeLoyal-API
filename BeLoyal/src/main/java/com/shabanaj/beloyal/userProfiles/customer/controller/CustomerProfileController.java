@@ -4,27 +4,29 @@ import com.shabanaj.beloyal.registration.dto.customerRegistraton.CustomerProfile
 import com.shabanaj.beloyal.model.Entity.CustomerProfile;
 import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.Security.UserPrincipal;
+import com.shabanaj.beloyal.userProfiles.customer.dto.CustomerProfileUpdateDto;
 import com.shabanaj.beloyal.userProfiles.customer.service.CustomerProfileService;
 import com.shabanaj.beloyal.user.service.UserService;
+import com.shabanaj.beloyal.userProfiles.customer.service.CustomerProfileUpdateService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/besahub" +
-        "/customer")
+@RequestMapping("/api/besahub/customer")
 public class CustomerProfileController {
     private final CustomerProfileService customerProfileService;
     private final UserService userService;
+    private final CustomerProfileUpdateService customerProfileUpdateService;
 
-    public CustomerProfileController(CustomerProfileService customerProfileService, UserService userService) {
+    public CustomerProfileController(CustomerProfileService customerProfileService, UserService userService, CustomerProfileUpdateService customerProfileUpdateService) {
         this.customerProfileService = customerProfileService;
         this.userService = userService;
+        this.customerProfileUpdateService = customerProfileUpdateService;
     }
 
     @PostMapping("/me/create-profile")
@@ -50,5 +52,12 @@ public class CustomerProfileController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
         }
+    }
+
+    @PatchMapping("/me")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<Map<String, String>> updateCustomerProfile(@AuthenticationPrincipal UserPrincipal principal, @RequestBody @Valid CustomerProfileUpdateDto dto) {
+        customerProfileUpdateService.updateCustomerProfile(dto, principal.getId());
+        return ResponseEntity.ok(Map.of("message", "Customer profile updated successfully!"));
     }
 }

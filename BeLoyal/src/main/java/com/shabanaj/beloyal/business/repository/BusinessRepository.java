@@ -11,4 +11,5 @@ public interface BusinessRepository extends JpaRepository<Business, Long> {
     List<Business> findAllByBusinessStatus(BusinessStatus businessStatus);
     Optional<Business> findBusinessByVatId(String vatId);
     List<Business> getBusinessesByBusinessStatus(BusinessStatus businessStatus);
+    boolean existsByVatIdIgnoreCase(String vatId);
 }

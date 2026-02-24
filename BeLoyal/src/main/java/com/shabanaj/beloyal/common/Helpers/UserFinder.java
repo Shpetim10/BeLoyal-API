@@ -13,10 +13,20 @@ import java.util.Optional;
 public class UserFinder {
     private final UserRepository userRepository;
 
+    public User findByIdOrThrows(Long id) {
+        Optional<User> user= userRepository.findById(id);
+
+        if(user.isEmpty()){
+            throw new UserNotFound();
+        }
+
+        return user.get();
+    }
+
     public User findByEmailOrThrows(String email) {
         Optional<User> user= userRepository.findUserByEmailIgnoreCase(email.trim().toLowerCase());
 
-        if(!user.isPresent()){
+        if(user.isEmpty()){
             throw new UserNotFound();
         }
 
@@ -26,10 +36,6 @@ public class UserFinder {
     public User findByEmailOrNull(String email) {
         Optional<User> user= userRepository.findUserByEmailIgnoreCase(email.trim().toLowerCase());
 
-        if(!user.isPresent()){
-            return null;
-        }
-
-        return user.get();
+        return user.orElse(null);
     }
 }
