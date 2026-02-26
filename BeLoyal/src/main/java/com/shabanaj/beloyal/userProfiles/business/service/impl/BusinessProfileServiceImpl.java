@@ -4,15 +4,17 @@ import com.shabanaj.beloyal.business.service.BusinessService;
 import com.shabanaj.beloyal.model.Entity.Business;
 import com.shabanaj.beloyal.userProfiles.business.dto.BusinessProfileDto;
 import com.shabanaj.beloyal.userProfiles.business.service.BusinessProfileService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class BusinessProfileServiceImpl implements BusinessProfileService {
-    private BusinessService businessService;
+    private final BusinessService businessService;
 
     @Override
     public BusinessProfileDto getBusinessProfile(Long businessId) {
-        Business business= businessService.getBusinessById(businessId);
+        Business business = businessService.getBusinessById(businessId);
 
         return new BusinessProfileDto(business);
     }

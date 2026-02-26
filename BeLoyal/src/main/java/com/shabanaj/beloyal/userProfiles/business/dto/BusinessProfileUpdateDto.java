@@ -1,6 +1,5 @@
 package com.shabanaj.beloyal.userProfiles.business.dto;
 
-import com.shabanaj.beloyal.model.Enums.BusinessType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -13,6 +12,7 @@ public class BusinessProfileUpdateDto {
 
     // cannot be cleared
     private JsonNullable<String> businessName = JsonNullable.undefined();
+    private JsonNullable<String> businessType = JsonNullable.undefined();
     private JsonNullable<String> city = JsonNullable.undefined();
     private JsonNullable<String> vatId = JsonNullable.undefined();
     @Size(max = 1000)
@@ -30,5 +30,3 @@ public class BusinessProfileUpdateDto {
     @Email
     private JsonNullable<String> businessEmail = JsonNullable.undefined();
 }
-
-

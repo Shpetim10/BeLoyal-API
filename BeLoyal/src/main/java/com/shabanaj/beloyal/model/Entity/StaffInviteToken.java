@@ -1,13 +1,12 @@
 package com.shabanaj.beloyal.model.Entity;
 
-import com.shabanaj.beloyal.model.Enums.Role;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="staff_invite_tokens")
+@Table(name = "staff_invite_tokens")
 public class StaffInviteToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,12 +15,12 @@ public class StaffInviteToken {
     @Column(nullable = false, unique = true, length = 100)
     private String token;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "business_id",  nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "business_id", nullable = false)
     private Business business;
 
     @Column(nullable = false)

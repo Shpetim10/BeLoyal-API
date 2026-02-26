@@ -43,15 +43,11 @@ public class CustomerProfileController {
         }
     }
 
-    @PostMapping("/me")
+    @GetMapping("/me")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<CustomerProfile> getCustomerProfile(@AuthenticationPrincipal UserPrincipal principal) {
-        try {
-            User user = userService.getUserOrThrow(principal.getId());
-            return ResponseEntity.ok(customerProfileService.getCustomerProfileByUser(user));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+        User user = userService.getUserOrThrow(principal.getId());
+        return ResponseEntity.ok(customerProfileService.getCustomerProfileByUser(user));
     }
 
     @PatchMapping("/me")

@@ -1,6 +1,6 @@
 package com.shabanaj.beloyal.registration.controller;
 
-import com.shabanaj.beloyal.registration.dto.customerRegistraton.RegisterUserDto;
+import com.shabanaj.beloyal.registration.dto.RegisterUserDto;
 import com.shabanaj.beloyal.registration.service.CustomerRegistrationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

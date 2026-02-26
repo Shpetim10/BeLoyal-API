@@ -5,7 +5,7 @@ import com.shabanaj.beloyal.email.service.EmailService;
 import com.shabanaj.beloyal.model.Entity.EmailVerificationToken;
 import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.model.Enums.Role;
-import com.shabanaj.beloyal.registration.dto.customerRegistraton.RegisterUserDto;
+import com.shabanaj.beloyal.registration.dto.RegisterUserDto;
 import com.shabanaj.beloyal.registration.service.CustomerRegistrationService;
 import com.shabanaj.beloyal.token.service.EmailVerificationTokenService;
 import com.shabanaj.beloyal.user.service.UserRegistrationBuilderService;

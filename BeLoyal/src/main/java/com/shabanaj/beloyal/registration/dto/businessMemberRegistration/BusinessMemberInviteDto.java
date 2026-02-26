@@ -1,6 +1,5 @@
 package com.shabanaj.beloyal.registration.dto.businessMemberRegistration;
 
-import com.shabanaj.beloyal.common.Validation.Annotation.UniqueEmailOnCreate;
 import com.shabanaj.beloyal.common.Validation.Annotation.ValidEmail;
 import com.shabanaj.beloyal.model.Enums.Role;
 import jakarta.validation.constraints.NotBlank;
@@ -12,7 +11,6 @@ public class BusinessMemberInviteDto {
     @NotBlank
     @NotNull
     @ValidEmail
-    @UniqueEmailOnCreate
     private String email;
 
     private LocalDate hireDate;

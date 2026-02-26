@@ -85,7 +85,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendStaffInvitationEmail(StaffInviteToken token, Business business, Role role){
-        String inviteUrl = activationBaseUrl + "?token=" + token.getToken()+"&existing="+token.isExistingUser();
+        String inviteUrl = staffRegistrationBaseUrl + "?token=" + token.getToken()+"&existing="+token.isExistingUser()+"&email="+token.getUser().getEmail();
 
         String subject = "Invitation for "+business.getBusinessName()+ " staff";
         String content = emailHtmlTemplates.buildStaffInvitationEmailHtml(business, role.name(), inviteUrl, inviteUrl);

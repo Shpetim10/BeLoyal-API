@@ -7,6 +7,8 @@ import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.model.Enums.Role;
 import com.shabanaj.beloyal.businessMember.repository.BusinessMemberRepository;
 import com.shabanaj.beloyal.businessMember.service.BusinessMemberService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.security.InvalidParameterException;
@@ -17,6 +19,7 @@ import java.util.Optional;
 @Service
 public class BusinessMemberServiceImpl implements BusinessMemberService {
     private final BusinessMemberRepository businessMemberRepository;
+    private final Logger logger = LoggerFactory.getLogger(BusinessMemberServiceImpl.class);
 
     public BusinessMemberServiceImpl(BusinessMemberRepository businessMemberRepository) {
         this.businessMemberRepository = businessMemberRepository;
@@ -27,12 +30,13 @@ public class BusinessMemberServiceImpl implements BusinessMemberService {
         if(user==null || business==null || role==null){
             throw new InvalidParameterException("There are some missing parameters");
         }
-
+        logger.info("inside createBusinessMember");
         BusinessMember businessMember=new BusinessMember();
         businessMember.setBusiness(business);
         businessMember.setUser(user);
         businessMember.setRole(role);
         businessMember.setHiredAt(date);
+        logger.info("business member values set");
         return businessMemberRepository.save(businessMember);
     }
 

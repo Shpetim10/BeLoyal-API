@@ -23,12 +23,17 @@ public class BusinessProfileUpdateServiceImpl implements BusinessProfileUpdateSe
 
     @Override
     @Transactional
-    public void updateBusinessProfile(BusinessProfileUpdateDto dto, Long businessId){
+    public void updateBusinessProfile(BusinessProfileUpdateDto dto, Long businessId) {
         Business business = businessService.getBusinessById(businessId);
 
         // Required fields: if present -> must be non-null/non-blank
         applyRequiredString(dto.getBusinessName(), "businessName", business::setBusinessName);
         applyRequiredString(dto.getCity(), "city", business::setCity);
+
+        if (isPresent(dto.getBusinessType())) {
+            business.setBusinessType(
+                    com.shabanaj.beloyal.model.Enums.BusinessType.valueOf(dto.getBusinessType().orElse(null)));
+        }
 
         if (isPresent(dto.getVatId())) {
             String newVat = normalizeRequired(dto.getVatId(), "vatId");
@@ -48,7 +53,8 @@ public class BusinessProfileUpdateServiceImpl implements BusinessProfileUpdateSe
 
         if (isPresent(dto.getWebsiteUrl())) {
             String url = normalizeOptional(dto.getWebsiteUrl());
-            if (url != null && url.isBlank()) url = null;
+            if (url != null && url.isBlank())
+                url = null;
             business.setWebsiteUrl(url);
         }
 
@@ -59,13 +65,16 @@ public class BusinessProfileUpdateServiceImpl implements BusinessProfileUpdateSe
 
         if (isPresent(dto.getBusinessEmail())) {
             String email = normalizeOptional(dto.getBusinessEmail());
-            if (email != null) email = email.toLowerCase(Locale.ROOT);
+            if (email != null)
+                email = email.toLowerCase(Locale.ROOT);
             business.setBusinessEmail(email);
         }
 
         if (isPresent(dto.getLogoPath()) || isPresent(dto.getLogoKey())) {
-            if (isPresent(dto.getLogoPath())) business.setLogoPath(normalizeOptional(dto.getLogoPath()));
-            if (isPresent(dto.getLogoKey()))  business.setLogoKey(normalizeOptional(dto.getLogoKey()));
+            if (isPresent(dto.getLogoPath()))
+                business.setLogoPath(normalizeOptional(dto.getLogoPath()));
+            if (isPresent(dto.getLogoKey()))
+                business.setLogoKey(normalizeOptional(dto.getLogoKey()));
         }
 
         businessRepository.save(business);

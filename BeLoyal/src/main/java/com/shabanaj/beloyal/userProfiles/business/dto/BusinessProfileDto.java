@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class BusinessProfileDto {
+    private Long id;
     private String businessName;
     private String businessType;
     private String businessDescription;
@@ -18,8 +19,11 @@ public class BusinessProfileDto {
     private String businessPhoneNumber;
     private String businessEmail;
     private String businessStatus;
+    private String logoPath;
+    private String logoKey;
 
     public BusinessProfileDto(Business business) {
+        this.id = business.getId();
         this.businessName = business.getBusinessName();
         this.businessType = business.getBusinessType().name();
         this.businessDescription = business.getBusinessDescription();
@@ -31,5 +35,7 @@ public class BusinessProfileDto {
         this.businessPhoneNumber = business.getBusinessPhoneNumber();
         this.businessEmail = business.getBusinessEmail();
         this.businessStatus = business.getBusinessStatus().name();
+        this.logoPath = business.getLogoPath();
+        this.logoKey = business.getLogoKey();
     }
 }

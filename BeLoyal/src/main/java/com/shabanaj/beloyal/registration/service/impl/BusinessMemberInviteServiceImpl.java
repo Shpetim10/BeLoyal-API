@@ -14,6 +14,8 @@ import com.shabanaj.beloyal.token.service.StaffInviteTokenService;
 import com.shabanaj.beloyal.user.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.security.InvalidParameterException;
@@ -28,41 +30,49 @@ public class BusinessMemberInviteServiceImpl implements BusinessMemberInvitation
     private final UserService userService;
     private final StaffInviteTokenService staffInviteTokenService;
     private final BusinessMemberService businessMemberService;
+    private final Logger logger= LoggerFactory.getLogger(this.getClass());
 
     @Override
     @Transactional
     public void invite(BusinessMemberInviteDto dto, Long businessId) {
-        validateFieldsOrThrow(dto,  businessId);
+        validateFieldsOrThrow(dto, businessId);
 
         User user = userFinder.findByEmailOrNull(dto.getEmail());
-        Business business= businessService.getBusinessById(businessId); //throws if not found
-        boolean isExitingUser=user!=null;
+        Business business = businessService.getBusinessById(businessId); // throws if not found
+        boolean isExitingUser = user != null;
 
-        if(!isExitingUser){
-            user=new User();
+        if (!isExitingUser) {
+            user = new User();
+            user.setFirstName(" ");
+            user.setLastName(" ");
+            user.setPasswordHash("  ");
             user.setEmail(dto.getEmail());
-            user.setUsername(UUID.randomUUID().toString());
-            user.setStatus(UserStatus.INVITED);
+
+            String rawUsername = UUID.randomUUID().toString();
+            String username = String.format("%-50s", rawUsername).substring(0, 50);
+            user.setUsername(username);
+            user.setStatus(UserStatus.PENDING_VERIFICATION);
+
             userService.createUser(user);
         }
 
-        //generate token
-        StaffInviteToken staffInviteToken = staffInviteTokenService.generateStaffInviteToken(user, business, isExitingUser);
+        // generate token
+        StaffInviteToken staffInviteToken = staffInviteTokenService.generateStaffInviteToken(user, business,
+                isExitingUser);
 
         // send email
-        emailService.sendStaffInvitationEmail(staffInviteToken,business, dto.getRole());
+        emailService.sendStaffInvitationEmail(staffInviteToken, business, dto.getRole());
 
         // create business member
         businessMemberService.createBusinessMember(
                 user,
                 business,
                 dto.getRole(),
-                dto.getHireDate()
-        );
+                dto.getHireDate());
     }
 
     private void validateFieldsOrThrow(BusinessMemberInviteDto dto, Long businessId) {
-        if(dto == null || businessId == null){
+        if (dto == null || businessId == null) {
             throw new InvalidParameterException();
         }
     }

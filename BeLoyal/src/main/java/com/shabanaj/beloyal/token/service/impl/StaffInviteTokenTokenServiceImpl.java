@@ -37,10 +37,10 @@ public class StaffInviteTokenTokenServiceImpl implements StaffInviteTokenService
 
     @Override
     public StaffInviteToken getStaffInviteToken(String token) {
-        Optional<StaffInviteToken> staffInviteToken= staffInviteTokenRepository.findByToken(token);
+        Optional<StaffInviteToken> staffInviteToken = staffInviteTokenRepository.findByToken(token);
 
-        if(staffInviteToken.isEmpty()){
-            throw new TokenIsNotValidException("Token could ot be found");
+        if (staffInviteToken.isEmpty()) {
+            throw new TokenIsNotValidException("Token could not be found");
         }
 
         return staffInviteToken.get();

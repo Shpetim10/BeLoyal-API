@@ -2,11 +2,9 @@ package com.shabanaj.beloyal.user.service.impl;
 
 import com.shabanaj.beloyal.common.Exception.TCNotAcceptedException;
 import com.shabanaj.beloyal.model.Entity.User;
-import com.shabanaj.beloyal.registration.dto.customerRegistraton.RegisterUserDto;
+import com.shabanaj.beloyal.registration.dto.RegisterUserDto;
 import com.shabanaj.beloyal.user.service.UserRegistrationBuilderService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

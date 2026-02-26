@@ -1,4 +1,4 @@
-package com.shabanaj.beloyal.registration.dto.customerRegistraton;
+package com.shabanaj.beloyal.registration.dto;
 
 import com.shabanaj.beloyal.common.Validation.Annotation.*;
 import jakarta.validation.constraints.*;

@@ -37,6 +37,9 @@ public class SecurityConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/.well-known/**")
                 .addResourceLocations("classpath:/static/.well-known/");
+
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:uploads/");
     }
 
     @Bean
@@ -56,6 +59,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 "/.well-known/assetlinks.json",
+                                "/uploads/**",
                                 "/api/besahub/auth/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
@@ -63,7 +67,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .permitAll()
                         .requestMatchers("/api/besahub/admin/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/api/besahub/customer/**").hasRole("CUSTOMER")
-                        .requestMatchers("/api/besahub/media/images/**").authenticated()
+                        .requestMatchers("/api/besahub/media/images/**").permitAll()
                         .anyRequest().authenticated())
                 .userDetailsService(userDetailsService)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

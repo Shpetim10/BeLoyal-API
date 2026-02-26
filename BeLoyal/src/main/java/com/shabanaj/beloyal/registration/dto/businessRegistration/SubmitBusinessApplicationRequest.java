@@ -1,6 +1,6 @@
 package com.shabanaj.beloyal.registration.dto.businessRegistration;
 
-import com.shabanaj.beloyal.registration.dto.customerRegistraton.RegisterUserDto;
+import com.shabanaj.beloyal.registration.dto.RegisterUserDto;
 import com.shabanaj.beloyal.model.Enums.OwnerMode;
 import jakarta.validation.constraints.NotNull;
 

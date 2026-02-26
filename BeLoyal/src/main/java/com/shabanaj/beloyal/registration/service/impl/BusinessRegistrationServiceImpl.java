@@ -2,7 +2,7 @@ package com.shabanaj.beloyal.registration.service.impl;
 
 import com.shabanaj.beloyal.registration.dto.businessRegistration.SubmitBusinessApplicationRequest;
 import com.shabanaj.beloyal.registration.dto.businessRegistration.SubmitBusinessApplicationResponse;
-import com.shabanaj.beloyal.registration.dto.customerRegistraton.RegisterUserDto;
+import com.shabanaj.beloyal.registration.dto.RegisterUserDto;
 import com.shabanaj.beloyal.business.service.BusinessService;
 import com.shabanaj.beloyal.email.service.EmailService;
 import com.shabanaj.beloyal.model.Entity.Business;
