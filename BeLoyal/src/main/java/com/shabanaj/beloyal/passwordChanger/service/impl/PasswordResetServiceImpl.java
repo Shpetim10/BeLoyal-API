@@ -2,17 +2,17 @@ package com.shabanaj.beloyal.passwordChanger.service.impl;
 
 import com.shabanaj.beloyal.common.Exception.TokenIsNotValidException;
 import com.shabanaj.beloyal.common.Helpers.UserFinder;
+import com.shabanaj.beloyal.common.redis.jwtToken.TokenVersionService;
 import com.shabanaj.beloyal.email.service.EmailService;
 import com.shabanaj.beloyal.model.Entity.ResetPasswordToken;
 import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.passwordChanger.dto.ForgetPasswordRequest;
 import com.shabanaj.beloyal.passwordChanger.dto.ResetPasswordRequest;
 import com.shabanaj.beloyal.passwordChanger.service.PasswordResetService;
+import com.shabanaj.beloyal.token.service.RefreshTokenService;
 import com.shabanaj.beloyal.token.service.ResetPasswordTokenService;
-import com.shabanaj.beloyal.user.repository.UserRepository;
 import com.shabanaj.beloyal.user.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +28,8 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     private final EmailService emailService;
     private final Clock clock;
     private final UserService userService;
+    private final TokenVersionService tokenVersionService;
+    private final RefreshTokenService refreshTokenService;
 
     @Override
     @Transactional
@@ -61,6 +63,10 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         // mark token as used
         resetPasswordTokenService.markTokenAsUsed(resetPasswordToken.getToken());
 
+        // invalidate access tokens
+        tokenVersionService.bumpVersion(resetPasswordToken.getUser().getId());
+        // invalidate refresh tokens
+        refreshTokenService.revokeAllForUser(resetPasswordToken.getUser().getId());
         // reset password
         User user=resetPasswordToken.getUser();
         userService.changePassword(user, req.newPassword());

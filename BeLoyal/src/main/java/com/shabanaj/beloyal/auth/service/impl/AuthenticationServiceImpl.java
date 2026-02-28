@@ -5,6 +5,7 @@ import com.shabanaj.beloyal.auth.service.AuthenticationService;
 import com.shabanaj.beloyal.auth.dto.LogoutRequest;
 import com.shabanaj.beloyal.auth.dto.RefreshRequest;
 import com.shabanaj.beloyal.auth.dto.LoginResponse;
+import com.shabanaj.beloyal.common.redis.jwtToken.TokenVersionService;
 import com.shabanaj.beloyal.registration.dto.businessRegistration.VerifyOwnershipRequest;
 import com.shabanaj.beloyal.registration.dto.businessRegistration.VerifyOwnershipResponse;
 import com.shabanaj.beloyal.registration.dto.customerRegistraton.ActivationResponse;
@@ -52,6 +53,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final RefreshTokenService refreshTokenService;
     private final OwnershipTokenService ownershipTokenService;
     private final BusinessAccessPolicy businessAccessPolicy;
+    private final TokenVersionService tokenVersionService;
 
     @Transactional
     public ActivationResponse activateUser(String token) {
@@ -74,7 +76,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(currentUser.getEmail());
         // Generate access token
-        String jwt = jwtService.generateAccessToken(userDetails);
+        int jwtVersion= tokenVersionService.getVersion(currentUser.getId());
+        String jwt = jwtService.generateAccessToken(userDetails, currentUser.getId(), jwtVersion);
         // create refresh token
         String refresh = refreshTokenService.create(currentUser, null, null);
 
@@ -128,7 +131,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new AccessDeniedException("Access denied");
 
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getEmail());
-        String newAccess = jwtService.generateAccessToken(userDetails);
+
+        int jwtVersion= tokenVersionService.getVersion(user.getId());
+        String newAccess = jwtService.generateAccessToken(userDetails, user.getId(), jwtVersion);
         String newRefresh = refreshTokenService.rotate(existing);
 
         LoginResponse res = new LoginResponse();

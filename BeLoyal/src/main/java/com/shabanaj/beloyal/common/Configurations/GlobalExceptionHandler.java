@@ -4,6 +4,8 @@ import com.shabanaj.beloyal.common.Exception.ApiException;
 import com.shabanaj.beloyal.common.Exception.BadRequestException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.hibernate.exception.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // Optional: one consistent response shape
     private ResponseEntity<Map<String, Object>> error(HttpStatus status, String message, HttpServletRequest req) {
@@ -39,6 +42,7 @@ public class GlobalExceptionHandler {
                 .map(err -> err.getDefaultMessage())
                 .orElse("Validation failed");
 
+        logger.error(ex.getMessage(), ex);
         return error(HttpStatus.BAD_REQUEST, errorMessage, req);
     }
 
@@ -48,6 +52,8 @@ public class GlobalExceptionHandler {
                                                                    HttpServletRequest req) {
 
         Throwable cause = ex.getMostSpecificCause();
+
+        logger.error(ex.getMessage(), ex);
 
         // If Hibernate provides constraint name, use it
         ConstraintViolationException hib = findHibernateConstraintViolation(ex);
@@ -88,16 +94,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<Map<String, String>> handleBadRequest(BadRequestException ex) {
+        logger.error(ex.getMessage(), ex);
         return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex, HttpServletRequest req) {
+        logger.error(ex.getMessage(), ex);
         return error(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred", req);
     }
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<Map<String, Object>> handleApi(ApiException ex, HttpServletRequest req) {
+        logger.error(ex.getMessage(), ex);
         return error(ex.getStatus(), ex.getMessage(), req);
     }
 }

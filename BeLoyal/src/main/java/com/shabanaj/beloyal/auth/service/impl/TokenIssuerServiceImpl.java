@@ -5,6 +5,7 @@ import com.shabanaj.beloyal.Security.JwtService;
 import com.shabanaj.beloyal.auth.dto.BusinessProfileInfo;
 import com.shabanaj.beloyal.auth.dto.LoginResponse;
 import com.shabanaj.beloyal.auth.service.TokenIssuerService;
+import com.shabanaj.beloyal.common.redis.jwtToken.TokenVersionService;
 import com.shabanaj.beloyal.userProfiles.customer.repository.CustomerProfileRepository;
 import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.model.Enums.Role;
@@ -22,10 +23,12 @@ public class TokenIssuerServiceImpl implements TokenIssuerService {
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
     private final CustomerProfileRepository customerProfileRepository;
+    private final TokenVersionService tokenVersionService;
 
     public LoginResponse issue(User user, List<BusinessProfileInfo> businessProfiles) {
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getEmail());
-        String access = jwtService.generateAccessToken(userDetails);
+        int tokenVersion= tokenVersionService.getVersion(user.getId());
+        String access = jwtService.generateAccessToken(userDetails,user.getId(), tokenVersion);
         String refresh = refreshTokenService.create(user, null, null);
 
         LoginResponse res = new LoginResponse();

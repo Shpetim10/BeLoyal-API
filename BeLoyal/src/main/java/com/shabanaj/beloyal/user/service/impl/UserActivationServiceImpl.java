@@ -2,6 +2,7 @@ package com.shabanaj.beloyal.user.service.impl;
 
 import com.shabanaj.beloyal.Security.CustomUserDetailsService;
 import com.shabanaj.beloyal.Security.JwtService;
+import com.shabanaj.beloyal.common.redis.jwtToken.TokenVersionService;
 import com.shabanaj.beloyal.userProfiles.customer.repository.CustomerProfileRepository;
 import com.shabanaj.beloyal.model.Entity.EmailVerificationToken;
 import com.shabanaj.beloyal.model.Entity.User;
@@ -30,6 +31,7 @@ public class UserActivationServiceImpl implements UserActivationService {
     private final RefreshTokenService refreshTokenService;
     private final UserRepository userRepository;
     private final CustomerProfileRepository customerProfileRepository;
+    private final TokenVersionService tokenVersionService;
 
     @Override
     public ActivationResponse activateUser(String token) {
@@ -45,7 +47,8 @@ public class UserActivationServiceImpl implements UserActivationService {
 
         UserDetails userDetails= customUserDetailsService.loadUserByUsername(currentUser.getEmail());
         // Generate access token
-        String jwt = jwtService.generateAccessToken(userDetails);
+        int jwtVersion= tokenVersionService.getVersion(currentUser.getId());
+        String jwt = jwtService.generateAccessToken(userDetails, currentUser.getId(), jwtVersion);
         // create refresh token
         String refresh = refreshTokenService.create(currentUser, null, null);
 

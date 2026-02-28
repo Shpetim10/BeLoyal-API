@@ -14,7 +14,7 @@ public class BusinessMemberRegisterDto {
 
     @NotBlank
     @NotNull
-    @ValidPassword
+    @StrongPassword
     private String password;
 
     @ValidPhoneNumber
