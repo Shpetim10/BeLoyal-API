@@ -14,4 +14,5 @@ public interface EmailService {
     void sendBusinessActivationEmail(List<BusinessMember> members, Business business);
     void sendBusinessRejectionEmail(List<BusinessMember> members, Business business, String rejectReason);
     void sendStaffInvitationEmail(StaffInviteToken token, Business business, Role role);
+    void sendForgetPasswordEmail(User user, String token);
 }

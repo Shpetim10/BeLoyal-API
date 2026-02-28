@@ -1,5 +1,6 @@
 package com.shabanaj.beloyal.Security;
 
+import com.shabanaj.beloyal.model.Entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -35,6 +36,18 @@ public class JwtService {
                 .setExpiration(exp)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public String generateAccessToken(User user) {
+        Date now = new Date();
+        Date exp = new Date(now.getTime() + accessTtl * 60_000);
+
+        return Jwts.builder()
+                .setSubject(user.getEmail())
+                .setIssuedAt(now)
+                .setExpiration(exp).
+                signWith(getSigningKey(), SignatureAlgorithm.HS256).
+                compact();
     }
 
     private Key getSigningKey() {

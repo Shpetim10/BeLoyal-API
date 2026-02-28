@@ -16,11 +16,11 @@ public interface UserService {
     void disableUser(Long userId);
     void lockUser(Long userId);
     void unlockUser(Long userId);
-    void changePassword(Long userId, String oldPassword, String password);
     void deleteUser(Long userId);
     void updateUser(Long userId, UpdateUserDto updatedUser);
     Optional<User> getUserById(Long userId);
     List<User> getAllUsers();
     Set<Role> getUserRoles(Long userId);
     User getUserOrThrow(Long userId);
+    void changePassword(User user, String newPassword);
 }

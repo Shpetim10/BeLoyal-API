@@ -1046,6 +1046,188 @@ public class EmailHtmlTemplates {
                 );
     }
 
+    public String buildForgetPasswordEmailHtml(User user, String deepLinkUrl) {
+        String brandName = "Besa Hub";
+        String supportEmail = "support@besahub.app";
+
+        String firstName = safe(user != null ? user.getFirstName() : null, "there");
+        String email = safe(user != null ? user.getEmail() : null, "your account email");
+
+        String requestedAt = java.time.LocalDateTime.now()
+                .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+
+        // Deep link should be attribute-safe for href
+        String linkHref = escapeUrl(safe(deepLinkUrl, ""));
+
+        return """
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="x-apple-disable-message-reformatting">
+  <title>Reset your password</title>
+  <!--[if mso]>
+  <style type="text/css">
+    body, table, td { font-family: Arial, sans-serif !important; }
+  </style>
+  <![endif]-->
+</head>
+
+<body style="margin:0; padding:0; background:#F3F4F6;">
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent;">
+    Password reset requested. Tap to open the app and set a new password.
+  </div>
+
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%%" style="background:#F3F4F6; padding: 24px 0;">
+    <tr>
+      <td align="center" style="padding: 0 16px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" width="600"
+               style="width:600px; max-width:600px; border-collapse:separate;">
+
+          <!-- Header / Banner -->
+          <tr>
+            <td style="
+              background: linear-gradient(135deg, #0EA5E9 0%%, #6366F1 55%%, #A855F7 100%%);
+              border-radius: 18px 18px 0 0;
+              padding: 26px 28px;
+              color:#FFFFFF;">
+              <table role="presentation" width="100%%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td>
+                    <div style="font-size:14px; letter-spacing:0.12em; opacity:0.9; text-transform:uppercase;">
+                      %s
+                    </div>
+                    <div style="font-size:28px; line-height:1.15; font-weight:800; margin-top:6px;">
+                      Reset your password 🔐
+                    </div>
+                    <div style="font-size:15px; line-height:1.5; margin-top:10px; opacity:0.95;">
+                      Hi %s — we received a request to reset the password for <strong>%s</strong>.
+                    </div>
+                  </td>
+                  <td align="right" style="vertical-align:top;">
+                    <div style="
+                      display:inline-block;
+                      background: rgba(255,255,255,0.18);
+                      border: 1px solid rgba(255,255,255,0.30);
+                      padding: 10px 12px;
+                      border-radius: 999px;
+                      font-size: 12px;
+                      font-weight: 700;">
+                      SECURITY
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Main Card -->
+          <tr>
+            <td style="background:#FFFFFF; border-radius:0 0 18px 18px; padding: 24px 28px; box-shadow: 0 10px 25px rgba(17,24,39,0.06);">
+
+              <div style="font-size:16px; line-height:1.65; color:#111827;">
+                Tap the button below to open <strong>%s</strong> and choose a new password.
+                For your security, this link may expire and can only be used once.
+              </div>
+
+              <div style="margin-top:14px; padding:14px; background:#F9FAFB; border:1px solid #E5E7EB; border-radius:14px;">
+                <div style="font-size:14px; color:#111827; line-height:1.6;">
+                  ✅ <strong>Tip:</strong> Use a password you don’t reuse elsewhere, and consider using a password manager.
+                </div>
+              </div>
+
+              <!-- CTA -->
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:22px;">
+                <tr>
+                  <td>
+                    <a href="%s"
+                       style="
+                         display:inline-block;
+                         background: linear-gradient(135deg, #0EA5E9 0%%, #6366F1 55%%, #A855F7 100%%);
+                         color:#FFFFFF;
+                         text-decoration:none;
+                         padding: 12px 18px;
+                         border-radius: 12px;
+                         font-weight: 800;
+                         font-size: 14px;">
+                      Open app to reset password
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <div style="margin-top:10px; font-size:12px; color:#6B7280; line-height:1.5;">
+                If the button doesn’t work, copy and paste this link into your browser:<br>
+                <span style="word-break:break-all; color:#4F46E5;">%s</span>
+              </div>
+
+              <!-- Security note -->
+              <div style="margin-top:16px; padding:14px; background:#EEF2FF; border:1px solid #E0E7FF; border-radius:14px;">
+                <div style="font-size:14px; color:#111827; line-height:1.6;">
+                  🛡️ <strong>Didn’t request this?</strong><br>
+                  If you didn’t ask to reset your password, you can safely ignore this email — your password won’t change.
+                  If you’re concerned, please contact support and consider updating your password from within the app.
+                </div>
+              </div>
+
+              <div style="margin-top:18px; font-size:13px; color:#6B7280; text-transform:uppercase; letter-spacing:0.08em;">
+                Request details
+              </div>
+
+              <table role="presentation" width="100%%" cellpadding="0" cellspacing="0"
+                     style="margin-top:10px; border:1px solid #E5E7EB; border-radius:14px; overflow:hidden; border-collapse:separate;">
+                <tr>
+                  <td style="padding:12px 14px; background:#F9FAFB; width:40%%; color:#374151; font-size:14px; border-bottom:1px solid #E5E7EB;">
+                    Account
+                  </td>
+                  <td style="padding:12px 14px; background:#FFFFFF; color:#111827; font-size:14px; border-bottom:1px solid #E5E7EB;">
+                    %s
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 14px; background:#F9FAFB; color:#374151; font-size:14px;">
+                    Requested at
+                  </td>
+                  <td style="padding:12px 14px; background:#FFFFFF; color:#111827; font-size:14px;">
+                    %s
+                  </td>
+                </tr>
+              </table>
+
+              <div style="margin-top:16px; font-size:12px; color:#6B7280; line-height:1.6;">
+                Need help? Contact us at
+                <a href="mailto:%s" style="color:#4F46E5; text-decoration:none;">%s</a>.
+                <br><br>
+                — %s Team
+              </div>
+
+            </td>
+          </tr>
+
+          <tr><td style="height:14px;"></td></tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+"""
+                .formatted(
+                        escape(brandName),
+                        escape(firstName),
+                        escape(email),
+                        escape(brandName),
+                        linkHref,
+                        escape(safe(deepLinkUrl, "")),
+                        escape(email),
+                        escape(requestedAt),
+                        escape(supportEmail),
+                        escape(supportEmail),
+                        escape(brandName)
+                );
+    }
 
     /** For link href attributes */
     private static String escapeUrl(String url) {

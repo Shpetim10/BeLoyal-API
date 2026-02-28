@@ -67,7 +67,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .permitAll()
                         .requestMatchers("/api/besahub/admin/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/api/besahub/customer/**").hasRole("CUSTOMER")
-                        .requestMatchers("/api/besahub/media/images/**").permitAll()
+                        .requestMatchers("/api/besahub/media/images/**").authenticated()
                         .anyRequest().authenticated())
                 .userDetailsService(userDetailsService)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

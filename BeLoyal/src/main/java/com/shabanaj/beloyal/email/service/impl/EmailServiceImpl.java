@@ -25,6 +25,9 @@ public class EmailServiceImpl implements EmailService {
     @Value("${app.staff.accept-invitation.base-url}")
     private String staffRegistrationBaseUrl;
 
+    @Value("${app.password.forget-email.base-url}")
+    private String passwordForgetEmailUrl;
+
     public EmailServiceImpl(ApplicationEventPublisher publisher, EmailHtmlTemplates emailHtmlTemplates) {
         this.publisher = publisher;
         this.emailHtmlTemplates = emailHtmlTemplates;
@@ -91,6 +94,16 @@ public class EmailServiceImpl implements EmailService {
         String content = emailHtmlTemplates.buildStaffInvitationEmailHtml(business, role.name(), inviteUrl, inviteUrl);
 
         sendMail(token.getUser().getEmail(), subject, content);
+    }
+
+    @Override
+    public void sendForgetPasswordEmail(User user, String token) {
+        String forgetPasswordUrl= passwordForgetEmailUrl + "?token=" + token;
+
+        String subject= "Reset your password";
+        String content = emailHtmlTemplates.buildForgetPasswordEmailHtml(user, forgetPasswordUrl);
+
+        sendMail(user.getEmail(), subject, content);
     }
 
     // Helpers

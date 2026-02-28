@@ -8,6 +8,7 @@ import com.shabanaj.beloyal.common.Exception.UserNotFound;
 import com.shabanaj.beloyal.user.repository.UserRepository;
 import com.shabanaj.beloyal.user.service.UserService;
 import jakarta.transaction.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,9 +20,11 @@ import java.util.Set;
 @Transactional
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -76,11 +79,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void changePassword(Long userId,String oldPassword, String password) {
-        // TODO: Implement password change
-    }
-
-    @Override
     public void deleteUser(Long userId) {
         User user=getUserOrThrow(userId);
 
@@ -121,5 +119,13 @@ public class UserServiceImpl implements UserService {
     public User getUserOrThrow(Long userId){
         return userRepository.findById(userId)
                 .orElseThrow(()-> new UserNotFound());
+    }
+
+    @Override
+    public void changePassword(User user, String newPassword) {
+        user.setPasswordHash(
+                passwordEncoder.encode(newPassword)
+        );
+        userRepository.save(user);
     }
 }
