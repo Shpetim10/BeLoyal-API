@@ -1,9 +1,11 @@
-package com.shabanaj.beloyal.businessMember.service;
+package com.shabanaj.beloyal.businessMember.service.impl;
 
 import com.shabanaj.beloyal.business.repository.BusinessRepository;
 import com.shabanaj.beloyal.businessMember.repository.BusinessMemberRepository;
+import com.shabanaj.beloyal.businessMember.service.BusinessMemberStatusServcie;
 import com.shabanaj.beloyal.common.Exception.BusinessNotFound;
 import com.shabanaj.beloyal.common.Exception.UserNotFound;
+import com.shabanaj.beloyal.common.redis.jwtToken.TokenVersionService;
 import com.shabanaj.beloyal.model.Entity.Business;
 import com.shabanaj.beloyal.model.Entity.BusinessMember;
 import com.shabanaj.beloyal.model.Entity.User;
@@ -16,10 +18,11 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class BusinessMemberStatusServiceImpl implements BusinessMemberStatusServcie{
+public class BusinessMemberStatusServiceImpl implements BusinessMemberStatusServcie {
     private final BusinessMemberRepository businessMemberRepository;
     private final UserRepository userRepository;
     private final BusinessRepository businessRepository;
+    private final TokenVersionService tokenVersionService;
 
     @Override
     public void changeStatusAndSave(User user, Business business, BusinessMember.MemberStatus memberStatus) {
@@ -73,5 +76,8 @@ public class BusinessMemberStatusServiceImpl implements BusinessMemberStatusServ
         BusinessMember businessMember= bm.get();
         businessMember.setMemberStatus(memberStatus);
         businessMemberRepository.save(businessMember);
+
+        // jwt access token bump
+        tokenVersionService.bumpVersion(businessMember.getUser().getId());
     }
 }

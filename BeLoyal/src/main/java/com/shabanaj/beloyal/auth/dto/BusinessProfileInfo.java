@@ -7,8 +7,9 @@ public class BusinessProfileInfo {
     private String businessName;
     private Role role;
     private boolean active;
-    private String status;
+    private String businessStatus;
     private String rejectionReason;
+    private String memberStatus;
 
     public Long getBusinessId() {
         return businessId;
@@ -42,12 +43,12 @@ public class BusinessProfileInfo {
         this.active = active;
     }
 
-    public String getStatus() {
-        return status;
+    public String getBusinessStatus() {
+        return businessStatus;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setBusinessStatus(String businessStatus) {
+        this.businessStatus = businessStatus;
     }
 
     public String getRejectionReason() {
@@ -56,5 +57,13 @@ public class BusinessProfileInfo {
 
     public void setRejectionReason(String rejectionReason) {
         this.rejectionReason = rejectionReason;
+    }
+
+    public String getMemberStatus() {
+        return memberStatus;
+    }
+
+    public void setMemberStatus(String memberStatus) {
+        this.memberStatus = memberStatus;
     }
 }

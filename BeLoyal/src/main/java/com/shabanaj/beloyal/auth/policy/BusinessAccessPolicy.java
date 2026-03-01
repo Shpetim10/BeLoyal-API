@@ -35,8 +35,9 @@ public class BusinessAccessPolicy {
             businessProfileInfo.setBusinessName(userRole.getBusiness().getBusinessName());
             businessProfileInfo.setRole(userRole.getRole());
             businessProfileInfo.setActive(memberEnabled && businessActive);
-            businessProfileInfo.setStatus(userRole.getBusiness().getBusinessStatus().name());
+            businessProfileInfo.setBusinessStatus(userRole.getBusiness().getBusinessStatus().name());
             businessProfileInfo.setRejectionReason(userRole.getBusiness().getRejectionReason());
+            businessProfileInfo.setMemberStatus(userRole.getMemberStatus().name());
 
             accessibleProfiles.add(businessProfileInfo);
         }
