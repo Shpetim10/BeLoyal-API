@@ -2,7 +2,7 @@ package com.shabanaj.beloyal.common.Helpers;
 
 import com.shabanaj.beloyal.common.Exception.UserNotFound;
 import com.shabanaj.beloyal.model.Entity.User;
-import com.shabanaj.beloyal.user.repository.UserRepository;
+import com.shabanaj.beloyal.features.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

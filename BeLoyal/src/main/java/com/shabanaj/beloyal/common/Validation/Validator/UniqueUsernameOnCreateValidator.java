@@ -1,6 +1,6 @@
 package com.shabanaj.beloyal.common.Validation.Validator;
 
-import com.shabanaj.beloyal.user.repository.UserRepository;
+import com.shabanaj.beloyal.features.user.repository.UserRepository;
 import com.shabanaj.beloyal.common.Validation.Annotation.UniqueUsernameOnCreate;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

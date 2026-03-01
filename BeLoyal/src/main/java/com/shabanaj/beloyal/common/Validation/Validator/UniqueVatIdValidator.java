@@ -1,6 +1,6 @@
 package com.shabanaj.beloyal.common.Validation.Validator;
 
-import com.shabanaj.beloyal.business.repository.BusinessRepository;
+import com.shabanaj.beloyal.features.business.repository.BusinessRepository;
 import com.shabanaj.beloyal.common.Validation.Annotation.UniqueVatId;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

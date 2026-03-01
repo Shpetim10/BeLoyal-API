@@ -1,6 +1,6 @@
 package com.shabanaj.beloyal.common.Helpers;
 
-import com.shabanaj.beloyal.userProfiles.customer.repository.CustomerProfileRepository;
+import com.shabanaj.beloyal.features.userProfiles.customer.repository.CustomerProfileRepository;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
