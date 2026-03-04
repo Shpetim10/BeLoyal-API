@@ -13,7 +13,7 @@ public class RefreshTokenCleanUpScheduledJob {
     private final RefreshTokenCleanUpService refreshTokenCleanUpService;
     private final Logger logger = LogManager.getLogger(RefreshTokenCleanUpScheduledJob.class);
 
-    @Scheduled(fixedRate = 1 * 60 * 1000)
+    @Scheduled(cron = "0 15 3 * * ?")
     public void run(){
         logger.info("Starting refresh token cleanup job");
 

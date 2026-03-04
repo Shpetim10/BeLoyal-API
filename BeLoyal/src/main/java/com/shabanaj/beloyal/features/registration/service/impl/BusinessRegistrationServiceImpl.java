@@ -1,5 +1,6 @@
 package com.shabanaj.beloyal.features.registration.service.impl;
 
+import com.shabanaj.beloyal.features.earningSettings.service.EarningSettingsService;
 import com.shabanaj.beloyal.features.registration.dto.businessRegistration.SubmitBusinessApplicationRequest;
 import com.shabanaj.beloyal.features.registration.dto.businessRegistration.SubmitBusinessApplicationResponse;
 import com.shabanaj.beloyal.features.registration.dto.RegisterUserDto;
@@ -39,6 +40,7 @@ public class BusinessRegistrationServiceImpl implements BusinessRegistrationServ
     private final UserRegistrationBuilderService userRegistrationBuilderService;
     private final BusinessApplicationValidatorService businessApplicationValidatorService;
     private final Clock clock;
+    private final EarningSettingsService earningSettingsService;
 
     @Override
     @Transactional
@@ -74,10 +76,16 @@ public class BusinessRegistrationServiceImpl implements BusinessRegistrationServ
             throw new InvalidParameterException("The data for user registration is null");
         }
 
+        // Create business
         Business business=businessService.createBusiness(submitBusinessApplicationRequest.getBusinessRegistrationDto());
 
+        // Create admin member
         businessMemberService.createBusinessMember(businessAdmin, business, Role.BUSINESS_ADMIN, LocalDate.now(clock));
 
+        // Earning points settings
+        earningSettingsService.createDefaultEarningSettings(business.getId());
+
+        //Send email
         emailService.sendBusinessRegistrationEmail(businessAdmin, business);
 
         return new SubmitBusinessApplicationResponse(
