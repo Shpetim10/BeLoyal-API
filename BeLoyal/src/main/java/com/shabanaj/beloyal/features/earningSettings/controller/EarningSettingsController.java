@@ -1,8 +1,10 @@
 package com.shabanaj.beloyal.features.earningSettings.controller;
 
 import com.shabanaj.beloyal.features.earningSettings.dto.CreateEarningSettingsDto;
+import com.shabanaj.beloyal.features.earningSettings.dto.EarningSettingsDto;
 import com.shabanaj.beloyal.features.earningSettings.dto.UpdateEarningSettingsDto;
 import com.shabanaj.beloyal.features.earningSettings.service.EarningSettingsService;
+import com.shabanaj.beloyal.model.Entity.EarningSettings;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -39,5 +41,17 @@ public class EarningSettingsController {
         earningSettingsService.updateEarningSettings(businessId, updateEarningSettingsDto);
 
         return ResponseEntity.ok(Map.of("message", "Earning settings was updated successfully!"));
+    }
+
+    @GetMapping()
+    @PreAuthorize("@businessSecurity.hasAccess(#businessId, authentication, 'BUSINESS_ADMIN', 'STAFF')")
+    public ResponseEntity<EarningSettingsDto> getEarningSettings(@PathVariable("businessId") Long businessId){
+        EarningSettings earningSettings = earningSettingsService.getEarningSettings(businessId);
+
+        EarningSettingsDto earningSettingsDto = new EarningSettingsDto();
+        earningSettingsDto.setAmountPer(earningSettings.getAmountPer());
+        earningSettingsDto.setPointsPer(earningSettings.getPointsPer());
+
+        return ResponseEntity.ok(earningSettingsDto);
     }
 }

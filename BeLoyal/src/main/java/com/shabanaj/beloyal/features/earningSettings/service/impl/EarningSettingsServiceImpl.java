@@ -75,7 +75,7 @@ public class EarningSettingsServiceImpl implements EarningSettingsService {
             earningSettings.setPointsPer(updateEarningSettingsDto.getPointsPer());
 
             // configuration and enabled status update
-            if(earningSettings.isConfigured() || earningSettings.isEnabled()){
+            if(!earningSettings.isConfigured() || !earningSettings.isEnabled()){
                 earningSettings.setEnabled(true);
                 earningSettings.setConfigured(true);
             }

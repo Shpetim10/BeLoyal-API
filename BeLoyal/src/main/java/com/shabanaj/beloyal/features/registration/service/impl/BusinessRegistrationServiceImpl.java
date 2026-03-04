@@ -1,6 +1,7 @@
 package com.shabanaj.beloyal.features.registration.service.impl;
 
 import com.shabanaj.beloyal.features.earningSettings.service.EarningSettingsService;
+import com.shabanaj.beloyal.features.loyaltySettings.service.LoyaltySettingsService;
 import com.shabanaj.beloyal.features.registration.dto.businessRegistration.SubmitBusinessApplicationRequest;
 import com.shabanaj.beloyal.features.registration.dto.businessRegistration.SubmitBusinessApplicationResponse;
 import com.shabanaj.beloyal.features.registration.dto.RegisterUserDto;
@@ -41,6 +42,7 @@ public class BusinessRegistrationServiceImpl implements BusinessRegistrationServ
     private final BusinessApplicationValidatorService businessApplicationValidatorService;
     private final Clock clock;
     private final EarningSettingsService earningSettingsService;
+    private final LoyaltySettingsService loyaltySettingsService;
 
     @Override
     @Transactional
@@ -84,6 +86,9 @@ public class BusinessRegistrationServiceImpl implements BusinessRegistrationServ
 
         // Earning points settings
         earningSettingsService.createDefaultEarningSettings(business.getId());
+
+        // Loyalty settings
+        loyaltySettingsService.createDefaultLoyaltySettings(business.getId());
 
         //Send email
         emailService.sendBusinessRegistrationEmail(businessAdmin, business);

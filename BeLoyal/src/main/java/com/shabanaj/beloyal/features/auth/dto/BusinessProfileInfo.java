@@ -18,4 +18,6 @@ public class BusinessProfileInfo {
     // Settings configuration fields
     private boolean earningSettingsEnabled;
     private boolean earningSettingsConfigured;
+    private boolean loyaltySettingsEnabled;
+    private boolean loyaltySettingsConfigured;
 }
