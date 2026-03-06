@@ -10,6 +10,7 @@ import com.shabanaj.beloyal.features.userProfiles.customer.repository.CustomerPr
 import com.shabanaj.beloyal.features.user.repository.UserRepository;
 import com.shabanaj.beloyal.features.userProfiles.customer.service.CustomerProfileService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CustomerProfileServiceImpl implements CustomerProfileService {
@@ -25,6 +26,7 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
     }
 
     @Override
+    @Transactional
     public CustomerProfile createCustomerPofile(User user, CustomerProfileRegisterDto dto) {
         if (user == null || userRepository.findUserByEmail(user.getEmail()) == null) {
             throw new UserNotFound("Your user account could not be found!");

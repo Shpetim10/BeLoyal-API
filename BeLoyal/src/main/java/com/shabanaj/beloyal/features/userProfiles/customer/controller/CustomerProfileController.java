@@ -1,7 +1,10 @@
 package com.shabanaj.beloyal.features.userProfiles.customer.controller;
 
+import com.shabanaj.beloyal.features.loyaltyCard.service.LoyaltyCardService;
 import com.shabanaj.beloyal.features.registration.dto.customerRegistraton.CustomerProfileRegisterDto;
+import com.shabanaj.beloyal.features.userProfiles.customer.dto.CustomerProfileCreationResponse;
 import com.shabanaj.beloyal.model.Entity.CustomerProfile;
+import com.shabanaj.beloyal.model.Entity.LoyaltyCard;
 import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.features.Security.UserPrincipal;
 import com.shabanaj.beloyal.features.userProfiles.customer.dto.CustomerProfileUpdateDto;
@@ -22,25 +25,36 @@ public class CustomerProfileController {
     private final CustomerProfileService customerProfileService;
     private final UserService userService;
     private final CustomerProfileUpdateService customerProfileUpdateService;
+    private final LoyaltyCardService loyaltyCardService;
 
-    public CustomerProfileController(CustomerProfileService customerProfileService, UserService userService, CustomerProfileUpdateService customerProfileUpdateService) {
+    public CustomerProfileController(CustomerProfileService customerProfileService, UserService userService, CustomerProfileUpdateService customerProfileUpdateService, LoyaltyCardService loyaltyCardService) {
         this.customerProfileService = customerProfileService;
         this.userService = userService;
         this.customerProfileUpdateService = customerProfileUpdateService;
+        this.loyaltyCardService = loyaltyCardService;
     }
 
     @PostMapping("/me/create-profile")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<String> createCustomerProfile(@AuthenticationPrincipal UserPrincipal principal,
-            @RequestBody @Valid CustomerProfileRegisterDto dto) {
-        try {
-            User user = userService.getUserOrThrow(principal.getId());
-            customerProfileService.createCustomerPofile(user, dto);
+    public ResponseEntity<CustomerProfileCreationResponse> createCustomerProfile(@AuthenticationPrincipal UserPrincipal principal,
+                                                                                 @RequestBody @Valid CustomerProfileRegisterDto dto) {
+        // get user
+        User user = userService.getUserOrThrow(principal.getId());
 
-            return ResponseEntity.ok("Customer profile created successfully!");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        // generate customer profile
+        CustomerProfile customerProfile= customerProfileService.createCustomerPofile(user, dto);
+
+        // generate loyalty card
+        LoyaltyCard loyaltyCard= loyaltyCardService.createLoyaltyCard(customerProfile);
+
+        // Create Response dto
+        CustomerProfileCreationResponse customerProfileCreationResponse = new CustomerProfileCreationResponse();
+        customerProfileCreationResponse.setFirstName(user.getFirstName());
+        customerProfileCreationResponse.setLastName(user.getLastName());
+        customerProfileCreationResponse.setQrToken(loyaltyCard.getQrToken());
+        customerProfileCreationResponse.setManualCode(loyaltyCard.getManualCode());
+
+        return ResponseEntity.ok(customerProfileCreationResponse);
     }
 
     @GetMapping("/me")
