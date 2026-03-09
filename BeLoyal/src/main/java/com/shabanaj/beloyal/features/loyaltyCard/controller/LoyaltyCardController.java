@@ -22,7 +22,7 @@ public class LoyaltyCardController {
     private final LoyaltyCardService loyaltyCardService;
     private final UserFinder userFinder;
 
-    @GetMapping("/customer/loyalty-card")
+    @GetMapping("/customer/me/loyalty-card")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<LoyaltyCardDto> getLoyaltyCard(@AuthenticationPrincipal UserPrincipal userPrincipal){
         User user= userFinder.findByIdOrThrows(userPrincipal.getId());

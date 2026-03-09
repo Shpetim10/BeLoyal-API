@@ -1,7 +1,7 @@
 package com.shabanaj.beloyal.features.registration.controller;
 
 import com.shabanaj.beloyal.features.Security.UserPrincipal;
-import com.shabanaj.beloyal.features.auth.service.AdminBusinessRejectionService;
+import com.shabanaj.beloyal.features.registration.service.AdminBusinessRejectionService;
 import com.shabanaj.beloyal.features.business.service.BusinessService;
 import com.shabanaj.beloyal.model.Entity.Business;
 import com.shabanaj.beloyal.features.registration.service.AdminBusinessApprovalService;

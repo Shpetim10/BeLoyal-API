@@ -1,6 +1,6 @@
-package com.shabanaj.beloyal.features.auth.service.impl;
+package com.shabanaj.beloyal.features.registration.service.impl;
 
-import com.shabanaj.beloyal.features.auth.service.AdminBusinessRejectionService;
+import com.shabanaj.beloyal.features.registration.service.AdminBusinessRejectionService;
 import com.shabanaj.beloyal.features.business.repository.BusinessRepository;
 import com.shabanaj.beloyal.features.business.service.BusinessService;
 import com.shabanaj.beloyal.features.businessMember.repository.BusinessMemberRepository;
@@ -33,7 +33,7 @@ public class AdminBusinessRejectionServiceImpl implements AdminBusinessRejection
 
         // Mark business and members as rejected and inactive
         business.reject(adminId, clock, rejectReason);
-        businessService.updateBusiness(business);
+        businessRepository.save(business);
 
         memberList.forEach(member -> {
             member.deactivate();
