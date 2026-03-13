@@ -69,6 +69,10 @@ public class GlobalExceptionHandler {
                     case "uk_business_members_user_business" -> "Business member user already exists";
                     case "uk_customer_profile_user" -> "Customer profile already exists";
                     case "uk_customer_profile_referral_code" -> "Referral code already exists";
+                    case "uk_loyalty_account_unique_profile_and_business"-> "The loyalty account already exists";
+                    case "uk_bill_transaction_business_invoice"->"This transaction is already registered for this business";
+                    case "uk_points_buckets_loyalty_account_source_transaction" -> "The points bucket already exists";
+                    case "uk_points_bucket_consumption_points_transaction_points_bucket" -> "The consumption points bucket already exists";
                     default -> "Data constraint violation";
                 };
                 return error(HttpStatus.BAD_REQUEST, msg, req);
