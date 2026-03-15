@@ -1,11 +1,15 @@
 package com.shabanaj.beloyal.features.loyaltyAccount.service.impl;
 
 import com.shabanaj.beloyal.common.Exception.LoyaltyAccountNotFound;
+import com.shabanaj.beloyal.features.business.service.BusinessService;
+import com.shabanaj.beloyal.features.customerLookup.dto.CustomerLookupDto;
 import com.shabanaj.beloyal.features.loyaltyAccount.repository.LoyaltyAccountRepository;
 import com.shabanaj.beloyal.features.loyaltyAccount.service.LoyaltyAccountService;
+import com.shabanaj.beloyal.features.loyaltyCard.service.LoyaltyCardService;
 import com.shabanaj.beloyal.model.Entity.Business;
 import com.shabanaj.beloyal.model.Entity.CustomerProfile;
 import com.shabanaj.beloyal.model.Entity.LoyaltyAccount;
+import com.shabanaj.beloyal.model.Entity.LoyaltyCard;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +19,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class LoyaltyAccountServiceImpl implements LoyaltyAccountService {
     private final LoyaltyAccountRepository  loyaltyAccountRepository;
+    private final LoyaltyCardService loyaltyCardService;
+    private final BusinessService businessService;
 
     @Override
     public LoyaltyAccount save(LoyaltyAccount loyaltyAccount) {
@@ -30,5 +36,19 @@ public class LoyaltyAccountServiceImpl implements LoyaltyAccountService {
         }
 
         return loyaltyAccount.get();
+    }
+
+    @Override
+    public LoyaltyAccount findLoyaltyAccountOrCreate(CustomerProfile customerProfile, Business business) {
+        LoyaltyAccount loyaltyAccount;
+        try{
+            loyaltyAccount = getLoyaltyAccountByCustomerProfileAndBusiness(customerProfile, business);
+        } catch (LoyaltyAccountNotFound e) {
+            loyaltyAccount=new LoyaltyAccount();
+            loyaltyAccount.setCustomerProfile(customerProfile);
+            loyaltyAccount.setBusiness(business);
+            save(loyaltyAccount);
+        }
+        return loyaltyAccount;
     }
 }
