@@ -1,0 +1,27 @@
+package com.shabanaj.beloyal.features.registerLoyaltyPoints.dto;
+
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+@Getter
+@Setter
+@Builder
+public class EarnPointsTransactionResponse {
+    // bill details
+    private BigDecimal billAmount;
+    private String transactionReference;
+    private String note;
+
+    // transaction description
+    private Integer totalPoints;
+    private Integer remainingPoints;
+    private Long primaryCustomerId;
+    private Integer pointsPer;
+    private BigDecimal amountPer;
+    private Integer maxPointsPerTransaction;
+    private List<GuestPointsResult> guestPointsResults;
+}

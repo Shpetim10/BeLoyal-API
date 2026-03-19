@@ -1,5 +1,6 @@
 package com.shabanaj.beloyal.features.businessMember.service.impl;
 
+import com.shabanaj.beloyal.common.Exception.BusinessMemberProfileNotFound;
 import com.shabanaj.beloyal.common.Exception.UserNotFound;
 import com.shabanaj.beloyal.model.Entity.Business;
 import com.shabanaj.beloyal.model.Entity.BusinessMember;
@@ -9,6 +10,7 @@ import com.shabanaj.beloyal.features.businessMember.repository.BusinessMemberRep
 import com.shabanaj.beloyal.features.businessMember.service.BusinessMemberService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.security.InvalidParameterException;
@@ -57,6 +59,21 @@ public class BusinessMemberServiceImpl implements BusinessMemberService {
         if(businessMember.isEmpty()){
             throw new UserNotFound();
         }
+        return businessMember.get();
+    }
+
+    @Override
+    public BusinessMember getBusinessMemberByUserIdAndBusinessId(Long userId, Long businessId) {
+        Optional<BusinessMember> businessMember= businessMemberRepository.findByUserIdAndBusinessId(userId, businessId);
+
+        if(businessMember.isEmpty()){
+            throw new BusinessMemberProfileNotFound("Business Member profile was not found");
+        }
+
+        if(!businessMember.get().getMemberStatus().equals(BusinessMember.MemberStatus.ACTIVE)){
+            throw new AccessDeniedException("Access denied");
+        }
+
         return businessMember.get();
     }
 

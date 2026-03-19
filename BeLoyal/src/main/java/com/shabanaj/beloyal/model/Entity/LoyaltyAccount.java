@@ -59,4 +59,20 @@ public class LoyaltyAccount {
     @Column(name="updated_at")
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    // helpers
+    public void add(Integer points){
+        this.availablePoints+=points;
+        this.lifetimeEarned+=points;
+    }
+
+    public void spend(Integer points){
+        this.availablePoints-=points;
+        this.lifetimeRedeemed+=points;
+    }
+
+    public void expire(Integer points){
+        this.availablePoints-=points;
+        this.lifetimeExpired+=points;
+    }
 }

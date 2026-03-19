@@ -8,6 +8,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -30,7 +31,7 @@ public class EarningSettings {
 
     @Column(nullable = false, name = "amount_per")
     @Min(1)
-    private Integer amountPer;
+    private BigDecimal amountPer;
 
     private boolean enabled=false;
     private boolean configured=false;

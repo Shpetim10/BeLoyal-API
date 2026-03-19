@@ -9,4 +9,5 @@ import java.util.Optional;
 
 public interface LoyaltyAccountRepository extends JpaRepository<LoyaltyAccount, Long> {
     Optional<LoyaltyAccount> findByCustomerProfileAndBusiness(CustomerProfile customerProfile, Business business);
+    Optional<LoyaltyAccount> findByCustomerProfileId(Long customerProfileId);
 }

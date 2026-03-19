@@ -7,4 +7,5 @@ import com.shabanaj.beloyal.model.Entity.User;
 public interface CustomerProfileService {
     CustomerProfile createCustomerPofile(User user, CustomerProfileRegisterDto dto);
     CustomerProfile getCustomerProfileByUser(User user);
+    CustomerProfile getCustomerProfileById(Long customerProfileId);
 }

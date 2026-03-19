@@ -12,6 +12,8 @@ import com.shabanaj.beloyal.features.userProfiles.customer.service.CustomerProfi
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 public class CustomerProfileServiceImpl implements CustomerProfileService {
     private final UserRepository userRepository;
@@ -68,5 +70,16 @@ public class CustomerProfileServiceImpl implements CustomerProfileService {
     public CustomerProfile getCustomerProfileByUser(User user) {
         return customerProfileRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Customer profile not found"));
+    }
+
+    @Override
+    public CustomerProfile getCustomerProfileById(Long customerProfileId) {
+        Optional<CustomerProfile> customerProfile = customerProfileRepository.findById(customerProfileId);
+
+        if(customerProfile.isEmpty()){
+            throw new UserNotFound("Customer profile not found!");
+        }
+
+        return customerProfile.get();
     }
 }

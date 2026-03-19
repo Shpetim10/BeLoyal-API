@@ -8,4 +8,5 @@ public interface LoyaltyAccountService {
     LoyaltyAccount save(LoyaltyAccount loyaltyAccount);
     LoyaltyAccount getLoyaltyAccountByCustomerProfileAndBusiness(CustomerProfile customerProfile, Business business);
     LoyaltyAccount findLoyaltyAccountOrCreate(CustomerProfile customerProfile, Business business);
+    LoyaltyAccount findLoyaltyAccountByCustomerProfileId(Long customerProfileId);
 }

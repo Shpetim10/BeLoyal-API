@@ -2,14 +2,12 @@ package com.shabanaj.beloyal.features.loyaltyAccount.service.impl;
 
 import com.shabanaj.beloyal.common.Exception.LoyaltyAccountNotFound;
 import com.shabanaj.beloyal.features.business.service.BusinessService;
-import com.shabanaj.beloyal.features.customerLookup.dto.CustomerLookupDto;
 import com.shabanaj.beloyal.features.loyaltyAccount.repository.LoyaltyAccountRepository;
 import com.shabanaj.beloyal.features.loyaltyAccount.service.LoyaltyAccountService;
 import com.shabanaj.beloyal.features.loyaltyCard.service.LoyaltyCardService;
 import com.shabanaj.beloyal.model.Entity.Business;
 import com.shabanaj.beloyal.model.Entity.CustomerProfile;
 import com.shabanaj.beloyal.model.Entity.LoyaltyAccount;
-import com.shabanaj.beloyal.model.Entity.LoyaltyCard;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -50,5 +48,16 @@ public class LoyaltyAccountServiceImpl implements LoyaltyAccountService {
             save(loyaltyAccount);
         }
         return loyaltyAccount;
+    }
+
+    @Override
+    public LoyaltyAccount findLoyaltyAccountByCustomerProfileId(Long customerProfileId) {
+        Optional<LoyaltyAccount> loyaltyAccount = loyaltyAccountRepository.findByCustomerProfileId(customerProfileId);
+
+        if(loyaltyAccount.isEmpty()){
+            throw new LoyaltyAccountNotFound("Loyalty Account not found");
+        }
+
+        return loyaltyAccount.get();
     }
 }

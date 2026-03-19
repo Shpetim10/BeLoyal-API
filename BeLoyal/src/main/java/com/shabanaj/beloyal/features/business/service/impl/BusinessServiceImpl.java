@@ -1,5 +1,6 @@
 package com.shabanaj.beloyal.features.business.service.impl;
 
+import com.shabanaj.beloyal.common.Exception.BusinessNotActive;
 import com.shabanaj.beloyal.features.registration.dto.businessRegistration.BusinessRegistrationDto;
 import com.shabanaj.beloyal.model.Entity.Business;
 import com.shabanaj.beloyal.model.Enums.BusinessStatus;
@@ -60,6 +61,16 @@ public class BusinessServiceImpl implements BusinessService {
         }
 
         return business.get();
+    }
+
+    @Override
+    public Business getActiveBusinessById(Long businessId) {
+        Business business = getBusinessById(businessId);
+
+        if(!business.getBusinessStatus().equals(BusinessStatus.ACTIVE)){
+            throw new BusinessNotActive("This business is not active");
+        }
+        return business;
     }
 
     @Override

@@ -13,6 +13,7 @@ public interface BusinessMemberService {
     List<BusinessMember> getBusinessMembersByBusiness(Business business);
     List<BusinessMember> getBusinessMembersByBusinessIdAndRole(Long businessId, Role role);
     BusinessMember getBusinessMemberByUserAndBusiness(User user, Business business);
+    BusinessMember getBusinessMemberByUserIdAndBusinessId(Long userId, Long businessId);
     void save(BusinessMember businessMember);
     void changeStatusAndSave(User user, Business business, BusinessMember.MemberStatus status);
 }

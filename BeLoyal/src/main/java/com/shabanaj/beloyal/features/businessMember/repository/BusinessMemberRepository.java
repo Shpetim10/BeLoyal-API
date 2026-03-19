@@ -16,4 +16,5 @@ public interface BusinessMemberRepository extends JpaRepository<BusinessMember, 
     List<BusinessMember> findAllByBusiness(Business business);
     List<BusinessMember> findAllByBusinessIdAndRole(Long businessId, Role role);
     boolean existsByBusinessIdAndUserIdAndRoleIn(Long businessId, Long userId, List<String> roles);
+    Optional<BusinessMember> findByUserIdAndBusinessId(Long  userId, Long businessId);
 }

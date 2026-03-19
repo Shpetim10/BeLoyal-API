@@ -11,6 +11,7 @@ import com.shabanaj.beloyal.model.Entity.EarningSettings;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
@@ -53,7 +54,7 @@ public class EarningSettingsServiceImpl implements EarningSettingsService {
     public void createDefaultEarningSettings(Long businessId) {
         // Create default earning setting dto
         CreateEarningSettingsDto createEarningSettingsDto = new CreateEarningSettingsDto();
-        createEarningSettingsDto.setAmountPer(100);
+        createEarningSettingsDto.setAmountPer(BigDecimal.valueOf(100.00));
         createEarningSettingsDto.setPointsPer(1);
 
         // call other method

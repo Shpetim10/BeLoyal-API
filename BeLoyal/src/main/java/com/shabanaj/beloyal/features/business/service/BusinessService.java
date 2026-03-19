@@ -10,6 +10,7 @@ public interface BusinessService {
     Business createBusiness(BusinessRegistrationDto dto);
     void updateBusiness(Business business);
     Business getBusinessById(Long businessId);
+    Business getActiveBusinessById(Long businessId);
     List<Business> getPendingBusinesses();
     List<Business> getBusinessesByStatus(BusinessStatus status);
     List<Business> getAllBusinesses();
