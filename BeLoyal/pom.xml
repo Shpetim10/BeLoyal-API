@@ -27,7 +27,9 @@
         <url/>
     </scm>
     <properties>
-        <java.version>17</java.version>
+        <java.version>24</java.version>
+        <!-- Override Lombok to 1.18.38+ which has official Java 24 support -->
+        <lombok.version>1.18.38</lombok.version>
     </properties>
     <dependencies>
         <dependency>
@@ -122,6 +124,13 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <parameters>true</parameters>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.38</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
         </plugins>

@@ -4,5 +4,5 @@ import com.shabanaj.beloyal.features.registerLoyaltyPoints.dto.EarnPointsTransac
 import com.shabanaj.beloyal.features.registerLoyaltyPoints.dto.EarnPointsTransactionResponse;
 
 public interface EarnPointsTransactionService {
-    EarnPointsTransactionResponse earnPoints(Long businessId, Long userId, EarnPointsTransactionRequest request);
+    EarnPointsTransactionResponse earnPoints(Long businessId, Long userId, String idempotencyKey, EarnPointsTransactionRequest request);
 }

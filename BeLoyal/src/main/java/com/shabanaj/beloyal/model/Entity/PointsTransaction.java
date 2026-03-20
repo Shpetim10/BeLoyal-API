@@ -71,9 +71,6 @@ public class PointsTransaction {
     @Column(name = "rule_points_per")
     private Integer rulePointsPer;
 
-    @Version
-    private Long version;
-
     @Column(name="created_at", nullable = false, updatable = false)
     @CreatedDate
     private LocalDateTime createdAt;

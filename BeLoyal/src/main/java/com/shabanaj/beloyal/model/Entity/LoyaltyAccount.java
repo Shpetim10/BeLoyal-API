@@ -52,6 +52,10 @@ public class LoyaltyAccount {
     @Column(name="last_activity_at")
     private  LocalDateTime lastActivityAt;
 
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
+
     @Column(name = "created_at", updatable = false)
     @CreatedDate
     private LocalDateTime createdAt;
@@ -64,11 +68,13 @@ public class LoyaltyAccount {
     public void add(Integer points){
         this.availablePoints+=points;
         this.lifetimeEarned+=points;
+        this.lastActivityAt=LocalDateTime.now();
     }
 
     public void spend(Integer points){
         this.availablePoints-=points;
         this.lifetimeRedeemed+=points;
+        this.lastActivityAt=LocalDateTime.now();
     }
 
     public void expire(Integer points){

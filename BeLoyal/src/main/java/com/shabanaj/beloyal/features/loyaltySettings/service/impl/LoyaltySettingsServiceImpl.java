@@ -19,7 +19,7 @@ import java.security.InvalidParameterException;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@RequiredArgsConstructor
 public class LoyaltySettingsServiceImpl implements LoyaltySettingsService {
     private final LoyaltySettingsRepository  loyaltySettingsRepository;
     private final BusinessService businessService;

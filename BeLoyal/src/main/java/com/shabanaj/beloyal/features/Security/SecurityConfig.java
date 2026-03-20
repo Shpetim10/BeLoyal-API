@@ -88,7 +88,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                 "https://*.trycloudflare.com",
                 "https://fits-females-diana-leads.trycloudflare.com"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Idempotency-Key"));
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

@@ -22,6 +22,7 @@ public class EarnPointsTransactionController {
     public ResponseEntity<EarnPointsTransactionResponse> earn(
             @PathVariable("businessId") Long businessId,
             @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestHeader("Idempotency-Key") String idempotencyKey,
             @Valid @RequestBody EarnPointsTransactionRequest request
         ) {
 
@@ -29,6 +30,7 @@ public class EarnPointsTransactionController {
           earnPointsTransactionService.earnPoints(
                   businessId,
                   userPrincipal.getId(),
+                  idempotencyKey,
                   request
           )
         );

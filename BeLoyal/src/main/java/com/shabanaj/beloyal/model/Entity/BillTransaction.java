@@ -12,7 +12,10 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "bill_transactions", uniqueConstraints = {
-        @UniqueConstraint(name = "uk_bill_transaction_business_invoice", columnNames = {"business_id", "invoice_reference"})
+        @UniqueConstraint(
+                name = "uk_bill_tx_business_idem",
+                columnNames = {"business_id", "idempotency_key"}
+        )
 })
 @EntityListeners(AuditingEntityListener.class)
 @Getter
@@ -45,11 +48,17 @@ public class BillTransaction {
     @DecimalMin(value = "0.0", inclusive = true)
     private BigDecimal billAmount;
 
-    @Column(name = "invoice_reference", unique = true)
+    @Column(name = "invoice_reference")
     private String invoiceReference;
 
     @Column(name = "note")
     private String note;
+
+    @Column(name = "idempotency_key", nullable = false, updatable = false, length = 100)
+    private String idempotencyKey;
+
+    @Column(name = "request_hash", nullable = false, updatable = false, length = 64)
+    private String requestHash;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)

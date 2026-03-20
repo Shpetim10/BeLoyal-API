@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @Builder
 public class EarnPointsTransactionResponse {
-    // bill details
+    private String status; // CREATED or REPLAYED
     private BigDecimal billAmount;
     private String transactionReference;
     private String note;
