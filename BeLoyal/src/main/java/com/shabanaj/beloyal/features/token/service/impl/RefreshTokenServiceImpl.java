@@ -1,10 +1,10 @@
-package com.shabanaj.beloyal.common.token.service.impl;
+package com.shabanaj.beloyal.features.token.service.impl;
 
 import com.shabanaj.beloyal.model.Entity.RefreshToken;
 import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.common.Helpers.TokenUtil;
-import com.shabanaj.beloyal.common.token.repository.RefreshTokenRepository;
-import com.shabanaj.beloyal.common.token.service.RefreshTokenService;
+import com.shabanaj.beloyal.features.token.repository.RefreshTokenRepository;
+import com.shabanaj.beloyal.features.token.service.RefreshTokenService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

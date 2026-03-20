@@ -1,11 +1,11 @@
-package com.shabanaj.beloyal.common.token.service.impl;
+package com.shabanaj.beloyal.features.token.service.impl;
 
 import com.shabanaj.beloyal.common.Exception.TokenIsNotValidException;
 import com.shabanaj.beloyal.common.Exception.UserNotFound;
 import com.shabanaj.beloyal.model.Entity.ResetPasswordToken;
 import com.shabanaj.beloyal.model.Entity.User;
-import com.shabanaj.beloyal.common.token.repository.ResetPasswordTokenRepository;
-import com.shabanaj.beloyal.common.token.service.ResetPasswordTokenService;
+import com.shabanaj.beloyal.features.token.repository.ResetPasswordTokenRepository;
+import com.shabanaj.beloyal.features.token.service.ResetPasswordTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

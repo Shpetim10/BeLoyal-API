@@ -1,4 +1,4 @@
-package com.shabanaj.beloyal.common.token.service;
+package com.shabanaj.beloyal.features.token.service;
 
 public interface RefreshTokenCleanUpService {
     void cleanUpRevokedTokens();

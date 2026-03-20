@@ -1,7 +1,7 @@
-package com.shabanaj.beloyal.common.token.service.impl;
+package com.shabanaj.beloyal.features.token.service.impl;
 
-import com.shabanaj.beloyal.common.token.repository.RefreshTokenRepository;
-import com.shabanaj.beloyal.common.token.service.RefreshTokenCleanUpService;
+import com.shabanaj.beloyal.features.token.repository.RefreshTokenRepository;
+import com.shabanaj.beloyal.features.token.service.RefreshTokenCleanUpService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

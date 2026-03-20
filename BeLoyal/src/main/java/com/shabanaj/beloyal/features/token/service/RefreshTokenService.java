@@ -1,4 +1,4 @@
-package com.shabanaj.beloyal.common.token.service;
+package com.shabanaj.beloyal.features.token.service;
 
 import com.shabanaj.beloyal.model.Entity.RefreshToken;
 import com.shabanaj.beloyal.model.Entity.User;

@@ -17,7 +17,7 @@ import com.shabanaj.beloyal.features.Security.OwnershipTokenService;
 import com.shabanaj.beloyal.features.registration.service.BusinessApplicationValidatorService;
 import com.shabanaj.beloyal.features.businessMember.service.BusinessMemberService;
 import com.shabanaj.beloyal.features.registration.service.BusinessRegistrationService;
-import com.shabanaj.beloyal.common.token.service.EmailVerificationTokenService;
+import com.shabanaj.beloyal.features.token.service.EmailVerificationTokenService;
 import com.shabanaj.beloyal.features.user.service.UserRegistrationBuilderService;
 import com.shabanaj.beloyal.features.user.service.UserService;
 import io.jsonwebtoken.Claims;

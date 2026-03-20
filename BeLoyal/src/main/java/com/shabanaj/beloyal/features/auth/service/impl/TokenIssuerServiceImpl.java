@@ -9,7 +9,7 @@ import com.shabanaj.beloyal.common.redis.jwtToken.TokenVersionService;
 import com.shabanaj.beloyal.features.userProfiles.customer.repository.CustomerProfileRepository;
 import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.model.Enums.Role;
-import com.shabanaj.beloyal.common.token.service.RefreshTokenService;
+import com.shabanaj.beloyal.features.token.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;

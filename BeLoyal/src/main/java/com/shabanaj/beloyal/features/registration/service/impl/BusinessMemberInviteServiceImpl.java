@@ -10,7 +10,7 @@ import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.model.Enums.UserStatus;
 import com.shabanaj.beloyal.features.registration.dto.businessMemberRegistration.BusinessMemberInviteDto;
 import com.shabanaj.beloyal.features.registration.service.BusinessMemberInvitationService;
-import com.shabanaj.beloyal.common.token.service.StaffInviteTokenService;
+import com.shabanaj.beloyal.features.token.service.StaffInviteTokenService;
 import com.shabanaj.beloyal.features.user.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

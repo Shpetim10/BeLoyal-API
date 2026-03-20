@@ -1,10 +1,10 @@
-package com.shabanaj.beloyal.common.token.service.impl;
+package com.shabanaj.beloyal.features.token.service.impl;
 
 import com.shabanaj.beloyal.model.Entity.EmailVerificationToken;
 import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.common.Exception.TokenIsNotValidException;
-import com.shabanaj.beloyal.common.token.repository.VerificationTokenRepository;
-import com.shabanaj.beloyal.common.token.service.EmailVerificationTokenService;
+import com.shabanaj.beloyal.features.token.repository.VerificationTokenRepository;
+import com.shabanaj.beloyal.features.token.service.EmailVerificationTokenService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

@@ -16,7 +16,7 @@ import com.shabanaj.beloyal.features.registration.service.CustomerRegistrationSe
 import com.shabanaj.beloyal.features.user.repository.UserRepository;
 import com.shabanaj.beloyal.features.auth.service.AuthenticationService;
 import com.shabanaj.beloyal.features.registration.service.BusinessRegistrationService;
-import com.shabanaj.beloyal.common.token.service.RefreshTokenService;
+import com.shabanaj.beloyal.features.token.service.RefreshTokenService;
 import com.shabanaj.beloyal.features.user.service.UserActivationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

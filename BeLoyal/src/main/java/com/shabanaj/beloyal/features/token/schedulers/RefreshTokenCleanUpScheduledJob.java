@@ -1,6 +1,6 @@
-package com.shabanaj.beloyal.common.schedulers;
+package com.shabanaj.beloyal.features.token.schedulers;
 
-import com.shabanaj.beloyal.common.token.service.RefreshTokenCleanUpService;
+import com.shabanaj.beloyal.features.token.service.RefreshTokenCleanUpService;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

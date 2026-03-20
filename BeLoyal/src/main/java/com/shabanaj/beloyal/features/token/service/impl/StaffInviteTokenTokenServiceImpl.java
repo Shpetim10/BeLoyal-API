@@ -1,11 +1,11 @@
-package com.shabanaj.beloyal.common.token.service.impl;
+package com.shabanaj.beloyal.features.token.service.impl;
 
 import com.shabanaj.beloyal.common.Exception.TokenIsNotValidException;
 import com.shabanaj.beloyal.model.Entity.Business;
 import com.shabanaj.beloyal.model.Entity.StaffInviteToken;
 import com.shabanaj.beloyal.model.Entity.User;
-import com.shabanaj.beloyal.common.token.repository.StaffInviteTokenRepository;
-import com.shabanaj.beloyal.common.token.service.StaffInviteTokenService;
+import com.shabanaj.beloyal.features.token.repository.StaffInviteTokenRepository;
+import com.shabanaj.beloyal.features.token.service.StaffInviteTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

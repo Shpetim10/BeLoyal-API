@@ -1,4 +1,4 @@
-package com.shabanaj.beloyal.common.token.repository;
+package com.shabanaj.beloyal.features.token.repository;
 
 import com.shabanaj.beloyal.model.Entity.EmailVerificationToken;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -7,7 +7,7 @@ import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.model.Enums.Role;
 import com.shabanaj.beloyal.features.registration.dto.RegisterUserDto;
 import com.shabanaj.beloyal.features.registration.service.CustomerRegistrationService;
-import com.shabanaj.beloyal.common.token.service.EmailVerificationTokenService;
+import com.shabanaj.beloyal.features.token.service.EmailVerificationTokenService;
 import com.shabanaj.beloyal.features.user.service.UserRegistrationBuilderService;
 import com.shabanaj.beloyal.features.user.service.UserService;
 import jakarta.transaction.Transactional;
