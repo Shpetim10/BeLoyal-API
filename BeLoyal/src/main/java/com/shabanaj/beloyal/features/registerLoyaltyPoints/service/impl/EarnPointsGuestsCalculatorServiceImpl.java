@@ -179,7 +179,7 @@ public class EarnPointsGuestsCalculatorServiceImpl implements EarnPointsGuestsCa
         }
 
         // append the current guest points
-        description.append(" You were awarded with ").append(currentGuestResult.getEarnedPoints()).append(".");
+        description.append(" You were awarded with ").append(currentGuestResult.getEarnedPoints()).append(" points.");
 
         // return
         return description.toString();

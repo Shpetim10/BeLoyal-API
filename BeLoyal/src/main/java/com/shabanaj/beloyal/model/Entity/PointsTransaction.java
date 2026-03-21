@@ -35,8 +35,8 @@ public class PointsTransaction {
     @JoinColumn(name = "bill_transaction_id")
     private BillTransaction billTransaction;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "performed_by_member_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "performed_by_member_id")
     private BusinessMember businessMember;
 
     @Column(name = "type", nullable = false)
