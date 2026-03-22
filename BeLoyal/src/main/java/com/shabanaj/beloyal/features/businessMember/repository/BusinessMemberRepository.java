@@ -5,6 +5,8 @@ import com.shabanaj.beloyal.model.Entity.BusinessMember;
 import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.model.Enums.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,4 +20,13 @@ public interface BusinessMemberRepository extends JpaRepository<BusinessMember, 
     List<BusinessMember> findAllByBusinessIdAndRole(Long businessId, Role role);
     boolean existsByBusinessIdAndUserIdAndRoleIn(Long businessId, Long userId, List<String> roles);
     Optional<BusinessMember> findByUserIdAndBusinessId(Long  userId, Long businessId);
+
+    // find by business id
+    @Query(
+            "SELECT bm FROM BusinessMember bm " +
+                    "JOIN FETCH bm.user bmu " +
+                    "JOIN FETCH bm.business bmb " +
+                    "WHERE bmb.id= :businessId"
+    )
+    List<BusinessMember> findALlByBusinessId(@Param("businessId") Long businessId);
 }

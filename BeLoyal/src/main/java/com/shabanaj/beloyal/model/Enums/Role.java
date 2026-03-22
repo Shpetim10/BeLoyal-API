@@ -7,9 +7,9 @@ public enum Role {
     STAFF(4,"Staff"),
     CUSTOMER(5,"Customer");
 
-    private Integer id;
-    private String name;
-    private String icon;
+    Integer id;
+    String name;
+    String icon;
 
     Role(Integer id, String name, String icon){
         this.id = id;

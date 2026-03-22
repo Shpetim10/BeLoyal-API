@@ -18,9 +18,15 @@ import java.time.LocalDateTime;
 public class BusinessMember {
 
     public enum MemberStatus {
-        ACTIVE,
-        INACTIVE,
-        INVITE
+        ACTIVE("Active"),
+        INACTIVE("Inactive"),
+        INVITE("Invited");
+
+        final String name;
+
+        MemberStatus(String name) {
+            this.name = name;
+        }
     }
 
     @Id

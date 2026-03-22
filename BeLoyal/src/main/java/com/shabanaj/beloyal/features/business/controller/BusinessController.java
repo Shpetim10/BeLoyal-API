@@ -24,9 +24,9 @@ public class BusinessController {
         return ResponseEntity.ok(businessService.getBusinessesByStatus(businessStatus));
     }
 
-    @GetMapping("/businesses")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<List<Business>> getAllBusinesses() {
-        return ResponseEntity.ok(businessService.getAllBusinesses());
-    }
+//    @GetMapping("/businesses")
+//    @PreAuthorize("hasRole('SUPER_ADMIN')")
+//    public ResponseEntity<List<Business>> getAllBusinesses() {
+//        return ResponseEntity.ok(businessService.getAllBusinesses());
+//    }
 }

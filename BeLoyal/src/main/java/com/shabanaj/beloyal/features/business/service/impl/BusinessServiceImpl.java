@@ -85,6 +85,6 @@ public class BusinessServiceImpl implements BusinessService {
 
     @Override
     public List<Business> getAllBusinesses() {
-        return businessRepository.findAll();
+        return businessRepository.findAllOrderedByCreatedAt();
     }
 }
