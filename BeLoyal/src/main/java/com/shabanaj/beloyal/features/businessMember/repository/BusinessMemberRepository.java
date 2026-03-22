@@ -13,6 +13,7 @@ public interface BusinessMemberRepository extends JpaRepository<BusinessMember, 
     boolean existsByUser_IdAndBusiness_Id(Long userId, Long businessId);
     Optional<BusinessMember> findByUserAndBusiness(User user, Business business);
     List<BusinessMember> findByUser(User user);
+    List<BusinessMember> findByUserId(Long userId);
     List<BusinessMember> findAllByBusiness(Business business);
     List<BusinessMember> findAllByBusinessIdAndRole(Long businessId, Role role);
     boolean existsByBusinessIdAndUserIdAndRoleIn(Long businessId, Long userId, List<String> roles);

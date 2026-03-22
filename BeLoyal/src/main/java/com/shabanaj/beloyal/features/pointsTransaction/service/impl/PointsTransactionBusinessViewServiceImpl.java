@@ -1,6 +1,5 @@
 package com.shabanaj.beloyal.features.pointsTransaction.service.impl;
 
-import com.shabanaj.beloyal.common.Exception.BusinessNotFound;
 import com.shabanaj.beloyal.features.pointsTransaction.dto.PointTransactionBusinessListViewDto;
 import com.shabanaj.beloyal.features.pointsTransaction.repository.PointsTransactionRepository;
 import com.shabanaj.beloyal.features.pointsTransaction.service.PointsTransactionBusinessViewService;
@@ -8,10 +7,7 @@ import com.shabanaj.beloyal.model.Entity.PointsTransaction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
