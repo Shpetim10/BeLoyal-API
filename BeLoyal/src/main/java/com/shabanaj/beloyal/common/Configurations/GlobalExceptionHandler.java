@@ -73,6 +73,8 @@ public class GlobalExceptionHandler {
                     case "uk_bill_transaction_business_invoice"->"This transaction is already registered for this business";
                     case "uk_points_buckets_loyalty_account_source_transaction" -> "The points bucket already exists";
                     case "uk_points_bucket_consumption_points_transaction_points_bucket" -> "The consumption points bucket already exists";
+                    case "uk_business_category_name" -> "A category with this name already exists";
+                    case "uk_item_variant"-> "A variant with this name already exists";
                     default -> "Data constraint violation";
                 };
                 return error(HttpStatus.BAD_REQUEST, msg, req);

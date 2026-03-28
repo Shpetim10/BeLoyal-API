@@ -1,6 +1,7 @@
 package com.shabanaj.beloyal.model.Entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,7 +31,7 @@ public class EarningSettings {
     private Integer pointsPer;
 
     @Column(nullable = false, name = "amount_per")
-    @Min(1)
+    @DecimalMin(value = "0.1", inclusive = true)
     private BigDecimal amountPer;
 
     private boolean enabled=false;
