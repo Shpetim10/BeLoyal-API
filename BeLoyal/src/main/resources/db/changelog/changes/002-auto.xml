@@ -1,0 +1,27 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="shaba (generated)" id="1774741996996-1">
+        <createIndex indexName="idx_bill_transaction_business" tableName="bill_transactions">
+            <column name="business_id"/>
+        </createIndex>
+        <dropUniqueConstraint constraintName="uk_bill_transaction_business_invoice" tableName="bill_transactions"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774741996996-2">
+        <dropTable tableName="staff_invite_tokens_seq"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774741996996-3">
+        <dropTable tableName="verification_email_token_seq"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774741996996-4">
+        <dropTable tableName="waiter_profiles"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774741996996-5">
+        <dropColumn columnName="logo_url" tableName="business"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774741996996-6">
+        <dropColumn columnName="profile_image" tableName="users"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774741996996-7">
+        <dropColumn columnName="version" tableName="points_transactions"/>
+    </changeSet>
+</databaseChangeLog>

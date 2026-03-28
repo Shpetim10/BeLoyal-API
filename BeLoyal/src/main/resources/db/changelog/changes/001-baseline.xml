@@ -1,0 +1,621 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="shaba (generated)" id="1774721526734-1">
+        <createTable tableName="bill_transactions">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="bill_amount" type="DECIMAL(38, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="discount_amount" type="DECIMAL(38, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="invoice_reference" type="VARCHAR(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="net_amount" type="DECIMAL(38, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="note" type="VARCHAR(255)"/>
+            <column name="updated_at" type="datetime(6)"/>
+            <column name="business_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="business_member_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="idempotency_key" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="request_hash" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-2">
+        <createTable tableName="business">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="address" type="VARCHAR(255)"/>
+            <column name="business_description" type="VARCHAR(1000)"/>
+            <column name="business_email" type="VARCHAR(255)"/>
+            <column name="business_name" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="business_phone_number" type="VARCHAR(255)"/>
+            <column name="business_status" type="ENUM('ACTIVE', 'BANNED', 'INACTIVE', 'PENDING_APPROVAL', 'REJECTED')">
+                <constraints nullable="false"/>
+            </column>
+            <column name="business_type" type="ENUM('BAR', 'CAFE', 'FAST_FOOD', 'PUB', 'RESTAURANT')">
+                <constraints nullable="false"/>
+            </column>
+            <column name="city" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="country" type="VARCHAR(255)"/>
+            <column name="created_at" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="logo_url" type="VARCHAR(255)"/>
+            <column name="rating" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="datetime(6)"/>
+            <column name="vat_id" type="VARCHAR(60)">
+                <constraints unique="true"/>
+            </column>
+            <column name="website_url" type="VARCHAR(255)"/>
+            <column name="logo_path" type="VARCHAR(255)"/>
+            <column name="rejection_reason" type="VARCHAR(2000)"/>
+            <column name="reviewed_at" type="datetime(6)"/>
+            <column name="reviewed_by_admin_id" type="BIGINT"/>
+            <column name="submitted_at" type="datetime(6)"/>
+            <column name="logo_key" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-3">
+        <createTable tableName="business_members">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="created_at" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="hired_at" type="date"/>
+            <column name="member_status" type="ENUM('ACTIVE', 'INACTIVE', 'INVITE')"/>
+            <column name="role" type="ENUM('ADMIN', 'BUSINESS_ADMIN', 'CUSTOMER', 'STAFF', 'SUPER_ADMIN')">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="datetime(6)"/>
+            <column name="business_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-4">
+        <createTable tableName="customer_profiles">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="birth_date" type="date"/>
+            <column name="city" type="VARCHAR(255)"/>
+            <column name="country" type="VARCHAR(255)"/>
+            <column name="created_at" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="gender" type="ENUM('FEMALE', 'MALE', 'OTHER', 'PREFER_NOT_TO_SAY')"/>
+            <column name="notification_enabled" type="BIT(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="referral_code" type="VARCHAR(20)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="referred_by" type="VARCHAR(20)"/>
+            <column name="updated_at" type="datetime(6)"/>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-5">
+        <createTable tableName="earning_settings">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="amount_per" type="DECIMAL(38, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="configured" type="BIT(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime(6)"/>
+            <column name="enabled" type="BIT(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="points_per" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="datetime(6)"/>
+            <column name="business_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-6">
+        <createTable tableName="loyalty_accounts">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="available_points" type="INT"/>
+            <column name="created_at" type="datetime(6)"/>
+            <column name="last_activity_at" type="datetime(6)"/>
+            <column name="lifetime_earned" type="INT"/>
+            <column name="lifetime_expired" type="INT"/>
+            <column name="lifetime_redeemed" type="INT"/>
+            <column name="updated_at" type="datetime(6)"/>
+            <column name="business_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="customer_profile_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-7">
+        <createTable tableName="loyalty_cards">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="created_at" type="datetime(6)"/>
+            <column name="issued_at" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_used_at" type="datetime(6)"/>
+            <column name="manual_code" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="qr_token" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="status" type="TINYINT(3)"/>
+            <column name="updated_at" type="datetime(6)"/>
+            <column name="customer_profile_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-8">
+        <createTable tableName="loyalty_settings">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="created_at" type="datetime(6)"/>
+            <column name="expiry_type" type="ENUM('EXPIRE_AFTER_X_MONTHS', 'NO_EXPIRY')">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_points_per_transaction" type="INT"/>
+            <column name="max_points_to_redeem" type="INT"/>
+            <column name="min_points_to_redeem" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="months_to_expire" type="INT"/>
+            <column name="points_per_unit_discount" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="datetime(6)"/>
+            <column name="business_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="configured" type="BIT(1)"/>
+            <column name="enabled" type="BIT(1)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-9">
+        <createTable tableName="points_bucket_consumption">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="created_at" type="datetime(6)"/>
+            <column name="points_used" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="points_bucket_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="points_transaction_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-10">
+        <createTable tableName="points_buckets">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="created_at" type="datetime(6)"/>
+            <column name="earned_at" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expires_at" type="datetime(6)"/>
+            <column name="points_earned" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="points_remaining" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="ENUM('ACTIVE', 'EXPIRED', 'FULLY_USED')">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="datetime(6)"/>
+            <column name="loyalty_account_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="source_transaction_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-11">
+        <createTable tableName="points_transactions">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="created_at" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="discount_amount" type="DECIMAL(38, 2)"/>
+            <column name="money_amount" type="DECIMAL(38, 2)"/>
+            <column name="points_delta" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reason" type="VARCHAR(255)"/>
+            <column name="rule_amount_per" type="DECIMAL(38, 2)"/>
+            <column name="rule_points_per" type="INT"/>
+            <column name="scan_method" type="ENUM('MANUAL_CODE', 'QR_CODE')"/>
+            <column name="type" type="ENUM('ADJUSTMENT_MINUS', 'ADJUSTMENT_PLUS', 'EARN_BILL', 'EXPIRE', 'REDEEM_DISCOUNT', 'REDEEM_OFFER', 'REVERSAL')">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="datetime(6)"/>
+            <column name="version" type="BIGINT"/>
+            <column name="bill_transaction_id" type="BIGINT"/>
+            <column name="performed_by_member_id" type="BIGINT"/>
+            <column name="loyalty_account_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-12">
+        <createTable tableName="refresh_tokens">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="created_at" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="device_id" type="VARCHAR(255)"/>
+            <column name="expires_at" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revoked_at" type="datetime(6)"/>
+            <column name="token_hash" type="VARCHAR(64)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="user_agent" type="VARCHAR(255)"/>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-13">
+        <createTable tableName="reset_password_token">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="created_date" type="datetime(6)"/>
+            <column name="expiry_date" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="token" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="used" type="BIT(1)"/>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-14">
+        <createTable tableName="staff_invite_tokens">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="created_at" type="datetime(6)"/>
+            <column name="expires_at" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_existing_user" type="BIT(1)"/>
+            <column name="token" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="used" type="BIT(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="business_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-15">
+        <createTable tableName="staff_invite_tokens_seq">
+            <column name="next_val" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-16">
+        <createTable tableName="user_roles">
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="ENUM('CUSTOMER', 'ADMIN', 'STAFF', 'SUPER_ADMIN')"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-17">
+        <createTable tableName="users">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="accepted_tc_at" type="datetime(6)"/>
+            <column name="accepted_tc_version" type="VARCHAR(50)"/>
+            <column name="created_at" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="email_verified" type="BIT(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email_verified_at" type="datetime(6)"/>
+            <column name="failed_login_attempts" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="first_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_login_at" type="datetime(6)"/>
+            <column name="last_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="locked_until" type="datetime(6)"/>
+            <column name="password_hash" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone_number" type="VARCHAR(30)">
+                <constraints unique="true"/>
+            </column>
+            <column name="profile_image" type="VARCHAR(255)"/>
+            <column name="status" type="ENUM('BLOCKED', 'DISABLED', 'ENABLED', 'LOCKED', 'PENDING_VERIFICATION', 'REJECTED')">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="datetime(6)"/>
+            <column name="username" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="profile_image_url" type="VARCHAR(255)"/>
+            <column name="profile_image_key" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-18">
+        <createTable tableName="verification_email_token">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="created_at" type="datetime(6)"/>
+            <column name="expires_at" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="token" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="used" type="BIT(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-19">
+        <createTable tableName="verification_email_token_seq">
+            <column name="next_val" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-20">
+        <createTable tableName="waiter_profiles">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="created_at" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="employee_code" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="hire_date" type="date"/>
+            <column name="updated_at" type="datetime(6)"/>
+            <column name="business_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-21">
+        <addUniqueConstraint columnNames="user_id, business_id" constraintName="UKse3e98p9233joogxer2f3302v" tableName="business_members"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-22">
+        <addUniqueConstraint columnNames="business_id, invoice_reference" constraintName="uk_bill_transaction_business_invoice" tableName="bill_transactions"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-23">
+        <addUniqueConstraint columnNames="user_id, business_id" constraintName="uk_business_members_user_business" tableName="business_members"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-24">
+        <addUniqueConstraint columnNames="customer_profile_id, business_id" constraintName="uk_loyalty_account_unique_profile_and_business" tableName="loyalty_accounts"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-25">
+        <addUniqueConstraint columnNames="points_transaction_id, points_bucket_id" constraintName="uk_points_bucket_consumption_points_transaction_points_bucket" tableName="points_bucket_consumption"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-26">
+        <addUniqueConstraint columnNames="loyalty_account_id, source_transaction_id" constraintName="uk_points_buckets_loyalty_account_source_transaction" tableName="points_buckets"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-27">
+        <createIndex associatedWith="" indexName="FK1tqj7q5nc7bhbyua1akrqb45j" tableName="waiter_profiles">
+            <column name="business_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-28">
+        <createIndex associatedWith="" indexName="FK3ts1exb7qbqvllgkaatknofvp" tableName="points_bucket_consumption">
+            <column name="points_bucket_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-29">
+        <createIndex associatedWith="" indexName="FK8intyl3h46ivdr1d4u16lnrdy" tableName="loyalty_accounts">
+            <column name="business_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-30">
+        <createIndex associatedWith="" indexName="FK9p3kgnktkhimrrqaqpcsft2ic" tableName="staff_invite_tokens">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-31">
+        <createIndex associatedWith="" indexName="FKbmim2kv4oty94ppujdykh8oj2" tableName="points_transactions">
+            <column name="loyalty_account_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-32">
+        <createIndex associatedWith="" indexName="FKdvjmf6l5o6aum62r9fo9mx3lm" tableName="staff_invite_tokens">
+            <column name="business_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-33">
+        <createIndex associatedWith="" indexName="FKe023wupmvflq0shtsllduwl2w" tableName="business_members">
+            <column name="business_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-34">
+        <createIndex associatedWith="" indexName="FKhfh9dx7w3ubf1co1vdev94g3f" tableName="user_roles">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-35">
+        <createIndex associatedWith="" indexName="FKim2ec796yuclvin0sh59flqfh" tableName="points_transactions">
+            <column name="performed_by_member_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-36">
+        <createIndex associatedWith="" indexName="FKovnkfwdnm2jc6happ8r8xmpsg" tableName="points_transactions">
+            <column name="bill_transaction_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-37">
+        <createIndex associatedWith="" indexName="FKrjy8sujh2s2ltnv5x1n4x28cf" tableName="bill_transactions">
+            <column name="business_member_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-38">
+        <createIndex associatedWith="" indexName="idx_refresh_user" tableName="refresh_tokens">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-39">
+        <addForeignKeyConstraint baseColumnNames="business_id" baseTableName="loyalty_settings" constraintName="FK1ixh70c8u2ck182dh0xpjri28" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="business" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-40">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="refresh_tokens" constraintName="FK1lih5y2npsf8u5o3vhdb9y0os" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="users" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-41">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="verification_email_token" constraintName="FK1ogdaqx7hj0gf6wtj6a3kswqk" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="users" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-42">
+        <addForeignKeyConstraint baseColumnNames="business_id" baseTableName="waiter_profiles" constraintName="FK1tqj7q5nc7bhbyua1akrqb45j" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="business" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-43">
+        <addForeignKeyConstraint baseColumnNames="business_id" baseTableName="bill_transactions" constraintName="FK3eeriashh5wxdebp2mm2ifoss" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="business" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-44">
+        <addForeignKeyConstraint baseColumnNames="points_bucket_id" baseTableName="points_bucket_consumption" constraintName="FK3ts1exb7qbqvllgkaatknofvp" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="points_buckets" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-45">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="customer_profiles" constraintName="FK69orkdj1un5rh845ngvvmd1xs" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="users" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-46">
+        <addForeignKeyConstraint baseColumnNames="source_transaction_id" baseTableName="points_buckets" constraintName="FK6yginq90hmdg954uxb3mksl8h" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="points_transactions" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-47">
+        <addForeignKeyConstraint baseColumnNames="business_id" baseTableName="loyalty_accounts" constraintName="FK8intyl3h46ivdr1d4u16lnrdy" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="business" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-48">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="staff_invite_tokens" constraintName="FK9p3kgnktkhimrrqaqpcsft2ic" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="users" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-49">
+        <addForeignKeyConstraint baseColumnNames="loyalty_account_id" baseTableName="points_transactions" constraintName="FKbmim2kv4oty94ppujdykh8oj2" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="loyalty_accounts" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-50">
+        <addForeignKeyConstraint baseColumnNames="business_id" baseTableName="staff_invite_tokens" constraintName="FKdvjmf6l5o6aum62r9fo9mx3lm" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="business" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-51">
+        <addForeignKeyConstraint baseColumnNames="business_id" baseTableName="business_members" constraintName="FKe023wupmvflq0shtsllduwl2w" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="business" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-52">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_roles" constraintName="FKhfh9dx7w3ubf1co1vdev94g3f" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="users" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-53">
+        <addForeignKeyConstraint baseColumnNames="customer_profile_id" baseTableName="loyalty_accounts" constraintName="FKi8awn23390b4mmv0mj9eo5x2e" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="customer_profiles" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-54">
+        <addForeignKeyConstraint baseColumnNames="performed_by_member_id" baseTableName="points_transactions" constraintName="FKim2ec796yuclvin0sh59flqfh" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="business_members" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-55">
+        <addForeignKeyConstraint baseColumnNames="business_id" baseTableName="earning_settings" constraintName="FKknl2v8anidwjnmimxyylit716" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="business" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-56">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="business_members" constraintName="FKl3se6j2mob8wdx6tjckpx0qjt" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="users" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-57">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="waiter_profiles" constraintName="FKl9qsonkcmojx0cjsipfx7qt1e" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="users" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-58">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="reset_password_token" constraintName="FKlu8wgvb3mkbxir0sls596u7np" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="users" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-59">
+        <addForeignKeyConstraint baseColumnNames="points_transaction_id" baseTableName="points_bucket_consumption" constraintName="FKmhqd0j34h7gofrht0calkb3rr" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="points_transactions" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-60">
+        <addForeignKeyConstraint baseColumnNames="loyalty_account_id" baseTableName="points_buckets" constraintName="FKormeadwtqulwrmss4beygg4j3" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="loyalty_accounts" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-61">
+        <addForeignKeyConstraint baseColumnNames="bill_transaction_id" baseTableName="points_transactions" constraintName="FKovnkfwdnm2jc6happ8r8xmpsg" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="bill_transactions" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-62">
+        <addForeignKeyConstraint baseColumnNames="customer_profile_id" baseTableName="loyalty_cards" constraintName="FKrjf7x0daa29ice603dsiwljhd" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="customer_profiles" validate="true"/>
+    </changeSet>
+    <changeSet author="shaba (generated)" id="1774721526734-63">
+        <addForeignKeyConstraint baseColumnNames="business_member_id" baseTableName="bill_transactions" constraintName="FKrjy8sujh2s2ltnv5x1n4x28cf" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="business_members" validate="true"/>
+    </changeSet>
+</databaseChangeLog>

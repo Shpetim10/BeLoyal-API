@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name="refresh_tokens", indexes = {
         @Index(name="idx_refresh_user", columnList = "user_id"),
-        @Index(name="idx_refresh_hash", columnList = "tokenHash", unique = true)
+        @Index(name="idx_refresh_hash", columnList = "token_hash", unique = true)
 },
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_refresh_token_token_hash", columnNames = "token_hash")
@@ -23,7 +23,7 @@ public class RefreshToken {
   @ManyToOne(optional = false,fetch = FetchType.LAZY)
   private User user;
 
-  @Column(nullable = false, unique = true, length=64)
+  @Column(name = "token_hash", nullable = false, unique = true, length=64)
   private String tokenHash;
 
   @Column(nullable=false)
