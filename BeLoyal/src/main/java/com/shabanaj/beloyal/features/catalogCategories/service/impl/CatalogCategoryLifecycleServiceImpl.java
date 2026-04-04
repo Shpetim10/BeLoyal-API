@@ -2,6 +2,7 @@ package com.shabanaj.beloyal.features.catalogCategories.service.impl;
 
 import com.shabanaj.beloyal.common.Exception.CatalogCategoryHasItems;
 import com.shabanaj.beloyal.features.catalogCategories.dto.CatalogCategoryStatusChangeResponse;
+import com.shabanaj.beloyal.features.catalogCategories.repository.CatalogCategoryRepository;
 import com.shabanaj.beloyal.features.catalogCategories.service.CatalogCategoryLifecycleService;
 import com.shabanaj.beloyal.features.catalogCategories.service.CatalogCategoryService;
 import com.shabanaj.beloyal.model.Entity.CatalogCategory;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CatalogCategoryLifecycleServiceImpl implements CatalogCategoryLifecycleService {
     private final CatalogCategoryService  catalogCategoryService;
+    private final CatalogCategoryRepository catalogCategoryRepository;
+
     @Override
     public CatalogCategoryStatusChangeResponse activate(Long businessId, Long id) {
         // validate input
@@ -47,6 +50,20 @@ public class CatalogCategoryLifecycleServiceImpl implements CatalogCategoryLifec
     }
 
     @Override
+    public CatalogCategoryStatusChangeResponse restore(Long businessId, Long id) {
+        // validate input
+        validateInput(businessId, id);
+
+        // find the trashed category via repository (service filters deleted)
+        CatalogCategory category = catalogCategoryRepository.findByIdAndBusinessId(id, businessId)
+            .orElseThrow(() -> new IllegalArgumentException("Trashed Catalog category not found"));
+
+        category.setIsDeleted(false);
+        catalogCategoryService.save(category);
+        return mapToResponse(category);
+    }
+
+    @Override
     public void delete(Long businessId, Long id) {
         // validate input
         validateInput(businessId, id);
@@ -55,11 +72,11 @@ public class CatalogCategoryLifecycleServiceImpl implements CatalogCategoryLifec
         CatalogCategory category= catalogCategoryService.getCatalogCategoryByIdAndBusinessId(id,businessId);
 
         // check if it has items inside
-        if(!catalogCategoryService.canBeDeleted(businessId)){
-            throw new CatalogCategoryHasItems("This Category cannot be deleted because it has items inside");
+        if(!catalogCategoryService.canBeDeleted(category)){
+            throw new CatalogCategoryHasItems("This Category cannot be deleted because it has active items inside");
         }
 
-        // delete
+        // delete (which is now soft delete)
         catalogCategoryService.delete(category);
     }
 

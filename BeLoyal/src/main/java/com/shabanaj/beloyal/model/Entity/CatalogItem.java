@@ -1,5 +1,6 @@
 package com.shabanaj.beloyal.model.Entity;
 
+import com.shabanaj.beloyal.model.Enums.CatalogItemType;
 import com.shabanaj.beloyal.model.Enums.CatalogStatus;
 import com.shabanaj.beloyal.model.Enums.CurrencyCode;
 import jakarta.persistence.*;
@@ -48,6 +49,10 @@ public class CatalogItem {
     @DecimalMin(value = "0.1", inclusive = true)
     private BigDecimal price;
 
+    @Column(name="type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private CatalogItemType type;
+
     @Column(name="currency_code", nullable = false)
     @Enumerated(EnumType.STRING)
     private CurrencyCode currencyCode;
@@ -64,7 +69,6 @@ public class CatalogItem {
 
     @Column(name = "image_key")
     private String imageKey;
-
 
     @Column(name = "order_index", nullable = false)
     private Integer orderIndex;

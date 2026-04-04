@@ -10,6 +10,6 @@ public interface CatalogCategoryService {
     List<CatalogCategory> getCatalogCategoriesByBusinessId(Long businessId);
     boolean hasCategoryWithThisIndex(Long businessId, Integer orderIndex);
     Integer getNextOrderIndex(Long businessId);
-    boolean canBeDeleted(Long businessId);
+    boolean canBeDeleted(CatalogCategory category);
     void delete(CatalogCategory catalogCategory);
 }

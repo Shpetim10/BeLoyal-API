@@ -25,7 +25,7 @@ public class CatalogCategoryOrderManagementServiceImpl implements CatalogCategor
         List<CatalogCategoryViewDto> result = new ArrayList<>();
 
         for (CatalogCategoryOrderUpdateRequest.CategoryOrderDto dto : request.getCategoryOrders()) {
-            CatalogCategory category = catalogCategoryRepository.findByIdAndBusinessId(dto.getCategoryId(), businessId)
+            CatalogCategory category = catalogCategoryRepository.findByIdAndBusinessIdAndIsDeletedFalse(dto.getCategoryId(), businessId)
                     .orElseThrow(() -> new CatalogCategoryNotFound("Catalog Category with id " + dto.getCategoryId() + " not found for this business."));
 
             category.setOrderIndex(dto.getOrderIndex());

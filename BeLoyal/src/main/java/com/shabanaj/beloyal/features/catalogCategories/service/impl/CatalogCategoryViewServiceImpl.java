@@ -1,6 +1,7 @@
 package com.shabanaj.beloyal.features.catalogCategories.service.impl;
 
 import com.shabanaj.beloyal.features.catalogCategories.dto.CatalogCategoryViewDto;
+import com.shabanaj.beloyal.features.catalogCategories.repository.CatalogCategoryRepository;
 import com.shabanaj.beloyal.features.catalogCategories.service.CatalogCategoryService;
 import com.shabanaj.beloyal.features.catalogCategories.service.CatalogCategoryViewService;
 import com.shabanaj.beloyal.model.Entity.CatalogCategory;
@@ -8,11 +9,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class CatalogCategoryViewServiceImpl implements CatalogCategoryViewService {
     private final CatalogCategoryService catalogCategoryService;
+    private final CatalogCategoryRepository catalogCategoryRepository;
 
     @Override
     public CatalogCategoryViewDto viewCatalogCategory(Long id, Long businessId) {
@@ -47,5 +50,21 @@ public class CatalogCategoryViewServiceImpl implements CatalogCategoryViewServic
                         .createdAt(e.getCreatedAt())
                         .build())
                 .toList();
+    }
+
+    @Override
+    public List<CatalogCategoryViewDto> getTrashCategoriesByBusiness(Long businessId) {
+        List<CatalogCategory> categories = catalogCategoryRepository.findAllByBusinessIdAndIsDeletedTrueOrderByUpdatedAtDesc(businessId);
+
+        return categories.stream()
+                .map(category -> CatalogCategoryViewDto.builder()
+                        .id(category.getId())
+                        .name(category.getName())
+                        .description(category.getDescription())
+                        .status(category.getStatus().getName())
+                        .orderIndex(category.getOrderIndex())
+                        .createdAt(category.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

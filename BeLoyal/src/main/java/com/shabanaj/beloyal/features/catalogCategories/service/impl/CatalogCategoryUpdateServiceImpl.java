@@ -21,7 +21,7 @@ public class CatalogCategoryUpdateServiceImpl implements CatalogCategoryUpdateSe
     @Transactional
     public CatalogCategoryViewDto update(Long businessId, Long id, CatalogCategoryUpdateRequest request) {
         // 1. Fetch
-        CatalogCategory category = catalogCategoryRepository.findByIdAndBusinessId(id, businessId)
+        CatalogCategory category = catalogCategoryRepository.findByIdAndBusinessIdAndIsDeletedFalse(id, businessId)
                 .orElseThrow(() -> new CatalogCategoryNotFound("Catalog Category with id " + id + " not found for this business."));
 
         // 2. Map provided fields

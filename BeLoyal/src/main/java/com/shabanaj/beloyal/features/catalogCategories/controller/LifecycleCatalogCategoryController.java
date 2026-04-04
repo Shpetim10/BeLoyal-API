@@ -25,6 +25,12 @@ public class LifecycleCatalogCategoryController {
         return ResponseEntity.ok(catalogCategoryLifecycleService.deactivate(businessId, id));
     }
 
+    @PatchMapping("/restore")
+    @PreAuthorize("@businessSecurity.hasAccess(#businessId , authentication, 'BUSINESS_ADMIN')")
+    public ResponseEntity<CatalogCategoryStatusChangeResponse> restore(@PathVariable("businessId") Long businessId, @PathVariable("id") Long id){
+        return ResponseEntity.ok(catalogCategoryLifecycleService.restore(businessId, id));
+    }
+
     @DeleteMapping
     @PreAuthorize("@businessSecurity.hasAccess(#businessId , authentication, 'BUSINESS_ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable("businessId") Long businessId, @PathVariable("id") Long id) {

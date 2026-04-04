@@ -3,6 +3,7 @@ package com.shabanaj.beloyal.features.catalogCategories.service.impl;
 import com.shabanaj.beloyal.common.Exception.CatalogCategoryNotFound;
 import com.shabanaj.beloyal.features.catalogCategories.repository.CatalogCategoryRepository;
 import com.shabanaj.beloyal.features.catalogCategories.service.CatalogCategoryService;
+import com.shabanaj.beloyal.features.catalogItems.repository.CatalogItemRepository;
 import com.shabanaj.beloyal.model.Entity.CatalogCategory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CatalogCategoryServiceImpl implements CatalogCategoryService {
     private final CatalogCategoryRepository catalogCategoryRepository;
+    private final CatalogItemRepository catalogItemRepository;
 
 
     public void save(CatalogCategory catalogCategory) {
@@ -28,7 +30,7 @@ public class CatalogCategoryServiceImpl implements CatalogCategoryService {
             throw new IllegalArgumentException("businessId is null");
         }
 
-        return catalogCategoryRepository.findByIdAndBusinessId(id, businessId)
+        return catalogCategoryRepository.findByIdAndBusinessIdAndIsDeletedFalse(id, businessId)
                 .orElseThrow(() -> new CatalogCategoryNotFound("Catalog category not found"));
     }
 
@@ -38,7 +40,7 @@ public class CatalogCategoryServiceImpl implements CatalogCategoryService {
             throw new IllegalArgumentException("businessId is null");
         }
 
-        return catalogCategoryRepository.findAllByBusinessId(businessId);
+        return catalogCategoryRepository.findAllByBusinessIdAndIsDeletedFalseOrderByOrderIndexAsc(businessId);
     }
 
     @Override
@@ -47,7 +49,7 @@ public class CatalogCategoryServiceImpl implements CatalogCategoryService {
             throw new IllegalArgumentException("orderIndex or businessId is null");
         }
 
-        return catalogCategoryRepository.findByBusinessIdAndOrderIndex(businessId, orderIndex).isPresent();
+        return catalogCategoryRepository.findByBusinessIdAndOrderIndexAndIsDeletedFalse(businessId, orderIndex).isPresent();
     }
 
     @Override
@@ -57,17 +59,17 @@ public class CatalogCategoryServiceImpl implements CatalogCategoryService {
         }
 
         List<CatalogCategory> catalogCategoriesByBusinessId = getCatalogCategoriesByBusinessId(businessId);
-        return catalogCategoriesByBusinessId.size()+1;
+        return catalogCategoriesByBusinessId.size();
     }
 
     @Override
-    public boolean canBeDeleted(Long businessId) {
-        // TODO: UPDATE WHEN MANIPULATING CATALOG ITEMS
-        return true;
+    public boolean canBeDeleted(CatalogCategory category) {
+        return catalogItemRepository.countByCategoryAndIsDeletedFalse(category) == 0;
     }
 
     @Override
     public void delete(CatalogCategory catalogCategory) {
-        catalogCategoryRepository.delete(catalogCategory);
+        catalogCategory.setIsDeleted(true);
+        catalogCategoryRepository.save(catalogCategory);
     }
 }

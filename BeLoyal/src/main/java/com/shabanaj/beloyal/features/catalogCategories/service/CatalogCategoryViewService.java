@@ -7,4 +7,5 @@ import java.util.List;
 public interface CatalogCategoryViewService {
     CatalogCategoryViewDto viewCatalogCategory(Long id, Long businessId);
     List<CatalogCategoryViewDto> viewCatalogCategories(Long businessId);
+    List<CatalogCategoryViewDto> getTrashCategoriesByBusiness(Long businessId);
 }

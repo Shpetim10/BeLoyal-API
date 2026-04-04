@@ -29,4 +29,10 @@ public class ViewCatalogCategoryController {
     public ResponseEntity<List<CatalogCategoryViewDto>> viewCatalogCategories(@PathVariable("businessId") Long businessId){
         return ResponseEntity.ok(catalogCategoryViewService.viewCatalogCategories(businessId));
     }
+
+    @GetMapping("/trash")
+    @PreAuthorize("@businessSecurity.hasAccess(#businessId , authentication, 'BUSINESS_ADMIN', 'STAFF')")
+    public ResponseEntity<List<CatalogCategoryViewDto>> getTrashCategoriesByBusiness(@PathVariable("businessId") Long businessId){
+        return ResponseEntity.ok(catalogCategoryViewService.getTrashCategoriesByBusiness(businessId));
+    }
 }

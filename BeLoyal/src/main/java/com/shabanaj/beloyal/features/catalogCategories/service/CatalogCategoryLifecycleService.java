@@ -5,5 +5,6 @@ import com.shabanaj.beloyal.features.catalogCategories.dto.CatalogCategoryStatus
 public interface CatalogCategoryLifecycleService {
     CatalogCategoryStatusChangeResponse activate(Long businessId, Long id);
     CatalogCategoryStatusChangeResponse deactivate(Long businessId, Long id);
+    CatalogCategoryStatusChangeResponse restore(Long businessId, Long id);
     void delete(Long businessId, Long id);
 }

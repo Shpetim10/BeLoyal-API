@@ -8,8 +8,11 @@ import java.util.Optional;
 
 
 public interface CatalogCategoryRepository extends JpaRepository<CatalogCategory, Long> {
-    Optional<CatalogCategory> findById(Long id);
+    Optional<CatalogCategory> findByIdAndIsDeletedFalse(Long id);
+    Optional<CatalogCategory> findByIdAndBusinessIdAndIsDeletedFalse(Long id, Long businessId);
+    List<CatalogCategory> findAllByBusinessIdAndIsDeletedFalseOrderByOrderIndexAsc(Long businessId);
+    Optional<CatalogCategory> findByBusinessIdAndOrderIndexAndIsDeletedFalse(Long businessId, Integer orderIndex);
+
+    List<CatalogCategory> findAllByBusinessIdAndIsDeletedTrueOrderByUpdatedAtDesc(Long businessId);
     Optional<CatalogCategory> findByIdAndBusinessId(Long id, Long businessId);
-    List<CatalogCategory> findAllByBusinessId(Long businessId);
-    Optional<CatalogCategory> findByBusinessIdAndOrderIndex(Long businessId, Integer orderIndex);
 }

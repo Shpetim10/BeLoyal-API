@@ -56,6 +56,10 @@ public class CatalogCategory {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
+    @Builder.Default
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
+
     // helpers
     public void activate(){
         this.status = CatalogStatus.ACTIVE;
