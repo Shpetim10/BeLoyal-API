@@ -34,7 +34,7 @@ public class CatalogCategory {
     private Business business;
 
     @Column(name = "name", nullable = false)
-    @Size(max = 120)
+    @Size(max = 120, message = "The name of category is too long")
     private String name;
 
     @Column(name = "description")
@@ -55,4 +55,13 @@ public class CatalogCategory {
     @Column(name = "updated_at")
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    // helpers
+    public void activate(){
+        this.status = CatalogStatus.ACTIVE;
+    }
+
+    public void deactivate(){
+        this.status = CatalogStatus.INACTIVE;
+    }
 }

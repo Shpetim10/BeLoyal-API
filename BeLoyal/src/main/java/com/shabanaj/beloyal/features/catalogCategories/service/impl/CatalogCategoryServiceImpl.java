@@ -40,4 +40,34 @@ public class CatalogCategoryServiceImpl implements CatalogCategoryService {
 
         return catalogCategoryRepository.findAllByBusinessId(businessId);
     }
+
+    @Override
+    public boolean hasCategoryWithThisIndex(Long businessId, Integer orderIndex) {
+        if(orderIndex == null || businessId == null) {
+            throw new IllegalArgumentException("orderIndex or businessId is null");
+        }
+
+        return catalogCategoryRepository.findByBusinessIdAndOrderIndex(businessId, orderIndex).isPresent();
+    }
+
+    @Override
+    public Integer getNextOrderIndex(Long businessId) {
+        if(businessId == null) {
+            throw new IllegalArgumentException("businessId is null");
+        }
+
+        List<CatalogCategory> catalogCategoriesByBusinessId = getCatalogCategoriesByBusinessId(businessId);
+        return catalogCategoriesByBusinessId.size()+1;
+    }
+
+    @Override
+    public boolean canBeDeleted(Long businessId) {
+        // TODO: UPDATE WHEN MANIPULATING CATALOG ITEMS
+        return true;
+    }
+
+    @Override
+    public void delete(CatalogCategory catalogCategory) {
+        catalogCategoryRepository.delete(catalogCategory);
+    }
 }

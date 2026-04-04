@@ -25,7 +25,7 @@ public class CatalogCategoryViewServiceImpl implements CatalogCategoryViewServic
                 .name(catalogCategory.getName())
                 .description(catalogCategory.getDescription())
                 .orderIndex(catalogCategory.getOrderIndex())
-                .status(catalogCategory.getStatus().name())
+                .status(catalogCategory.getStatus().getName())
                 .createdAt(catalogCategory.getCreatedAt())
                 .build();
     }
@@ -43,7 +43,7 @@ public class CatalogCategoryViewServiceImpl implements CatalogCategoryViewServic
                         .name(e.getName())
                         .description(e.getDescription())
                         .orderIndex(e.getOrderIndex())
-                        .status(e.getStatus().name())
+                        .status(e.getStatus().getName())
                         .createdAt(e.getCreatedAt())
                         .build())
                 .toList();

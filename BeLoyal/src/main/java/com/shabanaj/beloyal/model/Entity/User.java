@@ -3,12 +3,11 @@ package com.shabanaj.beloyal.model.Entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.shabanaj.beloyal.model.Enums.Role;
 import com.shabanaj.beloyal.model.Enums.UserStatus;
-import com.shabanaj.beloyal.common.Validation.Annotation.UniqueEmailOnCreate;
-import com.shabanaj.beloyal.common.Validation.Annotation.UniqueUsernameOnCreate;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -38,13 +37,11 @@ public class User {
 
     @Column(unique = true, nullable = false, length = 50)
     @NotBlank
-    @UniqueUsernameOnCreate
     private String username;
 
     @Column(unique = true, nullable = false, length = 255)
     @NotBlank
     @Email
-    @UniqueEmailOnCreate
     private String email;
 
     @Column(name = "password_hash", nullable = false, length = 255)
