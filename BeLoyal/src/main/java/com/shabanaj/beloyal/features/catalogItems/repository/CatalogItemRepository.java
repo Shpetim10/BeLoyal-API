@@ -17,4 +17,8 @@ public interface CatalogItemRepository extends JpaRepository<CatalogItem, Long> 
 
     List<CatalogItem> findAllByBusinessIdAndIsDeletedTrueOrderByUpdatedAtDesc(Long businessId);
     java.util.Optional<CatalogItem> findByIdAndBusinessId(Long id, Long businessId);
+
+    // used for order-index recompaction after a category move
+    List<CatalogItem> findAllByCategoryAndIsDeletedFalseOrderByOrderIndexAsc(CatalogCategory category);
+    Integer countByCategoryIdAndIsDeletedFalse(Long categoryId);
 }

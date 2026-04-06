@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CatalogItemLifecycleServiceImpl implements CatalogItemLifecycleService {
 
     private final CatalogItemRepository catalogItemRepository;
+    private final CatalogItemOrderHelper orderHelper;
 
     @Override
     @Transactional
@@ -37,7 +38,10 @@ public class CatalogItemLifecycleServiceImpl implements CatalogItemLifecycleServ
     @Transactional
     public CatalogItemStatusChangeResponse restore(Long businessId, Long id) {
         CatalogItem item = getCatalogItem(businessId, id);
+        // Place the restored item at the end of its category
+        int nextIndex = catalogItemRepository.countByCategoryIdAndIsDeletedFalse(item.getCategory().getId());
         item.setIsDeleted(false);
+        item.setOrderIndex(nextIndex); // nextIndex is the count BEFORE marking not-deleted
         catalogItemRepository.save(item);
         return createResponse(item);
     }
@@ -48,6 +52,8 @@ public class CatalogItemLifecycleServiceImpl implements CatalogItemLifecycleServ
         CatalogItem item = getCatalogItem(businessId, id);
         item.setIsDeleted(true);
         catalogItemRepository.save(item);
+        // Recompact remaining items in the category to close the gap
+        orderHelper.recompact(item.getCategory());
     }
 
     private CatalogItem getCatalogItem(Long businessId, Long id) {

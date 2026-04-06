@@ -74,4 +74,15 @@ public class JsonHelperConfig {
         if (field == null || !field.isPresent()) return; // not sent
         setter.accept(field.orElse(null));               // null => clear
     }
+
+    public static void applyRequiredDecimal(JsonNullable<java.math.BigDecimal> field,
+                                            String name,
+                                            java.math.BigDecimal min,
+                                            java.util.function.Consumer<java.math.BigDecimal> setter) throws BadRequestException {
+        if (field == null || !field.isPresent()) return; // not sent
+        java.math.BigDecimal value = field.orElse(null);
+        if (value == null) throw new BadRequestException(name + " cannot be null");
+        if (value.compareTo(min) < 0) throw new BadRequestException(name + " must be >= " + min.toPlainString());
+        setter.accept(value);
+    }
 }
