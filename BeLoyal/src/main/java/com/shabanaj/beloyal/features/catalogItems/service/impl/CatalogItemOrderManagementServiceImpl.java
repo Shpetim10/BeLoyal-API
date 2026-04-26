@@ -3,6 +3,7 @@ package com.shabanaj.beloyal.features.catalogItems.service.impl;
 import com.shabanaj.beloyal.common.Exception.BadRequestException;
 import com.shabanaj.beloyal.features.catalogCategories.repository.CatalogCategoryRepository;
 import com.shabanaj.beloyal.features.catalogItems.dto.CatalogItemOrderUpdateRequest;
+import com.shabanaj.beloyal.features.catalogItems.dto.CatalogItemOrderUpdateRequest.ItemOrderDto;
 import com.shabanaj.beloyal.features.catalogItems.dto.CatalogItemShortResponse;
 import com.shabanaj.beloyal.features.catalogItems.repository.CatalogItemRepository;
 import com.shabanaj.beloyal.features.catalogItems.service.CatalogItemOrderManagementService;
@@ -12,12 +13,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Handles explicit reordering of catalog items within a category.
+ *
+ * <h3>Supported modes</h3>
+ * <ul>
+ *   <li><b>Full reorder</b> – the request contains every item in the category.
+ *       The final order is exactly as specified.</li>
+ *   <li><b>Partial reorder</b> – the request contains only a subset of items.
+ *       The listed items are placed first (in the requested order); all
+ *       unlisted items follow in their original relative order.</li>
+ * </ul>
+ */
 @Service
 @RequiredArgsConstructor
 public class CatalogItemOrderManagementServiceImpl implements CatalogItemOrderManagementService {
@@ -30,53 +40,92 @@ public class CatalogItemOrderManagementServiceImpl implements CatalogItemOrderMa
     @Transactional
     public List<CatalogItemShortResponse> updateOrder(Long businessId, Long categoryId,
                                                       CatalogItemOrderUpdateRequest request) {
-        // 1. Resolve and validate the category
+
+        // ── 1. Resolve and validate the category ─────────────────────────────
         CatalogCategory category = catalogCategoryRepository
                 .findByIdAndBusinessIdAndIsDeletedFalse(categoryId, businessId)
                 .orElseThrow(() -> new BadRequestException("Category not found for this business"));
 
-        // 2. Load all non-deleted items in this category
+        // ── 2. Load all active items in this category (current order) ─────────
         List<CatalogItem> existing =
                 catalogItemRepository.findAllByCategoryAndIsDeletedFalseOrderByOrderIndexAsc(category);
 
-        int totalItems = existing.size();
+        if (existing.isEmpty()) {
+            return Collections.emptyList();
+        }
 
-        // 3. Build a lookup map: itemId → item
-        Map<Long, CatalogItem> itemMap = existing.stream()
+        // ── 3. Validate the incoming request ─────────────────────────────────
+        List<ItemOrderDto> dtos = request.getItemOrders();
+
+        // 3a. No duplicate item IDs in the request
+        Set<Long> seenItemIds = new HashSet<>();
+        for (ItemOrderDto dto : dtos) {
+            if (!seenItemIds.add(dto.getItemId())) {
+                throw new BadRequestException(
+                        "Duplicate item id " + dto.getItemId() + " in the request");
+            }
+        }
+
+        // 3b. All referenced item IDs must actually exist in this category
+        Map<Long, CatalogItem> itemById = existing.stream()
                 .collect(Collectors.toMap(CatalogItem::getId, i -> i));
 
-        // 4. Validate request entries
+        for (ItemOrderDto dto : dtos) {
+            if (!itemById.containsKey(dto.getItemId())) {
+                throw new BadRequestException(
+                        "Item with id " + dto.getItemId() + " not found in category " + categoryId);
+            }
+        }
+
+        // 3c. No duplicate target indices in the request
         Set<Integer> seenIndices = new HashSet<>();
-        for (CatalogItemOrderUpdateRequest.ItemOrderDto dto : request.getItemOrders()) {
-            // All referenced IDs must belong to this category
-            if (!itemMap.containsKey(dto.getItemId())) {
-                throw new BadRequestException(
-                        "Item with id " + dto.getItemId() + " not found in this category");
-            }
-            // Index must be in valid range [0, totalItems - 1]
-            if (dto.getOrderIndex() < 0 || dto.getOrderIndex() >= totalItems) {
-                throw new BadRequestException(
-                        "Order index " + dto.getOrderIndex() + " is out of range [0, " + (totalItems - 1) + "]");
-            }
-            // No duplicate indices in the request
+        for (ItemOrderDto dto : dtos) {
             if (!seenIndices.add(dto.getOrderIndex())) {
                 throw new BadRequestException(
                         "Duplicate order index " + dto.getOrderIndex() + " in the request");
             }
         }
 
-        // 5. Apply the requested indices
-        for (CatalogItemOrderUpdateRequest.ItemOrderDto dto : request.getItemOrders()) {
-            CatalogItem item = itemMap.get(dto.getItemId());
-            item.setOrderIndex(dto.getOrderIndex());
-            catalogItemRepository.save(item);
+        // 3d. All requested indices must be non-negative
+        for (ItemOrderDto dto : dtos) {
+            if (dto.getOrderIndex() < 0) {
+                throw new BadRequestException(
+                        "Order index must be non-negative, got " + dto.getOrderIndex());
+            }
         }
 
-        // 6. Normalise / recompact the whole category so any un-referenced items
-        //    (partial reorder) are also left gap-free.
-        orderHelper.recompact(category);
+        // ── 4. Build the final ordered list ──────────────────────────────────
+        //
+        // Strategy:
+        //   • Sort the DTOs by their requested orderIndex so we know the
+        //     caller's intended relative order (ignoring the actual numeric
+        //     values – only rank matters).
+        //   • Place explicitly requested items first, in that rank order.
+        //   • Append the remaining (unrequested) items in their original order.
+        //
+        // This guarantees a well-defined, gap-free result regardless of
+        // whether the request is partial or full.
 
-        // 7. Return the refreshed list in order
+        // Items explicitly listed in the request, sorted by requested index
+        List<CatalogItem> requestedItems = dtos.stream()
+                .sorted(Comparator.comparingInt(ItemOrderDto::getOrderIndex))
+                .map(dto -> itemById.get(dto.getItemId()))
+                .collect(Collectors.toList());
+
+        // Items NOT listed in the request, in their current stored order
+        Set<Long> requestedIds = seenItemIds; // already populated
+        List<CatalogItem> unlistedItems = existing.stream()
+                .filter(item -> !requestedIds.contains(item.getId()))
+                .collect(Collectors.toList()); // already sorted by OrderIndexAsc
+
+        // Final order: requested first, then unlisted
+        List<CatalogItem> orderedItems = new ArrayList<>(requestedItems);
+        orderedItems.addAll(unlistedItems);
+
+        // ── 5. Persist using the constraint-safe two-phase recompaction ───────
+        orderHelper.recompact(orderedItems);
+
+        // ── 6. Return the refreshed list in new order ─────────────────────────
         return catalogItemRepository
                 .findAllByCategoryAndIsDeletedFalseOrderByOrderIndexAsc(category)
                 .stream()

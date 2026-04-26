@@ -59,6 +59,7 @@ public class CatalogCategoryLifecycleServiceImpl implements CatalogCategoryLifec
             .orElseThrow(() -> new IllegalArgumentException("Trashed Catalog category not found"));
 
         category.setIsDeleted(false);
+        category.setOrderIndex(catalogCategoryService.getNextOrderIndex(businessId));
         catalogCategoryService.save(category);
         return mapToResponse(category);
     }

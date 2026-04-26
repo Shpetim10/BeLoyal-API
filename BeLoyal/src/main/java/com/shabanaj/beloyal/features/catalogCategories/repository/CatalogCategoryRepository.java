@@ -1,6 +1,7 @@
 package com.shabanaj.beloyal.features.catalogCategories.repository;
 
 import com.shabanaj.beloyal.model.Entity.CatalogCategory;
+import com.shabanaj.beloyal.model.Enums.CatalogStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -11,6 +12,7 @@ public interface CatalogCategoryRepository extends JpaRepository<CatalogCategory
     Optional<CatalogCategory> findByIdAndIsDeletedFalse(Long id);
     Optional<CatalogCategory> findByIdAndBusinessIdAndIsDeletedFalse(Long id, Long businessId);
     List<CatalogCategory> findAllByBusinessIdAndIsDeletedFalseOrderByOrderIndexAsc(Long businessId);
+    List<CatalogCategory> findAllByBusinessIdAndStatusAndIsDeletedFalseOrderByOrderIndexAsc(Long businessId, CatalogStatus status);
     Optional<CatalogCategory> findByBusinessIdAndOrderIndexAndIsDeletedFalse(Long businessId, Integer orderIndex);
 
     List<CatalogCategory> findAllByBusinessIdAndIsDeletedTrueOrderByUpdatedAtDesc(Long businessId);

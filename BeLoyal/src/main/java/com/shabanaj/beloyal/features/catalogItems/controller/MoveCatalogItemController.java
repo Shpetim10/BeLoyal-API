@@ -8,7 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/besahub/business/{businessId}/catalog-item/{id}")
+@RequestMapping("/api/besahub/business/{businessId}/catalog-items/{id}")
 @RequiredArgsConstructor
 public class MoveCatalogItemController {
 

@@ -20,6 +20,13 @@ public class ViewCatalogItemController {
     
     private final CatalogItemViewService catalogItemViewService;
 
+    @GetMapping("/catalog-items")
+    @PreAuthorize("@businessSecurity.hasAccess(#businessId , authentication, 'BUSINESS_ADMIN', 'STAFF')")
+    public ResponseEntity<List<CatalogItemShortResponse>> getItemsByBusiness(
+            @PathVariable("businessId") Long businessId) {
+        return ResponseEntity.ok(catalogItemViewService.getItemsByBusiness(businessId));
+    }
+
     @GetMapping("/catalog-category/{categoryId}/catalog-items")
     @PreAuthorize("@businessSecurity.hasAccess(#businessId , authentication, 'BUSINESS_ADMIN', 'STAFF')")
     public ResponseEntity<List<CatalogItemShortResponse>> getItemsByCategory(
@@ -28,7 +35,7 @@ public class ViewCatalogItemController {
         return ResponseEntity.ok(catalogItemViewService.getItemsByCategory(businessId, categoryId));
     }
 
-    @GetMapping("/catalog-item/{id}")
+    @GetMapping("/catalog-items/{id}")
     @PreAuthorize("@businessSecurity.hasAccess(#businessId , authentication, 'BUSINESS_ADMIN', 'STAFF')")
     public ResponseEntity<CatalogItemDetailResponse> getItemDetails(
             @PathVariable("businessId") Long businessId,

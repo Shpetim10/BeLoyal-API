@@ -39,7 +39,7 @@ public class CatalogItemLifecycleServiceImpl implements CatalogItemLifecycleServ
     public CatalogItemStatusChangeResponse restore(Long businessId, Long id) {
         CatalogItem item = getCatalogItem(businessId, id);
         // Place the restored item at the end of its category
-        int nextIndex = catalogItemRepository.countByCategoryIdAndIsDeletedFalse(item.getCategory().getId());
+        int nextIndex = catalogItemRepository.countByBusinessIdAndCategoryIdAndIsDeletedFalse(businessId, item.getCategory().getId());
         item.setIsDeleted(false);
         item.setOrderIndex(nextIndex); // nextIndex is the count BEFORE marking not-deleted
         catalogItemRepository.save(item);
@@ -51,6 +51,7 @@ public class CatalogItemLifecycleServiceImpl implements CatalogItemLifecycleServ
     public void delete(Long businessId, Long id) {
         CatalogItem item = getCatalogItem(businessId, id);
         item.setIsDeleted(true);
+        item.setOrderIndex(null);
         catalogItemRepository.save(item);
         // Recompact remaining items in the category to close the gap
         orderHelper.recompact(item.getCategory());

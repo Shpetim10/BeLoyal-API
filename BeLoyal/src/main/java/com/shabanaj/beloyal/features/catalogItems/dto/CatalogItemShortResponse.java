@@ -11,8 +11,11 @@ public class CatalogItemShortResponse {
     private Long id;
     private String name;
     private String status;
+    private Long categoryId;
     private String categoryName;
     private BigDecimal price;
+    private String currencyCode;
+    private Boolean isDeleted;
     private Integer orderIndex;
     private String imageUrl;
 }

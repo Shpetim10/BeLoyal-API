@@ -70,6 +70,7 @@ public class CatalogCategoryServiceImpl implements CatalogCategoryService {
     @Override
     public void delete(CatalogCategory catalogCategory) {
         catalogCategory.setIsDeleted(true);
+        catalogCategory.setOrderIndex(null);
         catalogCategoryRepository.save(catalogCategory);
     }
 }

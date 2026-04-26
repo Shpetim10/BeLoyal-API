@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="005-nullable-order-index" author="shabanaj">
+        <!-- Drop NOT NULL constraints using SQL for better MySQL compatibility -->
+        <sql>
+            ALTER TABLE catalog_item MODIFY order_index INT NULL;
+            ALTER TABLE catalog_category MODIFY order_index INT NULL;
+        </sql>
+
+        <!-- Set existing deleted items' order index to NULL to avoid constraint violations -->
+        <sql>
+            UPDATE catalog_item SET order_index = NULL WHERE is_deleted = 1;
+            UPDATE catalog_category SET order_index = NULL WHERE is_deleted = 1;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-resolve-active-duplicates" author="shabanaj">
+        <comment>Resolve any existing duplicates by setting one of them to NULL or shifting, for now just ensure uniqueness before constraint</comment>
+        <sql>
+            -- For catalog items: if two active items have the same order_index, reset the duplicates
+            -- This is a simple fix to allow the migration to complete.
+            -- Real sorting should be done by the user later.
+            UPDATE catalog_item ci
+            INNER JOIN (
+                SELECT id, ROW_NUMBER() OVER (PARTITION BY business_id, category_id, order_index ORDER BY id) as rn
+                FROM catalog_item
+                WHERE order_index IS NOT NULL AND is_deleted = 0
+            ) t ON ci.id = t.id
+            SET ci.order_index = NULL
+            WHERE t.rn > 1;
+
+            -- For catalog categories:
+            UPDATE catalog_category cc
+            INNER JOIN (
+                SELECT id, ROW_NUMBER() OVER (PARTITION BY business_id, order_index ORDER BY id) as rn
+                FROM catalog_category
+                WHERE order_index IS NOT NULL AND is_deleted = 0
+            ) t ON cc.id = t.id
+            SET cc.order_index = NULL
+            WHERE t.rn > 1;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-add-unique-constraints-item" author="shabanaj">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists indexName="uk_category_order_index" tableName="catalog_item"/>
+            </not>
+        </preConditions>
+        <addUniqueConstraint tableName="catalog_item" columnNames="business_id, category_id, order_index" constraintName="uk_category_order_index"/>
+    </changeSet>
+
+    <changeSet id="005-add-unique-constraints-category" author="shabanaj">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists indexName="uk_business_category_order_index" tableName="catalog_category"/>
+            </not>
+        </preConditions>
+        <addUniqueConstraint tableName="catalog_category" columnNames="business_id, order_index" constraintName="uk_business_category_order_index"/>
+    </changeSet>
+
+</databaseChangeLog>

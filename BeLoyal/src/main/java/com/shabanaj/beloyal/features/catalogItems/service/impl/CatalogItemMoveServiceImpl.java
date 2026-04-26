@@ -41,7 +41,7 @@ public class CatalogItemMoveServiceImpl implements CatalogItemMoveService {
                 .orElseThrow(() -> new BadRequestException("Target category not found for this business"));
 
         // 4. Assign item to new category with the next available order-index
-        Integer nextIndex = catalogItemRepository.countByCategoryIdAndIsDeletedFalse(newCategoryId);
+        Integer nextIndex = catalogItemRepository.countByBusinessIdAndCategoryIdAndIsDeletedFalse(businessId, newCategoryId);
         item.setCategory(newCategory);
         item.setOrderIndex(nextIndex);
         catalogItemRepository.save(item);

@@ -1,6 +1,5 @@
 package com.shabanaj.beloyal.features.catalogItems.dto;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.shabanaj.beloyal.model.Enums.CatalogItemType;
 import com.shabanaj.beloyal.model.Enums.CurrencyCode;
 import jakarta.validation.constraints.DecimalMin;

@@ -11,8 +11,11 @@ public interface CatalogItemRepository extends JpaRepository<CatalogItem, Long> 
     Integer countByBusinessAndCategory(Business business, CatalogCategory category);
     Integer countByCategoryAndIsDeletedFalse(CatalogCategory category);
     List<CatalogItem> findAllByBusinessAndCategory(Business business, CatalogCategory catalogCategory);
+    Integer countByBusinessAndCategoryAndIsDeletedFalse(Business business, CatalogCategory category);
+    Integer countByBusinessIdAndCategoryIdAndIsDeletedFalse(Long businessId, Long categoryId);
 
     List<CatalogItem> findAllByBusinessIdAndCategoryIdAndIsDeletedFalseOrderByOrderIndexAsc(Long businessId, Long categoryId);
+    List<CatalogItem> findAllByBusinessIdAndIsDeletedFalse(Long businessId);
     java.util.Optional<CatalogItem> findByIdAndBusinessIdAndIsDeletedFalse(Long id, Long businessId);
 
     List<CatalogItem> findAllByBusinessIdAndIsDeletedTrueOrderByUpdatedAtDesc(Long businessId);

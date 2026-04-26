@@ -23,7 +23,7 @@ public class CatalogItemServiceImpl implements CatalogItemService {
     @Override
     public Integer getNextOrderIndex(Business business, CatalogCategory catalogCategory) {
 
-        return catalogItemRepository.countByBusinessAndCategory(business, catalogCategory);
+        return catalogItemRepository.countByBusinessAndCategoryAndIsDeletedFalse(business, catalogCategory);
 
     }
 

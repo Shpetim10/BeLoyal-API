@@ -1,10 +1,12 @@
 package com.shabanaj.beloyal.features.catalogCategories.service.impl;
 
+import com.shabanaj.beloyal.features.catalogCategories.dto.CatalogCategoryShortResponse;
 import com.shabanaj.beloyal.features.catalogCategories.dto.CatalogCategoryViewDto;
 import com.shabanaj.beloyal.features.catalogCategories.repository.CatalogCategoryRepository;
 import com.shabanaj.beloyal.features.catalogCategories.service.CatalogCategoryService;
 import com.shabanaj.beloyal.features.catalogCategories.service.CatalogCategoryViewService;
 import com.shabanaj.beloyal.model.Entity.CatalogCategory;
+import com.shabanaj.beloyal.model.Enums.CatalogStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -50,6 +52,18 @@ public class CatalogCategoryViewServiceImpl implements CatalogCategoryViewServic
                         .createdAt(e.getCreatedAt())
                         .build())
                 .toList();
+    }
+
+    @Override
+    public List<CatalogCategoryShortResponse> viewActiveCatalogCategories(Long businessId) {
+        List<CatalogCategory> activeCategories = catalogCategoryRepository.findAllByBusinessIdAndStatusAndIsDeletedFalseOrderByOrderIndexAsc(businessId, CatalogStatus.ACTIVE);
+
+        return activeCategories.stream()
+                .map(category -> CatalogCategoryShortResponse.builder()
+                        .id(category.getId())
+                        .name(category.getName())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @Override

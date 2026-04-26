@@ -1,5 +1,6 @@
 package com.shabanaj.beloyal.features.catalogCategories.controller;
 
+import com.shabanaj.beloyal.features.catalogCategories.dto.CatalogCategoryShortResponse;
 import com.shabanaj.beloyal.features.catalogCategories.dto.CatalogCategoryViewDto;
 import com.shabanaj.beloyal.features.catalogCategories.service.CatalogCategoryViewService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,12 @@ public class ViewCatalogCategoryController {
     @PreAuthorize("@businessSecurity.hasAccess(#businessId , authentication, 'BUSINESS_ADMIN', 'STAFF')")
     public ResponseEntity<List<CatalogCategoryViewDto>> viewCatalogCategories(@PathVariable("businessId") Long businessId){
         return ResponseEntity.ok(catalogCategoryViewService.viewCatalogCategories(businessId));
+    }
+
+    @GetMapping("/active")
+    @PreAuthorize("@businessSecurity.hasAccess(#businessId , authentication, 'BUSINESS_ADMIN', 'STAFF')")
+    public ResponseEntity<List<CatalogCategoryShortResponse>> viewActiveCatalogCategories(@PathVariable("businessId") Long businessId){
+        return ResponseEntity.ok(catalogCategoryViewService.viewActiveCatalogCategories(businessId));
     }
 
     @GetMapping("/trash")

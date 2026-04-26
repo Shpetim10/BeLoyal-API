@@ -11,7 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/besahub/business/{businessId}/catalog-category/{categoryId}/catalog-item")
+@RequestMapping("/api/besahub/business/{businessId}/catalog-category/{categoryId}/catalog-items")
 @RequiredArgsConstructor
 public class CreateCatalogItemController {
 

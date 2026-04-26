@@ -21,6 +21,7 @@ public class CatalogItemDetailResponse {
     private String unit;
     private Integer orderIndex;
     private String imageUrl;
+    private Boolean isDeleted;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

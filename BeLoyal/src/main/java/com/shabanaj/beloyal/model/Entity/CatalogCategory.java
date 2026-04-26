@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
 @Table(
         name="catalog_category",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_business_category_name", columnNames = {"business_id", "name"})
+                @UniqueConstraint(name = "uk_business_category_name", columnNames = {"business_id", "name"}),
+                @UniqueConstraint(name = "uk_business_category_order_index", columnNames = {"business_id", "order_index"})
         }
 )
 @EntityListeners(AuditingEntityListener.class)
@@ -41,7 +42,7 @@ public class CatalogCategory {
     @Size(max = 300, message = "The category description should not exceed 300 characters")
     private String description;
 
-    @Column(name="order_index", nullable = false)
+    @Column(name="order_index")
     private Integer orderIndex;
 
     @Column(name="status", nullable = false)

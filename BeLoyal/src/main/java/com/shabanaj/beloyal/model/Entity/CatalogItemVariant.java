@@ -52,7 +52,7 @@ public class CatalogItemVariant {
     private Integer orderIndex;
 
     @Builder.Default
-    @Column(name = "is_deleted")
+    @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted=false;
 
     @Column(name = "created_at", nullable = false)

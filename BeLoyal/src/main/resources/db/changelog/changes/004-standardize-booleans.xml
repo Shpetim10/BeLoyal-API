@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd">
+
+    <changeSet id="1775343644154-46-standardize-booleans-v2" author="shaba">
+        <comment>Standardize is_deleted and all other boolean columns to TINYINT(1) for consistent Hibernate mapping</comment>
+        
+        <!-- Catalog related -->
+        <modifyDataType tableName="catalog_item" columnName="is_deleted" newDataType="TINYINT(1)"/>
+        <modifyDataType tableName="catalog_category" columnName="is_deleted" newDataType="TINYINT(1)"/>
+        <modifyDataType tableName="catalog_item_variant" columnName="is_deleted" newDataType="TINYINT(1)"/>
+
+        <!-- User related -->
+        <modifyDataType tableName="users" columnName="email_verified" newDataType="TINYINT(1)"/>
+        
+        <!-- Tokens -->
+        <modifyDataType tableName="staff_invite_tokens" columnName="used" newDataType="TINYINT(1)"/>
+        <modifyDataType tableName="staff_invite_tokens" columnName="is_existing_user" newDataType="TINYINT(1)"/>
+        <modifyDataType tableName="reset_password_token" columnName="used" newDataType="TINYINT(1)"/>
+        <modifyDataType tableName="verification_email_token" columnName="used" newDataType="TINYINT(1)"/>
+
+        <!-- Settings -->
+        <modifyDataType tableName="loyalty_settings" columnName="enabled" newDataType="TINYINT(1)"/>
+        <modifyDataType tableName="loyalty_settings" columnName="configured" newDataType="TINYINT(1)"/>
+        <modifyDataType tableName="earning_settings" columnName="enabled" newDataType="TINYINT(1)"/>
+        <modifyDataType tableName="earning_settings" columnName="configured" newDataType="TINYINT(1)"/>
+
+        <!-- Profiles -->
+        <modifyDataType tableName="customer_profiles" columnName="notification_enabled" newDataType="TINYINT(1)"/>
+    </changeSet>
+
+</databaseChangeLog>

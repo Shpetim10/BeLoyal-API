@@ -16,7 +16,10 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-        name = "catalog_item"
+        name = "catalog_item",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_category_order_index", columnNames = {"business_id", "category_id", "order_index"})
+        }
 )
 @EntityListeners(AuditingEntityListener.class)
 @Getter
@@ -70,11 +73,11 @@ public class CatalogItem {
     @Column(name = "image_key")
     private String imageKey;
 
-    @Column(name = "order_index", nullable = false)
+    @Column(name = "order_index")
     private Integer orderIndex;
 
     @Builder.Default
-    @Column(name = "is_deleted")
+    @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted=false;
 
     @Column(name = "created_at", updatable = false)

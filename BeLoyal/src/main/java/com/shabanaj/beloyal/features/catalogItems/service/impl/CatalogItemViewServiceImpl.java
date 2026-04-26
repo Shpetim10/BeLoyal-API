@@ -39,10 +39,32 @@ public class CatalogItemViewServiceImpl implements CatalogItemViewService {
     }
 
     @Override
+    public List<CatalogItemShortResponse> getItemsByBusiness(Long businessId) {
+        businessService.getActiveBusinessById(businessId); // Ensure business exists
+
+        List<CatalogItem> items = catalogItemRepository.findAllByBusinessIdAndIsDeletedFalse(businessId);
+
+        return items.stream()
+                .map(item -> CatalogItemShortResponse.builder()
+                        .id(item.getId())
+                        .name(item.getName())
+                        .status(item.getStatus().getName())
+                        .categoryId(item.getCategory().getId())
+                        .categoryName(item.getCategory().getName())
+                        .price(item.getPrice())
+                        .currencyCode(item.getCurrencyCode().name())
+                        .orderIndex(item.getOrderIndex())
+                        .imageUrl(item.getImageUrl())
+                        .isDeleted(item.getIsDeleted())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public CatalogItemDetailResponse getItemDetails(Long businessId, Long itemId) {
         businessService.getActiveBusinessById(businessId); // Ensure business exists
 
-        CatalogItem item = catalogItemRepository.findByIdAndBusinessIdAndIsDeletedFalse(itemId, businessId)
+        CatalogItem item = catalogItemRepository.findByIdAndBusinessId(itemId, businessId)
                 .orElseThrow(() -> new IllegalArgumentException("Catalog item not found or is deleted"));
 
         return CatalogItemDetailResponse.builder()
@@ -58,6 +80,7 @@ public class CatalogItemViewServiceImpl implements CatalogItemViewService {
                 .unit(item.getUnit())
                 .orderIndex(item.getOrderIndex())
                 .imageUrl(item.getImageUrl())
+                .isDeleted(item.getIsDeleted())
                 .createdAt(item.getCreatedAt())
                 .updatedAt(item.getUpdatedAt())
                 .build();
@@ -74,10 +97,13 @@ public class CatalogItemViewServiceImpl implements CatalogItemViewService {
                         .id(item.getId())
                         .name(item.getName())
                         .status(item.getStatus().name())
+                        .categoryId(item.getCategory().getId())
                         .categoryName(item.getCategory().getName())
                         .price(item.getPrice())
+                        .currencyCode(item.getCurrencyCode().name())
                         .orderIndex(item.getOrderIndex())
                         .imageUrl(item.getImageUrl())
+                        .isDeleted(item.getIsDeleted())
                         .build())
                 .collect(Collectors.toList());
     }
