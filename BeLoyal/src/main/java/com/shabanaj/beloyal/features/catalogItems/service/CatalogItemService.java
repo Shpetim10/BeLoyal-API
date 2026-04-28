@@ -10,4 +10,5 @@ public interface CatalogItemService {
     void save(CatalogItem catalogItem);
     Integer getNextOrderIndex(Business business, CatalogCategory catalogCategory);
     List<CatalogItem> getCatalogItems(Business business, CatalogCategory catalogCategory);
+    CatalogItem getByIdAndBusinessIdAndIsDeletedFalse(Long catalogItemId, Long businessId);
 }

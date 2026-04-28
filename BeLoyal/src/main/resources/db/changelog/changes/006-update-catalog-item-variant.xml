@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="006-catalog-item-variant-drop-old-unique" author="antigravity">
+        <preConditions onFail="MARK_RAN">
+            <uniqueConstraintExists tableName="catalog_item_variant" constraintName="uk_item_variant"/>
+        </preConditions>
+        <dropUniqueConstraint tableName="catalog_item_variant" constraintName="uk_item_variant"/>
+    </changeSet>
+
+    <changeSet id="006-catalog-item-variant-add-name-unique" author="antigravity">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <uniqueConstraintExists tableName="catalog_item_variant" constraintName="uk_item_variant_name"/>
+            </not>
+        </preConditions>
+        <addUniqueConstraint tableName="catalog_item_variant"
+                             columnNames="catalog_item_id, name"
+                             constraintName="uk_item_variant_name"/>
+    </changeSet>
+
+    <changeSet id="006-catalog-item-variant-add-order-index-unique" author="antigravity">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <uniqueConstraintExists tableName="catalog_item_variant" constraintName="uk_item_variant_order_index"/>
+            </not>
+        </preConditions>
+        <addUniqueConstraint tableName="catalog_item_variant"
+                             columnNames="catalog_item_id, order_index"
+                             constraintName="uk_item_variant_order_index"/>
+    </changeSet>
+
+    <changeSet id="006-catalog-item-variant-make-price-nullable" author="antigravity">
+        <comment>Reflect the removal of NotNull constraint on price_override in Java entity</comment>
+        <dropNotNullConstraint tableName="catalog_item_variant"
+                               columnName="price_override"
+                               columnDataType="DECIMAL(12, 2)"/>
+    </changeSet>
+
+</databaseChangeLog>

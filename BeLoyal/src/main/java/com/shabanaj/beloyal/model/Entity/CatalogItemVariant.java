@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "catalog_item_variant", uniqueConstraints = {
-        @UniqueConstraint(name = "uk_item_variant", columnNames = {"catalog_item_id", "name"})
+        @UniqueConstraint(name = "uk_item_variant_name",       columnNames = {"catalog_item_id", "name"}),
+        @UniqueConstraint(name = "uk_item_variant_order_index", columnNames = {"catalog_item_id", "order_index"})
 })
 @EntityListeners(AuditingEntityListener.class)
 @Getter
@@ -40,7 +41,7 @@ public class CatalogItemVariant {
     @Size(max=500)
     private String description;
 
-    @Column(name = "price_override", nullable = false , precision = 12, scale = 2)
+    @Column(name = "price_override", precision = 12, scale = 2)
     @DecimalMin(value = "0.1", inclusive = true)
     private BigDecimal priceOverride;
 
