@@ -1,4 +1,4 @@
 databaseChangeLog:
-  - includeAll:
-      path: changes
+  - include:
+      file: changes/001-baseline.xml
       relativeToChangelogFile: true

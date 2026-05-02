@@ -1,6 +1,7 @@
 package com.shabanaj.beloyal.model.Entity;
 
 import com.shabanaj.beloyal.model.Enums.Role;
+import com.shabanaj.beloyal.model.Enums.UserStatus;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -71,6 +72,9 @@ public class BusinessMember {
     // Domain helpers
     public void activate(){
         this.memberStatus = MemberStatus.ACTIVE;
+        if(this.role==Role.BUSINESS_ADMIN){
+            this.user.setStatus(UserStatus.ENABLED);
+        }
     }
 
     public void deactivate(){

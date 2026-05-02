@@ -20,7 +20,7 @@ public class LoyaltySettingsController {
     private final LoyaltySettingsService service;
 
     @GetMapping
-    @PreAuthorize("@businessSecurity.hasAccess(#businessId, authentication, 'BUSINESS_ADMIN', 'STAFF')")
+    @PreAuthorize("@businessSecurity.hasAccessToCheckStatus(#businessId, authentication, 'BUSINESS_ADMIN', 'STAFF')")
     public ResponseEntity<LoyaltySettingsDto> getLoyaltySettings(@PathVariable("businessId") Long businessId) {
         LoyaltySettings settings= service.getLoyaltySettings(businessId);
 
@@ -36,7 +36,7 @@ public class LoyaltySettingsController {
     }
 
     @PostMapping
-    @PreAuthorize("@businessSecurity.hasAccess(#businessId, authentication, 'BUSINESS_ADMIN')")
+    @PreAuthorize("@businessSecurity.hasAccessToCheckStatus(#businessId, authentication, 'BUSINESS_ADMIN')")
     public ResponseEntity<Map<String, String>> createLoyaltySettings(@PathVariable("businessId") Long businessId, @Valid @RequestBody CreateLoyaltySettingsDto dto) {
         service.createLoyaltySettings(businessId, dto);
 
@@ -44,7 +44,7 @@ public class LoyaltySettingsController {
     }
 
     @PostMapping("/default")
-    @PreAuthorize("@businessSecurity.hasAccess(#businessId, authentication, 'BUSINESS_ADMIN')")
+    @PreAuthorize("@businessSecurity.hasAccessToCheckStatus(#businessId, authentication, 'BUSINESS_ADMIN')")
     public ResponseEntity<Map<String, String>> createDefaultLoyaltySettings(@PathVariable("businessId") Long businessId) {
         service.createDefaultLoyaltySettings(businessId);
 
@@ -52,7 +52,7 @@ public class LoyaltySettingsController {
     }
 
     @PatchMapping
-    @PreAuthorize("@businessSecurity.hasAccess(#businessId, authentication, 'BUSINESS_ADMIN')")
+    @PreAuthorize("@businessSecurity.hasAccessToCheckStatus(#businessId, authentication, 'BUSINESS_ADMIN')")
     public ResponseEntity<Map<String, String>> patchLoyaltySettings(@PathVariable("businessId") Long businessId, @Valid @RequestBody UpdateLoyaltySettingsDto dto) {
         service.patchLoyaltySettings(businessId, dto);
 
