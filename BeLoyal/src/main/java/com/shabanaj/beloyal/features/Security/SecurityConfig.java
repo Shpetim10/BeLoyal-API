@@ -60,6 +60,9 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .requestMatchers(
                                 "/.well-known/assetlinks.json",
                                 "/uploads/**",
+                                "/activate",
+                                "/accept-invitation",
+                                "/reset-password",
                                 "/api/besahub/auth/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
@@ -88,7 +91,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                 "https://*.trycloudflare.com",
                 "https://tribal-jul-locale-will.trycloudflare.com"
         ));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         // Add "Accept" and "X-Requested-With" to this list
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With", "Idempotency-Key"));
         config.setAllowCredentials(true);

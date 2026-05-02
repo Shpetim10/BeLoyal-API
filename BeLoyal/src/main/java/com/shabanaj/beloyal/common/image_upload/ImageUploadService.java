@@ -52,9 +52,10 @@ public class ImageUploadService {
         if (file == null || file.isEmpty()) throw new RuntimeException("File is required");
 
         long maxBytes = switch (category) {
-            case USER_PROFILE -> 3 * 1024 * 1024;  // 3MB
-            case BUSINESS_LOGO -> 3 * 1024 * 1024; // 3MB
-            case MENU_ITEM -> 5 * 1024 * 1024;     // 5MB
+            case USER_PROFILE -> 3 * 1024 * 1024;   // 3MB
+            case BUSINESS_LOGO -> 3 * 1024 * 1024;  // 3MB
+            case MENU_ITEM -> 5 * 1024 * 1024;      // 5MB
+            case COUPON_IMAGE -> 5 * 1024 * 1024;   // 5MB
         };
 
         if (file.getSize() > maxBytes) {
@@ -96,6 +97,7 @@ public class ImageUploadService {
             case USER_PROFILE -> "users/%d/profile/%s.%s".formatted(ownerId, uuid, ext);
             case BUSINESS_LOGO -> "businesses/%d/logo/%s.%s".formatted(ownerId, uuid, ext);
             case MENU_ITEM -> "businesses/%d/menu/%s.%s".formatted(ownerId, uuid, ext);
+            case COUPON_IMAGE -> "businesses/%d/coupons/%s.%s".formatted(ownerId, uuid, ext);
         };
     }
 

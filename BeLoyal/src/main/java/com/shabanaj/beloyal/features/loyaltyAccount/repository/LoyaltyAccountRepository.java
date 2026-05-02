@@ -15,4 +15,7 @@ public interface LoyaltyAccountRepository extends JpaRepository<LoyaltyAccount, 
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<LoyaltyAccount> findWithLockById(Long id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    Optional<LoyaltyAccount> findWithLockByCustomerProfileIdAndBusinessId(Long customerProfileId, Long businessId);
 }

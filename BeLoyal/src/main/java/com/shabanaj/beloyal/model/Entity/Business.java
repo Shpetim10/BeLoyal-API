@@ -2,6 +2,7 @@ package com.shabanaj.beloyal.model.Entity;
 
 import com.shabanaj.beloyal.model.Enums.BusinessStatus;
 import com.shabanaj.beloyal.model.Enums.BusinessType;
+import com.shabanaj.beloyal.model.Enums.CurrencyCode;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -77,6 +78,10 @@ public class Business {
 
     @Column
     private Long reviewedByAdminId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "currency_code", nullable = false)
+    private CurrencyCode currencyCode = CurrencyCode.EURO;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -261,5 +266,13 @@ public class Business {
 
     public void setReviewedByAdminId(Long reviewedByAdminId) {
         this.reviewedByAdminId = reviewedByAdminId;
+    }
+
+    public CurrencyCode getCurrencyCode() {
+        return currencyCode;
+    }
+
+    public void setCurrencyCode(CurrencyCode currencyCode) {
+        this.currencyCode = currencyCode;
     }
 }

@@ -7,7 +7,8 @@ public enum PointsType {
     EXPIRE(4, "Expire"),
     ADJUSTMENT_PLUS(5, "Adjustment Plus"),
     ADJUSTMENT_MINUS(6, "Adjustment Minus"),
-    REVERSAL(7, "Reversal"),;
+    REVERSAL(7, "Reversal"),
+    COUPON_REDEMPTION(8, "Coupon Redemption"),;
 
     private int id;
     private String name;

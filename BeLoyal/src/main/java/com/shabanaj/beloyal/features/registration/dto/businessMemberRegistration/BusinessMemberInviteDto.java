@@ -15,7 +15,6 @@ public class BusinessMemberInviteDto {
 
     private LocalDate hireDate;
 
-    @NotBlank
     @NotNull
     private Role role;
 
@@ -35,11 +34,11 @@ public class BusinessMemberInviteDto {
         this.hireDate = hireDate;
     }
 
-    public @NotBlank @NotNull Role getRole() {
+    public @NotNull Role getRole() {
         return role;
     }
 
-    public void setRole(@NotBlank @NotNull Role role) {
+    public void setRole(@NotNull Role role) {
         this.role = role;
     }
 }
