@@ -14,6 +14,7 @@ public class BusinessProfileInfo {
     private String businessStatus;
     private String rejectionReason;
     private String memberStatus;
+    private boolean invitationAccepted;
 
     // Settings configuration fields
     private boolean earningSettingsEnabled;

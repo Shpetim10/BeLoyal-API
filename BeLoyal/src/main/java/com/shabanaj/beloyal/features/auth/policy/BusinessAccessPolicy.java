@@ -49,6 +49,9 @@ public class BusinessAccessPolicy {
             businessProfileInfo.setRejectionReason(userRole.getBusiness().getRejectionReason());
             businessProfileInfo.setMemberStatus(userRole.getMemberStatus().name());
 
+            // invitation info
+            businessProfileInfo.setInvitationAccepted(userRole.getMemberStatus()!=BusinessMember.MemberStatus.INVITE);
+
             //Earning settings
             setUpEarningPointsData(businessProfileInfo);
 

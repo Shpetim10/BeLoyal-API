@@ -30,7 +30,7 @@ public class CouponViewController {
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "DESC") String sortDirection) {
         return ResponseEntity.ok(
-                couponViewService.listCoupons(businessId, status, type, search, page, limit, sortBy, sortDirection));
+                couponViewService.listActiveCoupons(businessId, status, type, search, page, limit, sortBy, sortDirection));
     }
 
     @GetMapping("/archived")
