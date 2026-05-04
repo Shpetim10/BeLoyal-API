@@ -3,6 +3,7 @@ package com.shabanaj.beloyal.features.coupon.service.impl;
 import com.shabanaj.beloyal.common.Exception.CouponNotFound;
 import com.shabanaj.beloyal.common.Exception.InvalidCouponOperationException;
 import com.shabanaj.beloyal.features.coupon.dto.CouponDetailResponse;
+import com.shabanaj.beloyal.features.coupon.dto.ReviveCouponRequest;
 import com.shabanaj.beloyal.features.coupon.repository.CouponRepository;
 import com.shabanaj.beloyal.features.coupon.service.CouponLifecycleService;
 import com.shabanaj.beloyal.model.Entity.LoyaltyCoupon;
@@ -27,7 +28,7 @@ public class CouponLifecycleServiceImpl implements CouponLifecycleService {
             CouponStatus.ACTIVE, Set.of(CouponStatus.PAUSED, CouponStatus.EXPIRED, CouponStatus.ARCHIVED),
             CouponStatus.PAUSED, Set.of(CouponStatus.ACTIVE, CouponStatus.ARCHIVED),
             CouponStatus.EXPIRED, Set.of(CouponStatus.ARCHIVED),
-            CouponStatus.ARCHIVED, Set.of()
+            CouponStatus.ARCHIVED, Set.of(CouponStatus.DRAFT)
     );
 
     @Override
@@ -70,12 +71,61 @@ public class CouponLifecycleServiceImpl implements CouponLifecycleService {
 
     @Override
     @Transactional
+    public void restoreFromArchive(Long businessId, Long couponId) {
+        LoyaltyCoupon coupon = couponRepository
+                .findByIdAndBusinessIdAndDeletedAtIsNull(couponId, businessId)
+                .orElseThrow(() -> new CouponNotFound(couponId));
+
+        if (coupon.getStatus() != CouponStatus.ARCHIVED) {
+            throw new InvalidCouponOperationException("Coupon is not archived");
+        }
+
+        coupon.setStatus(CouponStatus.DRAFT);
+        coupon.setArchivedAt(null);
+        couponRepository.save(coupon);
+    }
+
+    @Override
+    @Transactional
+    public void revive(Long businessId, Long couponId, ReviveCouponRequest reviveCouponRequest) {
+        LoyaltyCoupon coupon = couponRepository
+                .findByIdAndBusinessIdAndDeletedAtIsNull(couponId, businessId)
+                .orElseThrow(() -> new CouponNotFound(couponId));
+
+        if (coupon.getStatus() != CouponStatus.EXPIRED) {
+            throw new InvalidCouponOperationException("Only expired coupons can be revived");
+        }
+
+        if(reviveCouponRequest.startDate().isAfter(reviveCouponRequest.endDate())){
+            throw new InvalidCouponOperationException("Start Date cannot be after end date");
+        }
+
+        coupon.setStartDate(reviveCouponRequest.startDate());
+        coupon.setEndDate(reviveCouponRequest.endDate());
+
+        coupon.setStatus(CouponStatus.ACTIVE);
+        couponRepository.save(coupon);
+    }
+
+    @Override
+    @Transactional
     public void delete(Long businessId, Long couponId) {
         LoyaltyCoupon coupon = couponRepository
                 .findByIdAndBusinessIdAndDeletedAtIsNull(couponId, businessId)
                 .orElseThrow(() -> new CouponNotFound(couponId));
 
         coupon.setDeletedAt(LocalDateTime.now());
+        couponRepository.save(coupon);
+    }
+
+    @Override
+    @Transactional
+    public void restoreFromTrash(Long businessId, Long couponId) {
+        LoyaltyCoupon coupon = couponRepository
+                .findByIdAndBusinessIdAndDeletedAtIsNotNull(couponId, businessId)
+                .orElseThrow(() -> new CouponNotFound(couponId));
+
+        coupon.setDeletedAt(null);
         couponRepository.save(coupon);
     }
 }

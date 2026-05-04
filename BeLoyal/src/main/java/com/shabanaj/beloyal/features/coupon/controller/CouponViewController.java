@@ -19,8 +19,8 @@ public class CouponViewController {
     private final CouponViewService couponViewService;
 
     @GetMapping
-    @PreAuthorize("@businessSecurity.hasAccess(#businessId, authentication, 'BUSINESS_ADMIN')")
-    public ResponseEntity<Page<CouponSummaryResponse>> list(
+    @PreAuthorize("@businessSecurity.hasAccess(#businessId, authentication, 'BUSINESS_ADMIN','STAFF')")
+    public ResponseEntity<Page<CouponSummaryResponse>> listActive(
             @PathVariable Long businessId,
             @RequestParam(required = false) CouponStatus status,
             @RequestParam(required = false) CouponType type,
@@ -33,8 +33,50 @@ public class CouponViewController {
                 couponViewService.listCoupons(businessId, status, type, search, page, limit, sortBy, sortDirection));
     }
 
-    @GetMapping("/{couponId}")
+    @GetMapping("/archived")
+    @PreAuthorize("@businessSecurity.hasAccess(#businessId, authentication, 'BUSINESS_ADMIN','STAFF')")
+    public ResponseEntity<Page<CouponSummaryResponse>> listArchived(
+            @PathVariable Long businessId,
+            @RequestParam(required = false) CouponType type,
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int limit,
+            @RequestParam(defaultValue = "archivedAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDirection) {
+        return ResponseEntity.ok(
+                couponViewService.listArchivedCoupons(businessId, type, search, page, limit, sortBy, sortDirection));
+    }
+
+    @GetMapping("/expired")
+    @PreAuthorize("@businessSecurity.hasAccess(#businessId, authentication, 'BUSINESS_ADMIN','STAFF')")
+    public ResponseEntity<Page<CouponSummaryResponse>> listExpired(
+            @PathVariable Long businessId,
+            @RequestParam(required = false) CouponType type,
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int limit,
+            @RequestParam(defaultValue = "endDate") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDirection) {
+        return ResponseEntity.ok(
+                couponViewService.listExpiredCoupons(businessId, type, search, page, limit, sortBy, sortDirection));
+    }
+
+    @GetMapping("/trash")
     @PreAuthorize("@businessSecurity.hasAccess(#businessId, authentication, 'BUSINESS_ADMIN')")
+    public ResponseEntity<Page<CouponSummaryResponse>> listTrashed(
+            @PathVariable Long businessId,
+            @RequestParam(required = false) CouponType type,
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int limit,
+            @RequestParam(defaultValue = "deletedAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDirection) {
+        return ResponseEntity.ok(
+                couponViewService.listTrashedCoupons(businessId, type, search, page, limit, sortBy, sortDirection));
+    }
+
+    @GetMapping("/{couponId}")
+    @PreAuthorize("@businessSecurity.hasAccess(#businessId, authentication, 'BUSINESS_ADMIN','STAFF')")
     public ResponseEntity<CouponDetailResponse> get(
             @PathVariable Long businessId,
             @PathVariable Long couponId) {

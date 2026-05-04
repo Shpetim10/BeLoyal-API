@@ -28,6 +28,7 @@ public interface CouponRepository extends JpaRepository<LoyaltyCoupon, Long> {
             SELECT c FROM LoyaltyCoupon c
             WHERE c.business.id = :businessId
               AND c.deletedAt IS NULL
+              AND c.status NOT IN (com.shabanaj.beloyal.model.Enums.CouponStatus.ARCHIVED, com.shabanaj.beloyal.model.Enums.CouponStatus.EXPIRED)
               AND (:status IS NULL OR c.status = :status)
               AND (:type IS NULL OR c.type = :type)
               AND (:search IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', :search, '%')))
@@ -39,6 +40,49 @@ public interface CouponRepository extends JpaRepository<LoyaltyCoupon, Long> {
             @Param("search") String search,
             Pageable pageable);
 
+    @Query("""
+            SELECT c FROM LoyaltyCoupon c
+            WHERE c.business.id = :businessId
+              AND c.deletedAt IS NULL
+              AND c.status = com.shabanaj.beloyal.model.Enums.CouponStatus.ARCHIVED
+              AND (:type IS NULL OR c.type = :type)
+              AND (:search IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', :search, '%')))
+            """)
+    Page<LoyaltyCoupon> findArchivedByBusiness(
+            @Param("businessId") Long businessId,
+            @Param("type") CouponType type,
+            @Param("search") String search,
+            Pageable pageable);
+
+    @Query("""
+            SELECT c FROM LoyaltyCoupon c
+            WHERE c.business.id = :businessId
+              AND c.deletedAt IS NULL
+              AND c.status = com.shabanaj.beloyal.model.Enums.CouponStatus.EXPIRED
+              AND (:type IS NULL OR c.type = :type)
+              AND (:search IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', :search, '%')))
+            """)
+    Page<LoyaltyCoupon> findExpiredByBusiness(
+            @Param("businessId") Long businessId,
+            @Param("type") CouponType type,
+            @Param("search") String search,
+            Pageable pageable);
+
+    @Query("""
+            SELECT c FROM LoyaltyCoupon c
+            WHERE c.business.id = :businessId
+              AND c.deletedAt IS NOT NULL
+              AND (:type IS NULL OR c.type = :type)
+              AND (:search IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', :search, '%')))
+            """)
+    Page<LoyaltyCoupon> findTrashedByBusiness(
+            @Param("businessId") Long businessId,
+            @Param("type") CouponType type,
+            @Param("search") String search,
+            Pageable pageable);
+
+    Optional<LoyaltyCoupon> findByIdAndBusinessIdAndDeletedAtIsNotNull(Long id, Long businessId);
+    Optional<LoyaltyCoupon> findByIdAndBusinessId(Long id, Long businessId);
     @Query("""
             SELECT c FROM LoyaltyCoupon c
             WHERE c.business.id = :businessId

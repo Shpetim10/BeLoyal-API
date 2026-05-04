@@ -2,6 +2,7 @@ package com.shabanaj.beloyal.features.coupon.controller;
 
 import com.shabanaj.beloyal.features.coupon.dto.CouponDetailResponse;
 import com.shabanaj.beloyal.features.coupon.dto.CouponStatusChangeRequest;
+import com.shabanaj.beloyal.features.coupon.dto.ReviveCouponRequest;
 import com.shabanaj.beloyal.features.coupon.service.CouponLifecycleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,12 +35,40 @@ public class CouponLifecycleController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{couponId}/restore-archive")
+    @PreAuthorize("@businessSecurity.hasAccess(#businessId, authentication, 'BUSINESS_ADMIN')")
+    public ResponseEntity<Void> restoreFromArchive(
+            @PathVariable Long businessId,
+            @PathVariable Long couponId) {
+        couponLifecycleService.restoreFromArchive(businessId, couponId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{couponId}/revive")
+    @PreAuthorize("@businessSecurity.hasAccess(#businessId, authentication, 'BUSINESS_ADMIN')")
+    public ResponseEntity<Void> revive(
+            @PathVariable Long businessId,
+            @PathVariable Long couponId,
+            @RequestBody @Valid ReviveCouponRequest request) {
+        couponLifecycleService.revive(businessId, couponId, request);
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/{couponId}")
     @PreAuthorize("@businessSecurity.hasAccess(#businessId, authentication, 'BUSINESS_ADMIN')")
     public ResponseEntity<Void> delete(
             @PathVariable Long businessId,
             @PathVariable Long couponId) {
         couponLifecycleService.delete(businessId, couponId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/trash/{couponId}/restore")
+    @PreAuthorize("@businessSecurity.hasAccess(#businessId, authentication, 'BUSINESS_ADMIN')")
+    public ResponseEntity<Void> restoreFromTrash(
+            @PathVariable Long businessId,
+            @PathVariable Long couponId) {
+        couponLifecycleService.restoreFromTrash(businessId, couponId);
         return ResponseEntity.noContent().build();
     }
 }

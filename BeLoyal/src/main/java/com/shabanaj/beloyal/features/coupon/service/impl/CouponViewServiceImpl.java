@@ -24,13 +24,10 @@ public class CouponViewServiceImpl implements CouponViewService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<CouponSummaryResponse> listCoupons(Long businessId, CouponStatus status, CouponType type,
+    public Page<CouponSummaryResponse> listActiveCoupons(Long businessId, CouponStatus status, CouponType type,
                                                     String search, int page, int limit,
                                                     String sortBy, String sortDirection) {
-        Sort.Direction direction = "DESC".equalsIgnoreCase(sortDirection)
-                ? Sort.Direction.DESC : Sort.Direction.ASC;
-        String resolvedSortBy = resolveSort(sortBy);
-        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by(direction, resolvedSortBy));
+        PageRequest pageRequest = buildPage(page, limit, sortBy, sortDirection);
 
         return couponRepository
                 .findAllByBusiness(businessId, status, type,
@@ -41,11 +38,56 @@ public class CouponViewServiceImpl implements CouponViewService {
 
     @Override
     @Transactional(readOnly = true)
+    public Page<CouponSummaryResponse> listArchivedCoupons(Long businessId, CouponType type,
+                                                           String search, int page, int limit,
+                                                           String sortBy, String sortDirection) {
+        PageRequest pageRequest = buildPage(page, limit, sortBy, sortDirection);
+        return couponRepository
+                .findArchivedByBusiness(businessId, type,
+                        (search != null && !search.isBlank()) ? search : null,
+                        pageRequest)
+                .map(couponMapper::toSummary);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<CouponSummaryResponse> listExpiredCoupons(Long businessId, CouponType type,
+                                                          String search, int page, int limit,
+                                                          String sortBy, String sortDirection) {
+        PageRequest pageRequest = buildPage(page, limit, sortBy, sortDirection);
+        return couponRepository
+                .findExpiredByBusiness(businessId, type,
+                        (search != null && !search.isBlank()) ? search : null,
+                        pageRequest)
+                .map(couponMapper::toSummary);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<CouponSummaryResponse> listTrashedCoupons(Long businessId, CouponType type,
+                                                          String search, int page, int limit,
+                                                          String sortBy, String sortDirection) {
+        PageRequest pageRequest = buildPage(page, limit, sortBy, sortDirection);
+        return couponRepository
+                .findTrashedByBusiness(businessId, type,
+                        (search != null && !search.isBlank()) ? search : null,
+                        pageRequest)
+                .map(couponMapper::toSummary);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public CouponDetailResponse getCoupon(Long businessId, Long couponId) {
         LoyaltyCoupon coupon = couponRepository
-                .findByIdAndBusinessIdAndDeletedAtIsNull(couponId, businessId)
+                .findByIdAndBusinessId(couponId, businessId)
                 .orElseThrow(() -> new CouponNotFound(couponId));
         return couponMapper.toDetail(coupon);
+    }
+
+    private PageRequest buildPage(int page, int limit, String sortBy, String sortDirection) {
+        Sort.Direction direction = "DESC".equalsIgnoreCase(sortDirection)
+                ? Sort.Direction.DESC : Sort.Direction.ASC;
+        return PageRequest.of(page, limit, Sort.by(direction, resolveSort(sortBy)));
     }
 
     private String resolveSort(String sortBy) {
@@ -56,6 +98,8 @@ public class CouponViewServiceImpl implements CouponViewService {
             case "status" -> "status";
             case "startDate" -> "startDate";
             case "endDate" -> "endDate";
+            case "archivedAt" -> "archivedAt";
+            case "deletedAt" -> "deletedAt";
             default -> "createdAt";
         };
     }
