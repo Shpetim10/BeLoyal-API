@@ -8,17 +8,18 @@ import com.shabanaj.beloyal.features.loyaltyCard.service.LoyaltyCardService;
 import com.shabanaj.beloyal.model.Entity.Business;
 import com.shabanaj.beloyal.model.Entity.CustomerProfile;
 import com.shabanaj.beloyal.model.Entity.LoyaltyAccount;
+import com.shabanaj.beloyal.model.Entity.LoyaltyCard;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class LoyaltyAccountServiceImpl implements LoyaltyAccountService {
     private final LoyaltyAccountRepository  loyaltyAccountRepository;
-    private final LoyaltyCardService loyaltyCardService;
-    private final BusinessService businessService;
 
     @Override
     public LoyaltyAccount save(LoyaltyAccount loyaltyAccount) {
@@ -59,5 +60,15 @@ public class LoyaltyAccountServiceImpl implements LoyaltyAccountService {
         }
 
         return loyaltyAccount.get();
+    }
+
+    @Override
+    public List<LoyaltyAccount> findLoyaltyAccountsByCustomerProfile(CustomerProfile customerProfile) {
+        if (customerProfile == null){
+            throw new IllegalArgumentException("CustomerProfile cannot be null");
+        }
+
+        // get all accounts
+        return loyaltyAccountRepository.findLoyaltyCardsByCustomerProfile(customerProfile);
     }
 }

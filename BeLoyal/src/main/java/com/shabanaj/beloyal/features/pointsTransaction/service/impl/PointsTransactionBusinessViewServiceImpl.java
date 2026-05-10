@@ -3,6 +3,7 @@ package com.shabanaj.beloyal.features.pointsTransaction.service.impl;
 import com.shabanaj.beloyal.features.pointsTransaction.dto.PointTransactionBusinessListViewDto;
 import com.shabanaj.beloyal.features.pointsTransaction.repository.PointsTransactionRepository;
 import com.shabanaj.beloyal.features.pointsTransaction.service.PointsTransactionBusinessViewService;
+import com.shabanaj.beloyal.model.Entity.BillTransaction;
 import com.shabanaj.beloyal.model.Entity.PointsTransaction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,20 +24,23 @@ public class PointsTransactionBusinessViewServiceImpl implements PointsTransacti
         List<PointsTransaction> transactions= pointsTransactionRepository.findAllByBusinessId(businessId);
 
         return transactions.stream().map(pt->
+                {
+                    BillTransaction billTransaction = pt.getBillTransaction();
+                    return
                     PointTransactionBusinessListViewDto.builder()
                             .id(pt.getId())
                             .customerFullName(
                                     pt.getLoyaltyAccount().getCustomerProfile().getUser().getFirstName()+ " "
                                     + pt.getLoyaltyAccount().getCustomerProfile().getUser().getLastName())
-                            .billTransactionReferenceId(pt.getBillTransaction().getInvoiceReference())
+                            .billTransactionReferenceId(billTransaction != null ? billTransaction.getInvoiceReference() : null)
                             .businessMemberFullName(pt.getBusinessMember().getUser().getFirstName()+ " "+ pt.getBusinessMember().getUser().getLastName())
                             .type(pt.getType().name())
                             .points(pt.getPointsDelta())
-                            .netAmount(pt.getBillTransaction().getNetAmount())
-                            .discountAmount(pt.getBillTransaction().getDiscountAmount())
-                            .billAmount(pt.getBillTransaction().getBillAmount())
+                            .netAmount(billTransaction != null ? billTransaction.getNetAmount() : null)
+                            .discountAmount(billTransaction != null ? billTransaction.getDiscountAmount() : null)
+                            .billAmount(billTransaction != null ? billTransaction.getBillAmount() : null)
                             .createdAt(pt.getCreatedAt())
-                            .build()
-                ).toList();
+                            .build();
+                }).toList();
     }
 }

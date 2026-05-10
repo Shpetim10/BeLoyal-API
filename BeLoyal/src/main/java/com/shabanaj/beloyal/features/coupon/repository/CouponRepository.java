@@ -98,6 +98,19 @@ public interface CouponRepository extends JpaRepository<LoyaltyCoupon, Long> {
             @Param("businessId") Long businessId,
             @Param("now") LocalDateTime now);
 
+    @Query("""
+            SELECT c FROM LoyaltyCoupon c
+            JOIN FETCH c.business b
+            WHERE c.deletedAt IS NULL
+              AND c.status = com.shabanaj.beloyal.model.Enums.CouponStatus.ACTIVE
+              AND c.visibility = com.shabanaj.beloyal.model.Enums.CouponVisibility.PUBLIC
+              AND c.startDate <= :now
+              AND c.endDate >= :now
+              AND (c.totalRedemptionLimit IS NULL OR c.totalRedemptions < c.totalRedemptionLimit)
+            ORDER BY c.isFeatured DESC, c.sortOrder ASC, c.createdAt DESC
+            """)
+    List<LoyaltyCoupon> findAllActivePublic(@Param("now") LocalDateTime now);
+
     int countByBusinessIdAndDeletedAtIsNull(Long businessId);
 
     @Query("SELECT c FROM LoyaltyCoupon c WHERE c.status = 'ACTIVE' AND c.endDate < :now AND c.deletedAt IS NULL")

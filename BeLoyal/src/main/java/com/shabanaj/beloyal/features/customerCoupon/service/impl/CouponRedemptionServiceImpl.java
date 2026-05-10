@@ -154,6 +154,20 @@ public class CouponRedemptionServiceImpl implements CouponRedemptionService {
     }
 
     @Override
+    public Integer getCustomerCouponsCount(CustomerProfile customerProfile) {
+        if(customerProfile == null){
+            throw new IllegalArgumentException("CustomerProfile cannot be null");
+        }
+
+        return Math.toIntExact(
+                customerCouponRepository.countAllByCustomerProfileAndStatus(
+                        customerProfile,
+                        CustomerCouponStatus.REDEEMED
+                )
+        );
+    }
+
+    @Override
     @Transactional
     public CustomerCouponDetailResponse applyCoupon(Long customerCouponId, Long userId, String orderId) {
         User user = userService.getUserOrThrow(userId);

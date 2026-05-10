@@ -1,8 +1,11 @@
 package com.shabanaj.beloyal.features.customerCoupon.repository;
 
 import com.shabanaj.beloyal.model.Entity.CustomerCoupon;
+import com.shabanaj.beloyal.model.Entity.CustomerProfile;
 import com.shabanaj.beloyal.model.Enums.CustomerCouponStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,9 +18,24 @@ public interface CustomerCouponRepository extends JpaRepository<CustomerCoupon, 
 
     List<CustomerCoupon> findAllByCustomerProfileIdOrderByCreatedAtDesc(Long customerProfileId);
 
+    @Query(
+            "SELECT COUNT(cc) FROM CustomerCoupon cc WHERE cc.customerProfile = :customerProfile AND cc.status = :couponStatus"
+    )
+    long countAllByCustomerProfileAndStatus(
+            @Param("customerProfile") CustomerProfile customerProfile,
+            @Param("couponStatus") CustomerCouponStatus couponStatus
+    );
+
     List<CustomerCoupon> findAllByCustomerProfileIdAndBusinessIdOrderByCreatedAtDesc(Long customerProfileId, Long businessId);
 
     Optional<CustomerCoupon> findByIdAndCustomerProfileId(Long id, Long customerProfileId);
 
     Optional<CustomerCoupon> findByIdAndBusinessId(Long id, Long businessId);
+
+    @Query("SELECT cc FROM CustomerCoupon cc " +
+           "JOIN FETCH cc.coupon c " +
+           "JOIN FETCH cc.business b " +
+           "WHERE cc.customerProfile.id = :profileId " +
+           "ORDER BY cc.createdAt DESC")
+    List<CustomerCoupon> findAllWithCouponByCustomerProfileId(@Param("profileId") Long profileId);
 }

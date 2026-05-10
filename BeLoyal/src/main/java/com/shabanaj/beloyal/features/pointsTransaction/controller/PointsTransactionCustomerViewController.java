@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/besahub/customer/transactions")
+@RequestMapping("/api/besahub/customer/points-transactions")
 @RequiredArgsConstructor
 public class PointsTransactionCustomerViewController {
     private final PointsTransactionCustomerViewService pointsTransactionCustomerViewService;

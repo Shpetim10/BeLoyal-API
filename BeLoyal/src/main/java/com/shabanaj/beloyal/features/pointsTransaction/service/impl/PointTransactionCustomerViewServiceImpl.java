@@ -4,6 +4,7 @@ import com.shabanaj.beloyal.features.pointsTransaction.dto.PointTransactionCusto
 import com.shabanaj.beloyal.features.pointsTransaction.dto.PointTransactionCustomerBusinessListViewDto;
 import com.shabanaj.beloyal.features.pointsTransaction.repository.PointsTransactionRepository;
 import com.shabanaj.beloyal.features.pointsTransaction.service.PointsTransactionCustomerViewService;
+import com.shabanaj.beloyal.model.Entity.BillTransaction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,9 @@ public class PointTransactionCustomerViewServiceImpl implements PointsTransactio
         }
 
         return pointsTransactionRepository.findAllByUserId(userId).map(pt ->
+                {
+                    BillTransaction billTransaction = pt.getBillTransaction();
+                    return
                 PointTransactionCustomerAllListViewDto.builder()
                         .id(pt.getId())
                         .businessName(pt.getLoyaltyAccount().getBusiness().getBusinessName())
@@ -32,15 +36,15 @@ public class PointTransactionCustomerViewServiceImpl implements PointsTransactio
                                 +" , "
                                 + pt.getLoyaltyAccount().getBusiness().getCountry())
                         .businessLogoPath(pt.getLoyaltyAccount().getBusiness().getLogoPath())
-                        .billTransactionReferenceId(pt.getBillTransaction().getInvoiceReference())
+                        .billTransactionReferenceId(billTransaction != null ? billTransaction.getInvoiceReference() : null)
                         .type(pt.getType().name())
                         .points(pt.getPointsDelta())
-                        .netAmount(pt.getBillTransaction().getNetAmount())
-                        .discountAmount(pt.getBillTransaction().getDiscountAmount())
-                        .billAmount(pt.getBillTransaction().getBillAmount())
+                        .netAmount(billTransaction != null ? billTransaction.getNetAmount() : null)
+                        .discountAmount(billTransaction != null ? billTransaction.getDiscountAmount() : null)
+                        .billAmount(billTransaction != null ? billTransaction.getBillAmount() : null)
                         .createdAt(pt.getCreatedAt())
-                        .build()
-        ).toList();
+                        .build();
+                }).toList();
     }
 
     @Override
@@ -51,16 +55,19 @@ public class PointTransactionCustomerViewServiceImpl implements PointsTransactio
         }
 
         return pointsTransactionRepository.findAllByUserIdAndBusinessId(userId, businessId)
-                .map(pt-> PointTransactionCustomerBusinessListViewDto.builder()
+                .map(pt-> {
+                        BillTransaction billTransaction = pt.getBillTransaction();
+                        return PointTransactionCustomerBusinessListViewDto.builder()
                         .id(pt.getId())
-                        .billTransactionReferenceId(pt.getBillTransaction().getInvoiceReference())
+                        .billTransactionReferenceId(billTransaction != null ? billTransaction.getInvoiceReference() : null)
                         .type(pt.getType().name())
                         .points(pt.getPointsDelta())
-                        .netAmount(pt.getBillTransaction().getNetAmount())
-                        .discountAmount(pt.getBillTransaction().getDiscountAmount())
-                        .billAmount(pt.getBillTransaction().getBillAmount())
+                        .netAmount(billTransaction != null ? billTransaction.getNetAmount() : null)
+                        .discountAmount(billTransaction != null ? billTransaction.getDiscountAmount() : null)
+                        .billAmount(billTransaction != null ? billTransaction.getBillAmount() : null)
                         .createdAt(pt.getCreatedAt())
-                        .build())
+                        .build();
+                })
                 .toList();
     }
 }

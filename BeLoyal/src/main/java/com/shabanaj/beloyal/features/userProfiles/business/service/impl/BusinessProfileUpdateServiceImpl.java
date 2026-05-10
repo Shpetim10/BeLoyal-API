@@ -6,6 +6,7 @@ import com.shabanaj.beloyal.common.Exception.BadRequestException;
 import com.shabanaj.beloyal.model.Entity.Business;
 import com.shabanaj.beloyal.features.userProfiles.business.dto.BusinessProfileUpdateDto;
 import com.shabanaj.beloyal.features.userProfiles.business.service.BusinessProfileUpdateService;
+import com.shabanaj.beloyal.model.Enums.BusinessCategory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +33,7 @@ public class BusinessProfileUpdateServiceImpl implements BusinessProfileUpdateSe
 
         if (isPresent(dto.getBusinessType())) {
             business.setBusinessType(
-                    com.shabanaj.beloyal.model.Enums.BusinessType.valueOf(dto.getBusinessType().orElse(null)));
+                    BusinessCategory.valueOf(dto.getBusinessType().orElse(null)));
         }
 
         if (isPresent(dto.getVatId())) {

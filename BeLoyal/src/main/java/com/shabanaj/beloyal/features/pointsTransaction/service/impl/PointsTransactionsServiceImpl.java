@@ -3,6 +3,7 @@ package com.shabanaj.beloyal.features.pointsTransaction.service.impl;
 import com.shabanaj.beloyal.features.pointsTransaction.dto.PointTransactionViewDto;
 import com.shabanaj.beloyal.features.pointsTransaction.repository.PointsTransactionRepository;
 import com.shabanaj.beloyal.features.pointsTransaction.service.PointsTransactionService;
+import com.shabanaj.beloyal.model.Entity.BillTransaction;
 import com.shabanaj.beloyal.model.Entity.PointsTransaction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class PointsTransactionsServiceImpl implements PointsTransactionService {
             throw new IllegalArgumentException("id is null");
 
         PointsTransaction pointsTransaction= pointsTransactionRepository.getPointsTransactionById(id);
+        BillTransaction billTransaction = pointsTransaction.getBillTransaction();
 
         return PointTransactionViewDto.builder()
                 .id(pointsTransaction.getId())
@@ -39,11 +41,11 @@ public class PointsTransactionsServiceImpl implements PointsTransactionService {
                 .lifetimeEarnedPoints(pointsTransaction.getLoyaltyAccount().getLifetimeEarned())
                 .lifetimeExpired(pointsTransaction.getLoyaltyAccount().getLifetimeExpired())
                 .lastActivityAt(pointsTransaction.getLoyaltyAccount().getLastActivityAt())
-                .invoiceReference(pointsTransaction.getBillTransaction().getInvoiceReference())
-                .note(pointsTransaction.getBillTransaction().getNote())
-                .netAmount(pointsTransaction.getBillTransaction().getNetAmount())
-                .discountAmount(pointsTransaction.getBillTransaction().getDiscountAmount())
-                .billAmount(pointsTransaction.getBillTransaction().getBillAmount())
+                .invoiceReference(billTransaction != null ? billTransaction.getInvoiceReference() : null)
+                .note(billTransaction != null ? billTransaction.getNote() : null)
+                .netAmount(billTransaction != null ? billTransaction.getNetAmount() : null)
+                .discountAmount(billTransaction != null ? billTransaction.getDiscountAmount() : null)
+                .billAmount(billTransaction != null ? billTransaction.getBillAmount() : null)
                 .businessMemberFullName(
                         pointsTransaction.getBusinessMember().getUser().getFirstName()+ " "
                         + pointsTransaction.getBusinessMember().getUser().getLastName()

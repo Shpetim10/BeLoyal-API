@@ -1,6 +1,6 @@
 package com.shabanaj.beloyal.features.registration.dto.businessRegistration;
 
-import com.shabanaj.beloyal.model.Enums.BusinessType;
+import com.shabanaj.beloyal.model.Enums.BusinessCategory;
 import com.shabanaj.beloyal.common.Validation.Annotation.UniqueVatId;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -11,7 +11,7 @@ public class BusinessRegistrationDto {
     @NotBlank
     private String businessName;
     @NotNull
-    private BusinessType businessType;
+    private BusinessCategory businessCategory;
     @NotBlank
     private String city;
     @NotBlank
@@ -42,12 +42,12 @@ public class BusinessRegistrationDto {
         this.businessName = businessName;
     }
 
-    public @NotNull BusinessType getBusinessType() {
-        return businessType;
+    public @NotNull BusinessCategory getBusinessType() {
+        return businessCategory;
     }
 
-    public void setBusinessType(@NotNull BusinessType businessType) {
-        this.businessType = businessType;
+    public void setBusinessType(@NotNull BusinessCategory businessCategory) {
+        this.businessCategory = businessCategory;
     }
 
     public @NotBlank String getCity() {

@@ -1,6 +1,8 @@
 package com.shabanaj.beloyal.features.pointsTransaction.repository;
 
 import com.shabanaj.beloyal.model.Entity.PointsTransaction;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -79,6 +81,18 @@ public interface PointsTransactionRepository extends JpaRepository<PointsTransac
                     "ORDER BY pt.createdAt DESC"
     )
     Stream<PointsTransaction> findAllByUserIdAndBusinessId(@Param("userId") Long userId, @Param("businessId") Long businessId);
+
+    // Pageable query for customer transactions view
+    @Query(value = "SELECT pt FROM PointsTransaction pt " +
+                   "JOIN FETCH pt.loyaltyAccount la " +
+                   "JOIN FETCH la.business b " +
+                   "LEFT JOIN FETCH pt.billTransaction bt " +
+                   "WHERE la.customerProfile.user.id = :userId " +
+                   "ORDER BY pt.createdAt DESC",
+           countQuery = "SELECT count(pt) FROM PointsTransaction pt " +
+                        "JOIN pt.loyaltyAccount la " +
+                        "WHERE la.customerProfile.user.id = :userId")
+    Page<PointsTransaction> findPageByUserId(@Param("userId") Long userId, Pageable pageable);
 
     // security check
     @Query("SELECT COUNT(pt) > 0 FROM PointsTransaction pt " +

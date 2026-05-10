@@ -1,6 +1,6 @@
 package com.shabanaj.beloyal.features.registration.dto;
 
-import com.shabanaj.beloyal.model.Enums.BusinessType;
+import com.shabanaj.beloyal.model.Enums.BusinessCategory;
 import com.shabanaj.beloyal.common.Validation.Annotation.UniqueEmailOnCreate;
 import com.shabanaj.beloyal.common.Validation.Annotation.ValidEmail;
 import com.shabanaj.beloyal.common.Validation.Annotation.ValidPhoneNumber;
@@ -16,7 +16,7 @@ public class BusinessProfileRegisterDto {
 
     @NotEmpty
     @NotBlank
-    private BusinessType businessType;
+    private BusinessCategory businessCategory;
 
     @Size(max = 1000, message = "Business description must be less than 1000 characters")
     private String businessDescription;
@@ -46,9 +46,9 @@ public class BusinessProfileRegisterDto {
     @UniqueEmailOnCreate
     private String email;
 
-    public BusinessProfileRegisterDto(String businessName, BusinessType businessType, String businessDescription, String logoUrl, String address, String city, String country, String websiteUrl, String vatId, String phoneNumber, String email) {
+    public BusinessProfileRegisterDto(String businessName, BusinessCategory businessCategory, String businessDescription, String logoUrl, String address, String city, String country, String websiteUrl, String vatId, String phoneNumber, String email) {
         this.businessName = businessName;
-        this.businessType = businessType;
+        this.businessCategory = businessCategory;
         this.businessDescription = businessDescription;
         this.logoUrl = logoUrl;
         this.address = address;
@@ -68,12 +68,12 @@ public class BusinessProfileRegisterDto {
         this.businessName = businessName;
     }
 
-    public BusinessType getBusinessType() {
-        return businessType;
+    public BusinessCategory getBusinessType() {
+        return businessCategory;
     }
 
-    public void setBusinessType(BusinessType businessType) {
-        this.businessType = businessType;
+    public void setBusinessType(BusinessCategory businessCategory) {
+        this.businessCategory = businessCategory;
     }
 
     public String getBusinessDescription() {

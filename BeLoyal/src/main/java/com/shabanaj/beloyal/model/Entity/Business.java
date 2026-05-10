@@ -1,7 +1,7 @@
 package com.shabanaj.beloyal.model.Entity;
 
 import com.shabanaj.beloyal.model.Enums.BusinessStatus;
-import com.shabanaj.beloyal.model.Enums.BusinessType;
+import com.shabanaj.beloyal.model.Enums.BusinessCategory;
 import com.shabanaj.beloyal.model.Enums.CurrencyCode;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -31,7 +31,7 @@ public class Business {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "business_type", nullable = false)
-    private BusinessType businessType;
+    private BusinessCategory businessCategory;
 
     @Size(max = 1000)
     @Column(name = "business_description", length = 1000)
@@ -124,12 +124,12 @@ public class Business {
         this.businessName = businessName;
     }
 
-    public BusinessType getBusinessType() {
-        return businessType;
+    public BusinessCategory getBusinessType() {
+        return businessCategory;
     }
 
-    public void setBusinessType(BusinessType businessType) {
-        this.businessType = businessType;
+    public void setBusinessType(BusinessCategory businessCategory) {
+        this.businessCategory = businessCategory;
     }
 
     public String getBusinessDescription() {

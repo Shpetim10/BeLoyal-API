@@ -1,6 +1,6 @@
 package com.shabanaj.beloyal.model.Enums;
 
-public enum BusinessType {
+public enum BusinessCategory {
     RESTAURANT(1,"Restaurant",""),
     BAR(2,"Bar",""),
     CAFE(3,"Cafe",""),
@@ -13,14 +13,14 @@ public enum BusinessType {
     String description;
     String icon;
 
-    BusinessType(Integer id, String name, String description, String icon){
+    BusinessCategory(Integer id, String name, String description, String icon){
         this.id = id;
         this.name = name;
         this.description = description;
         this.icon = icon;
     }
 
-    BusinessType(Integer id, String name, String description){
+    BusinessCategory(Integer id, String name, String description){
         this.id = id;
         this.name = name;
         this.description = description;
