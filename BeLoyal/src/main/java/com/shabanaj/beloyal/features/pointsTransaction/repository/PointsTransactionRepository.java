@@ -94,6 +94,18 @@ public interface PointsTransactionRepository extends JpaRepository<PointsTransac
                         "WHERE la.customerProfile.user.id = :userId")
     Page<PointsTransaction> findPageByUserId(@Param("userId") Long userId, Pageable pageable);
 
+    @Query(value = "SELECT pt FROM PointsTransaction pt " +
+                   "JOIN FETCH pt.loyaltyAccount la " +
+                   "JOIN FETCH la.business b " +
+                   "LEFT JOIN FETCH pt.billTransaction bt " +
+                   "WHERE la.customerProfile.user.id = :userId AND b.id = :businessId " +
+                   "ORDER BY pt.createdAt DESC",
+           countQuery = "SELECT count(pt) FROM PointsTransaction pt " +
+                        "JOIN pt.loyaltyAccount la " +
+                        "JOIN la.business b " +
+                        "WHERE la.customerProfile.user.id = :userId AND b.id = :businessId")
+    Page<PointsTransaction> findPageByUserIdAndBusinessId(@Param("userId") Long userId, @Param("businessId") Long businessId, Pageable pageable);
+
     // security check
     @Query("SELECT COUNT(pt) > 0 FROM PointsTransaction pt " +
             "WHERE pt.id = :transactionId " +

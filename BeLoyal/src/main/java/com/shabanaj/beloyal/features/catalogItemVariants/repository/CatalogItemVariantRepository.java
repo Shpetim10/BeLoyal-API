@@ -19,4 +19,6 @@ public interface CatalogItemVariantRepository extends JpaRepository<CatalogItemV
 
     // ── kept for backwards-compat (used by CreateService) ──────────────────
     List<CatalogItemVariant> findByCatalogItemIdAndIsDeletedFalse(Long catalogItemId);
+
+    List<CatalogItemVariant> findByCatalogItemIdInAndIsDeletedFalseOrderByOrderIndexAsc(java.util.Collection<Long> itemIds);
 }

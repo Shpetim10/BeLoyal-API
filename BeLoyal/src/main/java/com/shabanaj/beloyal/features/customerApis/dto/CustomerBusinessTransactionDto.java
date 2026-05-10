@@ -3,7 +3,7 @@ package com.shabanaj.beloyal.features.customerApis.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record CustomerTransactionDto(
+public record CustomerBusinessTransactionDto(
         Long id,
         Long businessId,
         String businessName,
@@ -14,6 +14,17 @@ public record CustomerTransactionDto(
         BigDecimal netAmount,
         BigDecimal billAmount,
         BigDecimal discountAmount,
-        String referenceId
+        String referenceId,
+
+        // PointsTransaction context
+        String reason,
+        String scanMethod,
+        BigDecimal moneyAmount,
+        BigDecimal ruleAmountPer,
+        Integer rulePointsPer,
+
+        // BillTransaction context
+        String invoiceReference,
+        String note
 ) {
 }
