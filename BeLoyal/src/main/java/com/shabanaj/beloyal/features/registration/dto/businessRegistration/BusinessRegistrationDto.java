@@ -1,6 +1,7 @@
 package com.shabanaj.beloyal.features.registration.dto.businessRegistration;
 
 import com.shabanaj.beloyal.model.Enums.BusinessCategory;
+import com.shabanaj.beloyal.model.Enums.CurrencyCode;
 import com.shabanaj.beloyal.common.Validation.Annotation.UniqueVatId;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -25,6 +26,9 @@ public class BusinessRegistrationDto {
     private String websiteUrl;
     private String logoUrl;
     private String logoKey;
+
+    @NotNull
+    private CurrencyCode currency;
 
     @NotBlank
     @NotNull
@@ -128,5 +132,13 @@ public class BusinessRegistrationDto {
 
     public void setBusinessDescription(@Size(max = 1000) String businessDescription) {
         this.businessDescription = businessDescription;
+    }
+
+    public CurrencyCode getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(CurrencyCode currency) {
+        this.currency = currency;
     }
 }

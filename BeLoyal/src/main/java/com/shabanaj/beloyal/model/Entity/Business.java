@@ -81,7 +81,7 @@ public class Business {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "currency_code", nullable = false)
-    private CurrencyCode currencyCode = CurrencyCode.EURO;
+    private CurrencyCode currencyCode = CurrencyCode.EUR;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

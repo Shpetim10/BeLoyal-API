@@ -30,6 +30,10 @@ public class BusinessUpdateRegistrationServiceImpl implements BusinessUpdateRegi
             throw new IllegalArgumentException("The registration is already approved!");
         }
 
+        if (dto.getVatId() != null && businessRepository.existsByVatIdIgnoreCaseAndIdNot(dto.getVatId().trim(), businessId)) {
+            throw new IllegalArgumentException("A business with this VAT ID already exists");
+        }
+
         business.setBusinessName(dto.getBusinessName());
         business.setBusinessType(dto.getBusinessType());
         business.setCity(dto.getCity());
@@ -42,6 +46,9 @@ public class BusinessUpdateRegistrationServiceImpl implements BusinessUpdateRegi
         business.setLogoKey(dto.getLogoKey());
         business.setVatId(dto.getVatId());
         business.setBusinessDescription(dto.getBusinessDescription());
+        if (dto.getCurrency() != null) {
+            business.setCurrencyCode(dto.getCurrency());
+        }
 
         business.setBusinessStatus(BusinessStatus.PENDING_APPROVAL);
 
@@ -72,6 +79,7 @@ public class BusinessUpdateRegistrationServiceImpl implements BusinessUpdateRegi
         businessRegistrationDto.setLogoUrl(business.getLogoPath());
         businessRegistrationDto.setVatId(business.getVatId());
         businessRegistrationDto.setBusinessDescription(business.getBusinessDescription());
+        businessRegistrationDto.setCurrency(business.getCurrencyCode());
 
         return businessRegistrationDto;
     }

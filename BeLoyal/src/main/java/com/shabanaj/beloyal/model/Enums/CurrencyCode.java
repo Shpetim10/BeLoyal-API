@@ -1,23 +1,23 @@
 package com.shabanaj.beloyal.model.Enums;
 
 public enum CurrencyCode {
-    LEK("Leke", "ALL"),
-    DOLLAR("Dollar", "$"),
-    EURO("Euro", "€");
+    ALL("Albanian Lek", "ALL"),
+    EUR("Euro", "€"),
+    USD("US Dollar", "$");
 
-    private String name;
-    private String code;
+    private final String displayName;
+    private final String symbol;
 
-     CurrencyCode(String name, String code) {
-        this.name = name;
-        this.code = code;
+    CurrencyCode(String displayName, String symbol) {
+        this.displayName = displayName;
+        this.symbol = symbol;
     }
 
-    public String getName() {
-        return name;
+    public String getDisplayName() {
+        return displayName;
     }
 
-    public String getCode() {
-        return code;
+    public String getSymbol() {
+        return symbol;
     }
 }

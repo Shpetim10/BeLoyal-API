@@ -150,7 +150,7 @@ public class CouponCreateServiceImpl implements CouponCreateService {
             }
             if (description == null || description.isBlank()) {
                 description = "Redeem this coupon for " + request.getDiscountAmount().stripTrailingZeros().toPlainString()
-                        + " " + business.getCurrencyCode().getCode()
+                        + " " + business.getCurrencyCode().getSymbol()
                         + " off your order using " + coupon.getPointsCost() + " loyalty points.";
             }
         }

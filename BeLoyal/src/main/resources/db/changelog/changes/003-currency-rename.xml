@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd"
+        logicalFilePath="db/changelog/changes/003-currency-rename.xml">
+
+    <!-- Rename business currency_code values from enum names to ISO codes -->
+    <changeSet id="001-rename-business-currency-euro" author="shaba">
+        <update tableName="business">
+            <column name="currency_code" value="EUR"/>
+            <where>currency_code = 'EURO'</where>
+        </update>
+    </changeSet>
+
+    <changeSet id="002-rename-business-currency-lek" author="shaba">
+        <update tableName="business">
+            <column name="currency_code" value="ALL"/>
+            <where>currency_code = 'LEK'</where>
+        </update>
+    </changeSet>
+
+    <changeSet id="003-rename-business-currency-dollar" author="shaba">
+        <update tableName="business">
+            <column name="currency_code" value="USD"/>
+            <where>currency_code = 'DOLLAR'</where>
+        </update>
+    </changeSet>
+
+    <!-- Rename catalog_item currency_code values -->
+    <changeSet id="004-rename-catalog-item-currency-euro" author="shaba">
+        <update tableName="catalog_item">
+            <column name="currency_code" value="EUR"/>
+            <where>currency_code = 'EURO' OR currency_code = 'EUR'</where>
+        </update>
+    </changeSet>
+
+    <changeSet id="005-rename-catalog-item-currency-lek" author="shaba">
+        <update tableName="catalog_item">
+            <column name="currency_code" value="ALL"/>
+            <where>currency_code = 'LEK'</where>
+        </update>
+    </changeSet>
+
+    <changeSet id="006-rename-catalog-item-currency-dollar" author="shaba">
+        <update tableName="catalog_item">
+            <column name="currency_code" value="USD"/>
+            <where>currency_code = 'DOLLAR'</where>
+        </update>
+    </changeSet>
+
+    <!-- Rename loyalty_coupons currency values -->
+    <changeSet id="007-rename-coupons-currency-euro" author="shaba">
+        <update tableName="loyalty_coupons">
+            <column name="currency" value="EUR"/>
+            <where>currency = 'EURO'</where>
+        </update>
+    </changeSet>
+
+    <changeSet id="008-rename-coupons-currency-lek" author="shaba">
+        <update tableName="loyalty_coupons">
+            <column name="currency" value="ALL"/>
+            <where>currency = 'LEK'</where>
+        </update>
+    </changeSet>
+
+    <changeSet id="009-rename-coupons-currency-dollar" author="shaba">
+        <update tableName="loyalty_coupons">
+            <column name="currency" value="USD"/>
+            <where>currency = 'DOLLAR'</where>
+        </update>
+    </changeSet>
+
+</databaseChangeLog>

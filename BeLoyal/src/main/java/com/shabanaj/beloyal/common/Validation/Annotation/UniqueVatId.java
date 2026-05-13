@@ -1,13 +1,13 @@
 package com.shabanaj.beloyal.common.Validation.Annotation;
 
-import com.shabanaj.beloyal.common.Validation.Validator.UniqueUsernameOnCreateValidator;
+import com.shabanaj.beloyal.common.Validation.Validator.UniqueVatIdValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = UniqueUsernameOnCreateValidator.class)
+@Constraint(validatedBy = UniqueVatIdValidator.class)
 @Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UniqueVatId {

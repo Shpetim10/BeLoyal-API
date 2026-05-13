@@ -1098,7 +1098,7 @@ public class DemoDataSeeder implements ApplicationRunner {
                 new BusinessTemplate(
                         "Mora Bistro",
                         BusinessCategory.RESTAURANT,
-                        CurrencyCode.EURO,
+                        CurrencyCode.EUR,
                         "Modern neighborhood restaurant with a loyalty-first demo menu.",
                         "Rruga e Kavajes",
                         "Tirane",
@@ -1109,7 +1109,7 @@ public class DemoDataSeeder implements ApplicationRunner {
                 new BusinessTemplate(
                         "Bean & Bloom",
                         BusinessCategory.CAFE,
-                        CurrencyCode.EURO,
+                        CurrencyCode.EUR,
                         "Cafe concept focused on fast repeat visits and coupon redemption.",
                         "Bulevardi Deshmoret e Kombit",
                         "Tirane",
@@ -1120,7 +1120,7 @@ public class DemoDataSeeder implements ApplicationRunner {
                 new BusinessTemplate(
                         "Copper Room",
                         BusinessCategory.BAR,
-                        CurrencyCode.EURO,
+                        CurrencyCode.EUR,
                         "Cocktail bar demo business with high-variation catalog items.",
                         "Rruga Pjeter Bogdani",
                         "Tirane",
@@ -1131,7 +1131,7 @@ public class DemoDataSeeder implements ApplicationRunner {
                 new BusinessTemplate(
                         "Quick Bite",
                         BusinessCategory.FAST_FOOD,
-                        CurrencyCode.EURO,
+                        CurrencyCode.EUR,
                         "Fast-food operation tuned for volume and points earning flows.",
                         "Rruga Taulantia",
                         "Durres",
@@ -1142,7 +1142,7 @@ public class DemoDataSeeder implements ApplicationRunner {
                 new BusinessTemplate(
                         "North Yard Pub",
                         BusinessCategory.PUB,
-                        CurrencyCode.EURO,
+                        CurrencyCode.EUR,
                         "Pub-style business with a mix of active and archived promotions.",
                         "Rruga Ismail Qemali",
                         "Vlore",
@@ -1153,7 +1153,7 @@ public class DemoDataSeeder implements ApplicationRunner {
                 new BusinessTemplate(
                         "Luna Table",
                         BusinessCategory.RESTAURANT,
-                        CurrencyCode.EURO,
+                        CurrencyCode.EUR,
                         "Editorial-style restaurant demo with premium-looking data density.",
                         "Rruga Myslym Shyri",
                         "Tirane",

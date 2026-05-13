@@ -41,6 +41,7 @@ public class BusinessServiceImpl implements BusinessService {
         business.setVatId(dto.getVatId());
         business.setBusinessPhoneNumber(dto.getBusinessPhoneNumber());
         business.setBusinessEmail(dto.getBusinessEmail());
+        business.setCurrencyCode(dto.getCurrency());
         business.setBusinessStatus(BusinessStatus.PENDING_APPROVAL);
         business.setSubmittedAt(LocalDateTime.now());
 

@@ -13,6 +13,7 @@ public interface BusinessRepository extends JpaRepository<Business, Long> {
     Optional<Business> findBusinessByVatId(String vatId);
     List<Business> getBusinessesByBusinessStatus(BusinessStatus businessStatus);
     boolean existsByVatIdIgnoreCase(String vatId);
+    boolean existsByVatIdIgnoreCaseAndIdNot(String vatId, Long id);
 
     // override the find all
     @Query(

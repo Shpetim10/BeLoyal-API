@@ -33,7 +33,6 @@ public class CatalogItemUpdateServiceImpl implements CatalogItemUpdateService {
         applyRequiredString(request.getName(), "name", item::setName);
         applyRequiredDecimal(request.getPrice(), "price", BigDecimal.valueOf(0.1), item::setPrice);
         applyRequiredEnum(request.getType(), "type", item::setType);
-        applyRequiredEnum(request.getCurrency(), "currencyCode", item::setCurrencyCode);
 
         // 3. Apply optional fields (null = clear)
         applyOptionalString(request.getDescription(), item::setDescription);

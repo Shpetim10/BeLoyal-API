@@ -21,6 +21,7 @@ public class BusinessProfileDto {
     private String businessStatus;
     private String logoPath;
     private String logoKey;
+    private String currencyCode;
 
     public BusinessProfileDto(Business business) {
         this.id = business.getId();
@@ -37,5 +38,6 @@ public class BusinessProfileDto {
         this.businessStatus = business.getBusinessStatus().name();
         this.logoPath = business.getLogoPath();
         this.logoKey = business.getLogoKey();
+        this.currencyCode = business.getCurrencyCode() != null ? business.getCurrencyCode().name() : null;
     }
 }

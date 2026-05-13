@@ -31,8 +31,7 @@ public class CatalogItemCreateRequest {
     @NotNull
     private CatalogItemType type;
 
-    @NotNull
-    private CurrencyCode  currency;
+    private CurrencyCode currency;
 
     private String unit;
     private String imageUrl;

@@ -73,7 +73,7 @@ public class CouponLookupServiceImpl implements CouponLookupService {
             return List.of();
         }
 
-        String currencyCode = product.getCurrencyCode().getCode();
+        String currencyCode = product.getCurrencyCode().name();
 
         return catalogItemVariantRepository
                 .findByCatalogItemIdAndIsDeletedFalseOrderByOrderIndexAsc(productId)
