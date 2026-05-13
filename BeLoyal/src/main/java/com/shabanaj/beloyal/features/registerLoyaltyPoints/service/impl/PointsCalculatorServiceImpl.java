@@ -14,14 +14,13 @@ import java.math.RoundingMode;
 public class PointsCalculatorServiceImpl implements PointsCalculatorService {
     @Override
     public Integer calculatePoints(BigDecimal billAmount, EarningSettings earningSettings) {
-        // check for null and 0 amount per
-        if (billAmount == null || earningSettings == null ||
-                earningSettings.getAmountPer() == null ||
-                earningSettings.getAmountPer().compareTo(BigDecimal.ZERO) == 0) {
+        if (billAmount == null || earningSettings == null
+                || !earningSettings.isEnabled() || !earningSettings.isConfigured()
+                || earningSettings.getAmountPer() == null
+                || earningSettings.getAmountPer().compareTo(BigDecimal.ZERO) == 0) {
             return 0;
         }
 
-        // calculate
         return billAmount
                 .divide(earningSettings.getAmountPer(), 0, RoundingMode.DOWN)
                 .multiply(BigDecimal.valueOf(earningSettings.getPointsPer()))

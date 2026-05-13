@@ -32,6 +32,7 @@ public class CustomerProfileUpdateServiceImpl implements CustomerProfileUpdateSe
         CustomerProfile customerProfile= customerProfileService.getCustomerProfileByUser(user);
 
         // Update logic
+        applyOptionalEnum(dto.getBirthDate(), customerProfile::setBirthDate);
         applyOptionalString(dto.getCity(),  customerProfile::setCity);
         applyOptionalString(dto.getCountry(),  customerProfile::setCountry);
         applyOptionalEnum(dto.getGender(),  customerProfile::setGender);

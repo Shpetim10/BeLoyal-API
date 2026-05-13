@@ -63,6 +63,6 @@ public class AuthenticatedPasswordChangerServiceImpl implements AuthenticatedPas
         String access = jwtService.generateAccessToken(userDetails, userId, newVer);
         String refresh = refreshTokenService.create(user, null, null);
 
-        return new AuthenticatedPasswordChangeResponse(access, refresh);
+        return new AuthenticatedPasswordChangeResponse("Password updated successfully", access, refresh);
     }
 }

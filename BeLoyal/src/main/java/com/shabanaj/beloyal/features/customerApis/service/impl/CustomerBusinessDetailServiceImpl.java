@@ -13,6 +13,7 @@ import com.shabanaj.beloyal.features.loyaltyAccount.repository.LoyaltyAccountRep
 import com.shabanaj.beloyal.features.loyaltyCard.service.LoyaltyCardService;
 import com.shabanaj.beloyal.features.loyaltySettings.repository.LoyaltySettingsRepository;
 import com.shabanaj.beloyal.features.pointsTransaction.repository.PointsTransactionRepository;
+import com.shabanaj.beloyal.features.registerLoyaltyPoints.service.PointsCalculatorService;
 import com.shabanaj.beloyal.features.user.service.UserService;
 import com.shabanaj.beloyal.features.userProfiles.customer.service.CustomerProfileService;
 import com.shabanaj.beloyal.model.Entity.*;
@@ -23,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,6 +45,7 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
     private final CustomerCouponRepository customerCouponRepository;
     private final CouponRepository couponRepository;
     private final PointsTransactionRepository pointsTransactionRepository;
+    private final PointsCalculatorService pointsCalculatorService;
 
     @Override
     @Transactional(readOnly = true)
@@ -72,7 +73,7 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
 
         return new CustomerBusinessDetailResponse(
                 buildBusinessDetail(business),
-                buildLoyalty(loyaltyAccount, loyaltySettings, earningSettings, loyaltyCard, availablePublicCoupons, business),
+                buildLoyalty(loyaltyAccount, loyaltySettings, earningSettings, loyaltyCard, availablePublicCoupons, business, customerProfile),
                 buildCatalog(businessId, earningSettings),
                 buildCoupons(customerProfile, business, availablePublicCoupons),
                 buildTransactions(userId, businessId),
@@ -120,10 +121,21 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                                              EarningSettings earningSettings,
                                              LoyaltyCard loyaltyCard,
                                              List<LoyaltyCoupon> availablePublicCoupons,
-                                             Business business) {
+                                             Business business,
+                                             CustomerProfile customerProfile) {
         int currentPoints = account != null ? account.getAvailablePoints() : 0;
 
-        int nextRewardPoints = availablePublicCoupons.stream()
+        // Filter out coupons where this customer has exhausted their per-customer quota
+        List<LoyaltyCoupon> redeemableCoupons = availablePublicCoupons.stream()
+                .filter(c -> {
+                    if (c.getPerCustomerRedemptionLimit() == null) return true;
+                    int used = customerCouponRepository.countByCouponIdAndCustomerProfileId(
+                            c.getId(), customerProfile.getId());
+                    return used < c.getPerCustomerRedemptionLimit();
+                })
+                .toList();
+
+        int nextRewardPoints = redeemableCoupons.stream()
                 .mapToInt(LoyaltyCoupon::getPointsCost)
                 .min()
                 .orElseGet(() -> loyaltySettings != null && loyaltySettings.isConfigured()
@@ -437,10 +449,8 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
 
     private Integer calculateEarnedPoints(BigDecimal price, EarningSettings earningSettings) {
         if (earningSettings == null || !earningSettings.isEnabled() || !earningSettings.isConfigured()) return null;
-        if (price == null || earningSettings.getAmountPer() == null
-                || earningSettings.getAmountPer().compareTo(BigDecimal.ZERO) == 0) return null;
-        BigDecimal ratio = price.divide(earningSettings.getAmountPer(), 0, RoundingMode.FLOOR);
-        return ratio.intValue() * earningSettings.getPointsPer();
+        if (price == null) return null;
+        return pointsCalculatorService.calculatePoints(price, earningSettings);
     }
 
     private String buildPointsLabel(EarningSettings earningSettings) {

@@ -52,7 +52,13 @@ public class CustomerTransactionViewServiceImpl implements CustomerTransactionVi
                 bill != null ? bill.getNetAmount() : null,
                 bill != null ? bill.getBillAmount() : null,
                 bill != null ? bill.getDiscountAmount() : null,
-                bill != null ? bill.getInvoiceReference() : null
+                bill != null ? bill.getInvoiceReference() : null,
+                pt.getReason(),
+                pt.getScanMethod() != null ? pt.getScanMethod().name() : null,
+                pt.getMoneyAmount(),
+                pt.getRuleAmountPer(),
+                pt.getRulePointsPer(),
+                bill != null ? bill.getNote() : null
         );
     }
 

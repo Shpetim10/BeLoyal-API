@@ -1,8 +1,11 @@
 package com.shabanaj.beloyal.features.userProfiles.customer.controller;
 
+import com.shabanaj.beloyal.features.customerApis.dto.CustomerProfileDetailsResponse;
+import com.shabanaj.beloyal.features.customerApis.service.CustomerProfileDetailsService;
 import com.shabanaj.beloyal.features.loyaltyCard.service.LoyaltyCardService;
 import com.shabanaj.beloyal.features.registration.dto.customerRegistraton.CustomerProfileRegisterDto;
 import com.shabanaj.beloyal.features.userProfiles.customer.dto.CustomerProfileCreationResponse;
+import com.shabanaj.beloyal.features.userProfiles.customer.dto.CustomerProfileDto;
 import com.shabanaj.beloyal.model.Entity.CustomerProfile;
 import com.shabanaj.beloyal.model.Entity.LoyaltyCard;
 import com.shabanaj.beloyal.model.Entity.User;
@@ -26,12 +29,14 @@ public class CustomerProfileController {
     private final UserService userService;
     private final CustomerProfileUpdateService customerProfileUpdateService;
     private final LoyaltyCardService loyaltyCardService;
+    private final CustomerProfileDetailsService customerProfileDetailsService;
 
-    public CustomerProfileController(CustomerProfileService customerProfileService, UserService userService, CustomerProfileUpdateService customerProfileUpdateService, LoyaltyCardService loyaltyCardService) {
+    public CustomerProfileController(CustomerProfileService customerProfileService, UserService userService, CustomerProfileUpdateService customerProfileUpdateService, LoyaltyCardService loyaltyCardService, CustomerProfileDetailsService customerProfileDetailsService) {
         this.customerProfileService = customerProfileService;
         this.userService = userService;
         this.customerProfileUpdateService = customerProfileUpdateService;
         this.loyaltyCardService = loyaltyCardService;
+        this.customerProfileDetailsService = customerProfileDetailsService;
     }
 
     @PostMapping("/me/create-profile")
@@ -59,9 +64,15 @@ public class CustomerProfileController {
 
     @GetMapping("/me")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<CustomerProfile> getCustomerProfile(@AuthenticationPrincipal UserPrincipal principal) {
+    public ResponseEntity<CustomerProfileDto> getCustomerProfile(@AuthenticationPrincipal UserPrincipal principal) {
         User user = userService.getUserOrThrow(principal.getId());
-        return ResponseEntity.ok(customerProfileService.getCustomerProfileByUser(user));
+        return ResponseEntity.ok(new CustomerProfileDto(customerProfileService.getCustomerProfileByUser(user)));
+    }
+
+    @GetMapping("/me/details")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<CustomerProfileDetailsResponse> getCustomerProfileDetails(@AuthenticationPrincipal UserPrincipal principal) {
+        return ResponseEntity.ok(customerProfileDetailsService.getProfileDetails(principal.getId()));
     }
 
     @PatchMapping("/me")

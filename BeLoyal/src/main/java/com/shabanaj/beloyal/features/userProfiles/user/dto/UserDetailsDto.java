@@ -16,6 +16,8 @@ public class UserDetailsDto {
     private String username;
     private String phoneNumber;
     private String imagePath;
+    private String profileImageUrl;
+    private boolean acceptedTerms;
     private Set<Role> roles;
 
     public UserDetailsDto(User user){
@@ -25,6 +27,8 @@ public class UserDetailsDto {
         this.username = user.getUsername();
         this.phoneNumber = user.getPhoneNumber();
         this.imagePath = user.getProfileImage();
+        this.profileImageUrl = user.getProfileImage();
+        this.acceptedTerms = user.getAcceptedTcVersion() != null;
         this.roles = user.getRoles();
     }
 }

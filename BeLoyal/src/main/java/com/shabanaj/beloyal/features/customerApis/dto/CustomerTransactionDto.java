@@ -14,6 +14,12 @@ public record CustomerTransactionDto(
         BigDecimal netAmount,
         BigDecimal billAmount,
         BigDecimal discountAmount,
-        String referenceId
+        String referenceId,
+        String reason,
+        String scanMethod,
+        BigDecimal moneyAmount,
+        BigDecimal ruleAmountPer,
+        Integer rulePointsPer,
+        String note
 ) {
 }
