@@ -74,7 +74,7 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
         return new CustomerBusinessDetailResponse(
                 buildBusinessDetail(business),
                 buildLoyalty(loyaltyAccount, loyaltySettings, earningSettings, loyaltyCard, availablePublicCoupons, business, customerProfile),
-                buildCatalog(businessId, earningSettings),
+                buildCatalog(business, earningSettings),
                 buildCoupons(customerProfile, business, availablePublicCoupons),
                 buildTransactions(userId, businessId),
                 buildDetails(business)
@@ -165,7 +165,7 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                 : null;
 
         String loyaltyPolicy = deriveLoyaltyPolicy(loyaltySettings, earningSettings,
-                business.getCurrencyCode() != null ? business.getCurrencyCode().name() : null);
+                business.getCurrencyCode() != null ? business.getCurrencyCode().getSymbol() : null);
 
         return new CustomerLoyaltyDto(
                 currentPoints,
@@ -182,7 +182,9 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
         );
     }
 
-    private CustomerCatalogDto buildCatalog(Long businessId, EarningSettings earningSettings) {
+    private CustomerCatalogDto buildCatalog(Business business, EarningSettings earningSettings) {
+        Long businessId = business.getId();
+
         List<CatalogCategory> categories = catalogCategoryRepository
                 .findAllByBusinessIdAndStatusAndIsDeletedFalseOrderByOrderIndexAsc(businessId, CatalogStatus.ACTIVE);
 
@@ -219,7 +221,7 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                         i.getOrderIndex() != null ? i.getOrderIndex() : 0,
                         pointsLabel,
                         i.getPrice(),
-                        i.getCurrencyCode() != null ? i.getCurrencyCode().name() : null,
+                        business.getCurrencyCode() != null ? i.getCurrencyCode().getSymbol() : null,
                         i.getUnit()))
                 .toList();
 
@@ -239,7 +241,7 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                             v.getName(),
                             v.getDescription(),
                             price,
-                            parentItem.getCurrencyCode() != null ? parentItem.getCurrencyCode().name() : null,
+                            business.getCurrencyCode() != null ? business.getCurrencyCode().getSymbol() : null,
                             isDefault,
                             v.getStatus() == CatalogStatus.ACTIVE,
                             calculateEarnedPoints(price, earningSettings));
@@ -290,7 +292,7 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                 discountDisplay,
                 discountValue,
                 cc.getPointsSpent(),
-                cc.getCurrency() != null ? cc.getCurrency().name() : coupon.getCurrency().name(),
+                cc.getCurrency() != null ? cc.getCurrency().getSymbol() : coupon.getCurrency().getSymbol(),
                 cc.getStatus() == CustomerCouponStatus.USED,
                 true,
                 cc.getStatus() == CustomerCouponStatus.USED ? 1 : 0,
@@ -349,7 +351,7 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                 discountDisplay,
                 discountValue,
                 coupon.getPointsCost(),
-                coupon.getCurrency().name(),
+                coupon.getCurrency().getSymbol(),
                 false,
                 false,
                 0,
@@ -407,6 +409,7 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                 pt.getMoneyAmount(),
                 pt.getRuleAmountPer(),
                 pt.getRulePointsPer(),
+                (bill!=null && bill.getBusiness()!=null)? bill.getBusiness().getCurrencyCode(): null,
                 // BillTransaction context
                 bill != null ? bill.getInvoiceReference() : null,
                 bill != null ? bill.getNote() : null
@@ -485,7 +488,7 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
             case FREE_PRODUCT -> "Free Product";
             case PERCENTAGE_DISCOUNT -> pct != null ? pct.stripTrailingZeros().toPlainString() + "% Off" : null;
             case FIXED_AMOUNT_DISCOUNT -> amt != null
-                    ? amt.stripTrailingZeros().toPlainString() + (currency != null ? " " + currency.name() : "") + " Off"
+                    ? amt.stripTrailingZeros().toPlainString() + (currency != null ? " " + currency.getSymbol() : "") + " Off"
                     : null;
         };
     }

@@ -58,6 +58,9 @@ public class BusinessAccessPolicy {
             //Loyalty settings
             setUpLoyaltySettingsData(businessProfileInfo);
 
+            // currency setup
+            businessProfileInfo.setCurrency(userRole.getBusiness().getCurrencyCode());
+
             accessibleProfiles.add(businessProfileInfo);
         }
 

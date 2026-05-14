@@ -1,6 +1,7 @@
 package com.shabanaj.beloyal.features.business.dto;
 
 import com.shabanaj.beloyal.features.businessMember.dto.BusinessMemberDetailsDto;
+import com.shabanaj.beloyal.model.Enums.CurrencyCode;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,6 +27,7 @@ public class BusinessDetailsDto {
     private LocalDateTime submittedAt;
     private LocalDateTime reviewedAt;
     private String rejectionReason;
+    private CurrencyCode currencyCode;
     // private Long reviewedByAdminId;
     private List<BusinessMemberDetailsDto> businessMembers;
 }

@@ -158,7 +158,7 @@ public class EarnPointsGuestsCalculatorServiceImpl implements EarnPointsGuestsCa
         StringBuilder description = new StringBuilder();
 
         // append base message
-        description.append("You earned points at ").append(business.getBusinessName()).append(" on ").append(billTransaction.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))).append(" for a bill of value ").append(billTransaction.getBillAmount()).append(" you paid. ");
+        description.append("You earned points at ").append(business.getBusinessName()).append(" on ").append(billTransaction.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))).append(" for a bill of value ").append(billTransaction.getBillAmount()).append(" ").append(business.getCurrencyCode().getDisplayName()).append(" you paid. ");
         // append people who split the bill
         if(guestResults.size()>1){
             description.append("The points for this bill were distributed among: ");

@@ -16,6 +16,7 @@ public record CustomerPromotionDto(
         String discountDisplay,
         int pointCost,
         LocalDateTime expiresAt,
+        String expiresIn,
         List<String> gradientHex,
         boolean isHot,
         boolean isUsed,

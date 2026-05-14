@@ -1,5 +1,6 @@
 package com.shabanaj.beloyal.features.auth.dto;
 
+import com.shabanaj.beloyal.model.Enums.CurrencyCode;
 import com.shabanaj.beloyal.model.Enums.Role;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,4 +22,5 @@ public class BusinessProfileInfo {
     private boolean earningSettingsConfigured;
     private boolean loyaltySettingsEnabled;
     private boolean loyaltySettingsConfigured;
+    private CurrencyCode currency;
 }

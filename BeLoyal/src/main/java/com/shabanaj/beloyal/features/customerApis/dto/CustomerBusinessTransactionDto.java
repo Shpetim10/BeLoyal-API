@@ -1,5 +1,7 @@
 package com.shabanaj.beloyal.features.customerApis.dto;
 
+import com.shabanaj.beloyal.model.Enums.CurrencyCode;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -22,6 +24,7 @@ public record CustomerBusinessTransactionDto(
         BigDecimal moneyAmount,
         BigDecimal ruleAmountPer,
         Integer rulePointsPer,
+        CurrencyCode currency,
 
         // BillTransaction context
         String invoiceReference,

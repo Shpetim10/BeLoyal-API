@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -70,6 +71,22 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
         String status = deriveStatus(cc);
         String discountDisplay = buildDiscountDisplay(cc, coupon);
 
+        //expiration duration calculation
+        String expiresIn;
+        if(cc.getExpiresAt() != null){
+            Duration expirationDuration= Duration.between(LocalDateTime.now(), cc.getExpiresAt());
+            long days = expirationDuration.toDays();
+            int hours = expirationDuration.toHoursPart();
+
+            expiresIn = days + (days == 1 ? " day" : " days");
+            if (hours != 0) {
+                expiresIn += " and " + hours + (hours == 1 ? " hour" : " hours");
+            }
+        }else{
+            expiresIn="No expiration date";
+        }
+
+
         return new CustomerPromotionDto(
                 cc.getId(),
                 cc.getBusiness().getId(),
@@ -82,6 +99,7 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
                 discountDisplay,
                 cc.getPointsSpent(),
                 cc.getExpiresAt(),
+                expiresIn,
                 null,
                 coupon.isFeatured(),
                 cc.getStatus() == CustomerCouponStatus.USED,
@@ -94,6 +112,15 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
     }
 
     private CustomerPromotionDto toPublicDto(LoyaltyCoupon coupon) {
+        //expiration duration calculation
+        Duration expirationDuration= Duration.between(LocalDateTime.now(), coupon.getEndDate());
+        long days = expirationDuration.toDays();
+        int hours = expirationDuration.toHoursPart();
+
+        String expiresIn = days + (days == 1 ? " day" : " days");
+        if (hours != 0) {
+            expiresIn += " and " + hours + (hours == 1 ? " hour" : " hours");
+        }
         return new CustomerPromotionDto(
                 coupon.getId(),
                 coupon.getBusiness().getId(),
@@ -106,6 +133,7 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
                 buildDiscountDisplay(coupon),
                 coupon.getPointsCost(),
                 coupon.getEndDate(),
+                expiresIn,
                 null,
                 coupon.isFeatured(),
                 false,

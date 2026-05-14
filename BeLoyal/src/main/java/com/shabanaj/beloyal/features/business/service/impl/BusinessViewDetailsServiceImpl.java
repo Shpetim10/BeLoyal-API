@@ -61,6 +61,7 @@ public class BusinessViewDetailsServiceImpl implements BusinessViewDetailsServic
                 .submittedAt(business.getSubmittedAt())
                 .reviewedAt(business.getReviewedAt())
                 .rejectionReason(business.getRejectionReason())
+                .currencyCode(business.getCurrencyCode())
                 .businessMembers(businessMemberViewDetailsService.getBusinessMemberDetails(businessId))
                 .build();
     }

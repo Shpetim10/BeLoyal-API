@@ -1,5 +1,7 @@
 package com.shabanaj.beloyal.features.customerApis.dto;
 
+import com.shabanaj.beloyal.model.Enums.CurrencyCode;
+
 import java.util.List;
 
 public record CustomerBusinessDetailResponse(
