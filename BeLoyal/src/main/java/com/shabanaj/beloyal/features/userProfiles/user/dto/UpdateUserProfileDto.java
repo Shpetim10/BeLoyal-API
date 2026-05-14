@@ -1,6 +1,6 @@
 package com.shabanaj.beloyal.features.userProfiles.user.dto;
 
-import com.shabanaj.beloyal.common.Validation.Annotation.UniqueUsernameOnCreate;
+import com.shabanaj.beloyal.common.Validation.Annotation.UniqueUsernameOnUpdate;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +13,7 @@ public class UpdateUserProfileDto {
     private JsonNullable<String> firstName;
     @Size(max = 100)
     private JsonNullable<String> lastName;
-    @UniqueUsernameOnCreate
+    @UniqueUsernameOnUpdate
     private JsonNullable<String> username;
     private JsonNullable<String> phoneNumber;
     private JsonNullable<String> imagePath;

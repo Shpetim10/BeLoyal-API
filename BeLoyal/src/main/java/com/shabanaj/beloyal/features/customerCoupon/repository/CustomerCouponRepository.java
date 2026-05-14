@@ -46,4 +46,6 @@ public interface CustomerCouponRepository extends JpaRepository<CustomerCoupon, 
            "WHERE cc.customerProfile.id = :profileId " +
            "ORDER BY cc.createdAt DESC")
     List<CustomerCoupon> findAllWithCouponByCustomerProfileId(@Param("profileId") Long profileId);
+
+    Optional<CustomerCoupon> findByCouponIdAndCustomerProfileId(Long couponId, Long customerProfileId);
 }

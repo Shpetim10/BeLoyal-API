@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -222,7 +223,8 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                         pointsLabel,
                         i.getPrice(),
                         business.getCurrencyCode() != null ? i.getCurrencyCode().getSymbol() : null,
-                        i.getUnit()))
+                        i.getUnit(),
+                        calculateEarnedPoints(i.getPrice(), earningSettings)))
                 .toList();
 
         Map<Long, Long> firstVariantByItem = new LinkedHashMap<>();
@@ -273,6 +275,7 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
 
     private CustomerBusinessCouponDto toOwnedCouponDto(CustomerCoupon cc, Business business) {
         LoyaltyCoupon coupon = cc.getCoupon();
+        LocalDateTime now = LocalDateTime.now();
         String status = deriveStatus(cc);
         String discountDisplay = buildDiscountDisplay(coupon, cc.getSnapshotDiscountPercentage(), cc.getSnapshotDiscountAmount(), cc.getCurrency());
         BigDecimal discountValue = resolveDiscountValue(coupon, cc.getSnapshotDiscountPercentage(), cc.getSnapshotDiscountAmount());
@@ -325,11 +328,13 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                 cc.getRedeemedAt(),
                 cc.getUsedAt(),
                 cc.getOrderId(),
-                cc.getQrCode()
+                cc.getQrCode(),
+                buildExpiresIn(cc.getExpiresAt(), now)
         );
     }
 
     private CustomerBusinessCouponDto toPublicCouponDto(LoyaltyCoupon coupon, Business business) {
+        LocalDateTime now = LocalDateTime.now();
         CouponDiscountDetails details = coupon.getDiscountDetails();
         BigDecimal pct = details != null ? details.getDiscountPercentage() : null;
         BigDecimal amt = details != null ? details.getDiscountAmount() : null;
@@ -376,7 +381,8 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                 // No snapshot fields for public/unowned coupons
                 null, null, null, null, null, null,
                 // No lifecycle timestamps for public/unowned coupons
-                null, null, null, null
+                null, null, null, null,
+                buildExpiresIn(coupon.getEndDate(), now)
         );
     }
 
@@ -517,6 +523,20 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
             case EXPIRE -> "EXPIRED";
             case ADJUSTMENT_PLUS, ADJUSTMENT_MINUS, REVERSAL -> "ADJUSTMENT";
         };
+    }
+
+    private String buildExpiresIn(LocalDateTime expiresAt, LocalDateTime now) {
+        if (expiresAt == null) return null;
+        Duration diff = Duration.between(now, expiresAt);
+        if (diff.isNegative()) {
+            long daysAgo = Math.abs(diff.toDays());
+            return "Expired " + daysAgo + "d ago";
+        }
+        long totalHours = diff.toHours();
+        if (totalHours < 24) {
+            return "Expires in " + totalHours + "h";
+        }
+        return "Expires in " + diff.toDays() + "d";
     }
 
     private String toTitleCase(String name) {

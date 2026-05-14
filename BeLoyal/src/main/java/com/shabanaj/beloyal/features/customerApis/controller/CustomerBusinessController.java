@@ -3,8 +3,10 @@ package com.shabanaj.beloyal.features.customerApis.controller;
 import com.shabanaj.beloyal.features.Security.UserPrincipal;
 import com.shabanaj.beloyal.features.customerApis.dto.CustomerBusinessDetailResponse;
 import com.shabanaj.beloyal.features.customerApis.dto.CustomerBusinessDto;
+import com.shabanaj.beloyal.features.customerApis.dto.CustomerCouponDetailDto;
 import com.shabanaj.beloyal.features.customerApis.service.BusinessViewService;
 import com.shabanaj.beloyal.features.customerApis.service.CustomerBusinessDetailService;
+import com.shabanaj.beloyal.features.customerApis.service.CustomerCouponDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,6 +26,7 @@ public class CustomerBusinessController {
 
     private final BusinessViewService businessViewService;
     private final CustomerBusinessDetailService customerBusinessDetailService;
+    private final CustomerCouponDetailService customerCouponDetailService;
 
     @GetMapping("/businesses")
     public ResponseEntity<List<CustomerBusinessDto>> getBusinesses(@AuthenticationPrincipal UserPrincipal principal) {
@@ -35,5 +38,12 @@ public class CustomerBusinessController {
             @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable Long businessId) {
         return ResponseEntity.ok(customerBusinessDetailService.getBusinessDetail(principal.getId(), businessId));
+    }
+
+    @GetMapping("/coupons/{couponId}")
+    public ResponseEntity<CustomerCouponDetailDto> getCouponDetail(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable Long couponId) {
+        return ResponseEntity.ok(customerCouponDetailService.getCouponDetail(principal.getId(), couponId));
     }
 }

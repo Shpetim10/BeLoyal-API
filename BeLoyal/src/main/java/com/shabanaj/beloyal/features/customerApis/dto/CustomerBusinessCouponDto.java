@@ -57,6 +57,9 @@ public record CustomerBusinessCouponDto(
         String orderId,
 
         // qr code
-        String qrCode
+        String qrCode,
+
+        // human-readable expiry label
+        String expiresIn
 ) {
 }
