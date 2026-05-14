@@ -54,6 +54,9 @@ public record CustomerBusinessCouponDto(
         // Owned-coupon lifecycle timestamps (null for public coupons)
         LocalDateTime redeemedAt,
         LocalDateTime usedAt,
-        String orderId
+        String orderId,
+
+        // qr code
+        String qrCode
 ) {
 }

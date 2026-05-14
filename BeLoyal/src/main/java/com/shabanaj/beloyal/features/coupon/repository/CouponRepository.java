@@ -115,4 +115,18 @@ public interface CouponRepository extends JpaRepository<LoyaltyCoupon, Long> {
 
     @Query("SELECT c FROM LoyaltyCoupon c WHERE c.status = 'ACTIVE' AND c.endDate < :now AND c.deletedAt IS NULL")
     List<LoyaltyCoupon> findActiveExpiredCoupons(@Param("now") LocalDateTime now);
+
+    @Query("""
+            SELECT c FROM LoyaltyCoupon c
+            WHERE c.business.id = :businessId
+              AND c.deletedAt IS NULL
+              AND c.status = 'ACTIVE'
+              AND c.visibility = 'PUBLIC'
+              AND c.startDate <= :now
+              AND c.endDate >= :now
+              AND (c.totalRedemptionLimit IS NULL OR c.totalRedemptions < c.totalRedemptionLimit)
+            ORDER BY  c.pointsCost ASC
+            LIMIT 1
+            """)
+    Optional<LoyaltyCoupon> findCheapestCouponByBusinessId(@Param("businessId") Long businessId, @Param("now") LocalDateTime now);
 }

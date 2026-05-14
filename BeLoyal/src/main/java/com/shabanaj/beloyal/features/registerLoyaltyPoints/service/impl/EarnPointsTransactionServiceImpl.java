@@ -2,8 +2,9 @@ package com.shabanaj.beloyal.features.registerLoyaltyPoints.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shabanaj.beloyal.common.Exception.IdempotencyConflictException;
+import com.shabanaj.beloyal.common.Exception.*;
 import com.shabanaj.beloyal.common.redis.idempotency.EarnPointsIdempotencyService;
+import com.shabanaj.beloyal.features.customerCoupon.repository.CustomerCouponRepository;
 import com.shabanaj.beloyal.features.billTransaction.repository.BillTransactionRepository;
 import com.shabanaj.beloyal.features.billTransaction.service.BillTransactionService;
 import com.shabanaj.beloyal.features.business.service.BusinessService;
@@ -11,12 +12,12 @@ import com.shabanaj.beloyal.features.businessMember.service.BusinessMemberServic
 import com.shabanaj.beloyal.features.earningSettings.service.EarningSettingsService;
 import com.shabanaj.beloyal.features.loyaltySettings.service.LoyaltySettingsService;
 import com.shabanaj.beloyal.features.pointsTransaction.repository.PointsTransactionRepository;
-import com.shabanaj.beloyal.features.registerLoyaltyPoints.dto.EarnComputationResult;
-import com.shabanaj.beloyal.features.registerLoyaltyPoints.dto.EarnPointsCommittedEvent;
-import com.shabanaj.beloyal.features.registerLoyaltyPoints.dto.EarnPointsTransactionRequest;
-import com.shabanaj.beloyal.features.registerLoyaltyPoints.dto.EarnPointsTransactionResponse;
-import com.shabanaj.beloyal.features.registerLoyaltyPoints.dto.GuestPointsResult;
+import com.shabanaj.beloyal.features.registerLoyaltyPoints.dto.*;
+import com.shabanaj.beloyal.model.Entity.CustomerCoupon;
+import com.shabanaj.beloyal.model.Enums.CustomerCouponStatus;
+import com.shabanaj.beloyal.model.Enums.RedemptionChannel;
 import com.shabanaj.beloyal.features.registerLoyaltyPoints.helpers.RequestHasher;
+import com.shabanaj.beloyal.features.registerLoyaltyPoints.service.CouponDiscountCalculatorService;
 import com.shabanaj.beloyal.features.registerLoyaltyPoints.service.EarnPointsGuestsCalculatorService;
 import com.shabanaj.beloyal.features.registerLoyaltyPoints.service.EarnPointsTransactionService;
 import com.shabanaj.beloyal.model.Entity.*;
@@ -49,6 +50,10 @@ public class EarnPointsTransactionServiceImpl implements EarnPointsTransactionSe
     private final PointsTransactionRepository pointsTransactionRepository;
     private final ObjectMapper objectMapper;
     private final TransactionTemplate transactionTemplate;
+
+    // Coupon discount dependencies
+    private final CustomerCouponRepository customerCouponRepository;
+    private final CouponDiscountCalculatorService couponDiscountCalculatorService;
 
     @Override
     public EarnPointsTransactionResponse earnPoints(Long businessId, Long userId, String idempotencyKey, EarnPointsTransactionRequest request) {
@@ -109,10 +114,20 @@ public class EarnPointsTransactionServiceImpl implements EarnPointsTransactionSe
         // find earning settings
         EarningSettings earningSettings = earningSettingsService.getEarningSettings(businessId);
 
-        // calculate points to earn
+        // resolve coupon discount if a QR code was provided
+        CouponDiscountResult couponDiscountResult = null;
+        BigDecimal effectiveBillAmount = request.getBillAmount();
+
+        if (request.getCouponQrCode() != null && !request.getCouponQrCode().isBlank()) {
+            couponDiscountResult = resolveAndValidateCouponDiscount(
+                    request.getCouponQrCode(), businessId, request.getBillAmount());
+            effectiveBillAmount = couponDiscountResult.getFinalAmount();
+        }
+
+        // calculate points to earn based on effective (post-discount) bill amount
         EarnComputationResult earnComputationResult = earnPointsGuestsCalculatorService.computeEarnPreview(
                 business,
-                request.getBillAmount(),
+                effectiveBillAmount,
                 request.getGuestIds(),
                 request.getGuestIds().get(0),
                 earningSettings,
@@ -120,12 +135,16 @@ public class EarnPointsTransactionServiceImpl implements EarnPointsTransactionSe
         );
 
         // Persist Bill transaction
+        BigDecimal discountAmount = couponDiscountResult != null
+                ? couponDiscountResult.getDiscountApplied()
+                : new BigDecimal("0.00");
+
         BillTransaction billTransaction = BillTransaction.builder()
                 .business(business)
                 .businessMember(businessMember)
                 .billAmount(request.getBillAmount())
-                .netAmount(request.getBillAmount())
-                .discountAmount(new BigDecimal("0.00"))
+                .netAmount(effectiveBillAmount)
+                .discountAmount(discountAmount)
                 .invoiceReference(request.getInvoiceNumber())
                 .note(request.getNote())
                 .idempotencyKey(idempotencyKey)
@@ -133,6 +152,11 @@ public class EarnPointsTransactionServiceImpl implements EarnPointsTransactionSe
                 .build();
 
         billTransaction = billTransactionService.save(billTransaction);
+
+        // Mark coupon as used after bill transaction is persisted
+        if (couponDiscountResult != null) {
+            applyAndMarkCouponUsed(couponDiscountResult.getCustomerCouponId(), businessMember, billTransaction.getId());
+        }
 
         // Persist points transaction and create points bucket for each guest
         earnPointsGuestsCalculatorService.distributeAndPersistPointsTransactionsAndPointsBuckets(
@@ -144,13 +168,37 @@ public class EarnPointsTransactionServiceImpl implements EarnPointsTransactionSe
                 loyaltySettings
         );
 
-        EarnPointsTransactionResponse response = mapToResponse(loyaltySettings, earningSettings, earnComputationResult, billTransaction);
+        EarnPointsTransactionResponse response = mapToResponse(loyaltySettings, earningSettings, earnComputationResult, billTransaction, couponDiscountResult);
         response.setStatus("CREATED");
 
         // Publish event to run after commit
         eventPublisher.publishEvent(new EarnPointsCommittedEvent(this, businessId, idempotencyKey, requestHash, response));
 
         return response;
+    }
+
+    private CouponDiscountResult resolveAndValidateCouponDiscount(String qrCode, Long businessId, BigDecimal billAmount) {
+        CustomerCoupon customerCoupon = customerCouponRepository
+                .findWithLockByQrCode(qrCode)
+                .orElseThrow(InvalidQrCodeException::new);
+
+        if (!customerCoupon.getBusiness().getId().equals(businessId)) {
+            throw new InvalidQrCodeException();
+        }
+
+        return couponDiscountCalculatorService.calculate(customerCoupon, billAmount);
+    }
+
+    private void applyAndMarkCouponUsed(Long customerCouponId, BusinessMember staffMember, Long billTransactionId) {
+        CustomerCoupon customerCoupon = customerCouponRepository.findById(customerCouponId)
+                .orElseThrow(() -> new CustomerCouponNotFound(customerCouponId));
+
+        customerCoupon.setStatus(CustomerCouponStatus.USED);
+        customerCoupon.setUsedAt(java.time.LocalDateTime.now());
+        customerCoupon.setRedeemedByStaff(staffMember);
+        customerCoupon.setRedemptionChannel(RedemptionChannel.STAFF_SCAN);
+        customerCoupon.setRedemptionTransactionId(billTransactionId);
+        customerCouponRepository.save(customerCoupon);
     }
 
     private EarnPointsTransactionResponse reconstructResponseForReplay(BillTransaction existingTx) {
@@ -212,9 +260,11 @@ public class EarnPointsTransactionServiceImpl implements EarnPointsTransactionSe
             LoyaltySettings loyaltySettings,
             EarningSettings earningSettings,
             EarnComputationResult earnComputationResult,
-            BillTransaction billTransaction) {
-        return EarnPointsTransactionResponse.builder()
-                .billAmount(billTransaction.getBillAmount())
+            BillTransaction billTransaction,
+            CouponDiscountResult couponDiscountResult) {
+        EarnPointsTransactionResponse.EarnPointsTransactionResponseBuilder builder = EarnPointsTransactionResponse.builder()
+                .billAmount(billTransaction.getNetAmount())
+                .originalBillAmount(billTransaction.getBillAmount())
                 .transactionReference(billTransaction.getInvoiceReference())
                 .note(billTransaction.getNote())
                 .totalPoints(earnComputationResult.getTotalPoints())
@@ -223,7 +273,13 @@ public class EarnPointsTransactionServiceImpl implements EarnPointsTransactionSe
                 .pointsPer(earningSettings.getPointsPer())
                 .amountPer(earningSettings.getAmountPer())
                 .maxPointsPerTransaction(loyaltySettings.getMaxPointsPerTransactions())
-                .guestPointsResults(earnComputationResult.getGuestResults())
-                .build();
+                .guestPointsResults(earnComputationResult.getGuestResults());
+
+        if (couponDiscountResult != null) {
+            builder.couponDiscountApplied(couponDiscountResult.getDiscountApplied())
+                   .appliedCustomerCouponId(couponDiscountResult.getCustomerCouponId());
+        }
+
+        return builder.build();
     }
 }

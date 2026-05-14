@@ -2,6 +2,7 @@ package com.shabanaj.beloyal.features.customerApis.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public record CustomerPromotionDto(
         Long id,
@@ -21,6 +22,7 @@ public record CustomerPromotionDto(
         int usageCount,
         Integer usageLimit,
         String termsAndConditions,
-        boolean isOwned
+        boolean isOwned,
+        String qrCode
 ) {
 }

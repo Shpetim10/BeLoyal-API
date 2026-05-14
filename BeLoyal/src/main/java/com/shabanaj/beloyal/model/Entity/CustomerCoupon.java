@@ -3,6 +3,7 @@ package com.shabanaj.beloyal.model.Entity;
 import com.shabanaj.beloyal.model.Enums.CouponType;
 import com.shabanaj.beloyal.model.Enums.CurrencyCode;
 import com.shabanaj.beloyal.model.Enums.CustomerCouponStatus;
+import com.shabanaj.beloyal.model.Enums.RedemptionChannel;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -92,6 +93,26 @@ public class CustomerCoupon {
 
     @Column(name = "snapshot_maximum_discount_amount", precision = 12, scale = 2)
     private BigDecimal snapshotMaximumDiscountAmount;
+
+    @Column(name = "qr_code", unique = true, length = 255)
+    private String qrCode;
+
+    @Column(name = "qr_code_generated_at")
+    private LocalDateTime qrCodeGeneratedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "redeemed_by_staff_id")
+    private BusinessMember redeemedByStaff;
+
+    @Column(name = "redemption_location", length = 255)
+    private String redemptionLocation;
+
+    @Column(name = "redemption_channel", length = 50)
+    @Enumerated(EnumType.STRING)
+    private RedemptionChannel redemptionChannel;
+
+    @Column(name = "redemption_transaction_id")
+    private Long redemptionTransactionId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreatedDate

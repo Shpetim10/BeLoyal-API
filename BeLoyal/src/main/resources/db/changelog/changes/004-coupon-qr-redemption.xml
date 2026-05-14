@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd"
+        logicalFilePath="db/changelog/changes/004-coupon-qr-redemption.xml">
+
+    <changeSet id="001-customer-coupon-qr-and-audit-fields" author="shaba">
+        <addColumn tableName="customer_coupons">
+            <column name="qr_code" type="VARCHAR(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="qr_code_generated_at" type="datetime(6)"/>
+            <column name="redeemed_by_staff_id" type="BIGINT"/>
+            <column name="redemption_location" type="VARCHAR(255)"/>
+            <column name="redemption_channel" type="VARCHAR(50)"/>
+            <column name="redemption_transaction_id" type="BIGINT"/>
+        </addColumn>
+        <createIndex tableName="customer_coupons" indexName="idx_customer_coupons_qr_code">
+            <column name="qr_code"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

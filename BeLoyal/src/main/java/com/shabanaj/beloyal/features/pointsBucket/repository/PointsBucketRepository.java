@@ -7,7 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
+import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.hibernate.jpa.HibernateHints.HINT_FETCH_SIZE;
@@ -25,4 +27,13 @@ public interface PointsBucketRepository extends JpaRepository<PointsBucket, Long
             "WHERE pb.expiresAt < CURRENT_TIMESTAMP " +
             "AND pb.status = 'ACTIVE'")
     Stream<PointsBucket> streamExpiredPointsBuckets();
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT pb FROM PointsBucket pb " +
+            "WHERE pb.loyaltyAccount.id = :loyaltyAccountId " +
+            "AND pb.status = 'ACTIVE' " +
+            "AND pb.pointsRemaining > 0 " +
+            "AND (pb.expiresAt IS NULL OR pb.expiresAt >= CURRENT_TIMESTAMP) " +
+            "ORDER BY CASE WHEN pb.expiresAt IS NULL THEN 1 ELSE 0 END ASC, pb.expiresAt ASC")
+    List<PointsBucket> findSpendableBuckets(@Param("loyaltyAccountId") Long loyaltyAccountId);
 }

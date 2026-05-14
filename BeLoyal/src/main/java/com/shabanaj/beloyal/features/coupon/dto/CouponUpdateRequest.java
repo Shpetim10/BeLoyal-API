@@ -1,5 +1,6 @@
 package com.shabanaj.beloyal.features.coupon.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.shabanaj.beloyal.model.Enums.CouponVisibility;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CouponUpdateRequest {
 
     @Size(max = 200, message = "Title must not exceed 200 characters")

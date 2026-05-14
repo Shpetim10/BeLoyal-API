@@ -19,6 +19,7 @@ public class CouponRedeemResponse {
     private CurrencyCode currency;
     private LocalDateTime redeemedAt;
     private LocalDateTime expiresAt;
+    private String qrCode;
     private String snapshotTitle;
     private String snapshotDescription;
     private String snapshotImageUrl;

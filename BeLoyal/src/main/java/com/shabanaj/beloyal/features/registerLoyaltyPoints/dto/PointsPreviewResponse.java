@@ -16,4 +16,10 @@ public class PointsPreviewResponse {
     private BigDecimal amountPer;
     private Integer maxPointsPerTransaction;
     private List<GuestPointsResult> guestPointsResults;
+
+    // populated when a couponQrCode is provided
+    private BigDecimal originalBillAmount;
+    private BigDecimal couponDiscountApplied;
+    private BigDecimal effectiveBillAmount;
+    private Long appliedCustomerCouponId;
 }

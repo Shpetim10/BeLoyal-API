@@ -1,27 +1,22 @@
 package com.shabanaj.beloyal.features.customerApis.service.impl;
 
 import com.shabanaj.beloyal.features.business.service.BusinessService;
+import com.shabanaj.beloyal.features.coupon.repository.CouponRepository;
 import com.shabanaj.beloyal.features.customerApis.dto.CustomerBusinessDto;
 import com.shabanaj.beloyal.features.customerApis.service.BusinessViewService;
 import com.shabanaj.beloyal.features.loyaltyAccount.repository.LoyaltyAccountRepository;
 import com.shabanaj.beloyal.features.loyaltySettings.repository.LoyaltySettingsRepository;
 import com.shabanaj.beloyal.features.user.service.UserService;
 import com.shabanaj.beloyal.features.userProfiles.customer.service.CustomerProfileService;
-import com.shabanaj.beloyal.model.Entity.Business;
-import com.shabanaj.beloyal.model.Entity.CustomerProfile;
-import com.shabanaj.beloyal.model.Entity.LoyaltyAccount;
-import com.shabanaj.beloyal.model.Entity.LoyaltySettings;
-import com.shabanaj.beloyal.model.Entity.User;
+import com.shabanaj.beloyal.model.Entity.*;
 import com.shabanaj.beloyal.model.Enums.BusinessCategory;
 import com.shabanaj.beloyal.model.Enums.BusinessStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,6 +28,7 @@ public class BusinessViewServiceImpl implements BusinessViewService {
     private final LoyaltyAccountRepository loyaltyAccountRepository;
     private final LoyaltySettingsRepository loyaltySettingsRepository;
     private final BusinessService businessService;
+    private final CouponRepository couponRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -68,7 +64,10 @@ public class BusinessViewServiceImpl implements BusinessViewService {
         LoyaltySettings settings = settingsByBusinessId.get(business.getId());
 
         int points = account != null ? account.getAvailablePoints() : 0;
-        int nextRewardPoints = settings != null ? settings.getMinPointsToRedeem() : 1;
+
+        // find the coupon of this business with the smallest nr of points to redeem it
+        Optional<LoyaltyCoupon> cheapestCoupon= couponRepository.findCheapestCouponByBusinessId(business.getId(), LocalDateTime.now());
+        int nextRewardPoints = cheapestCoupon.map(LoyaltyCoupon::getPointsCost).orElse(0);
 
         BusinessCategory category = business.getBusinessType();
         int categoryId = category != null ? category.ordinal() : 0;

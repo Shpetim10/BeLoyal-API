@@ -22,6 +22,7 @@ public class CustomerCouponDetailResponse {
     private LocalDateTime usedAt;
     private LocalDateTime expiresAt;
     private String orderId;
+    private String qrCode;
     private String snapshotTitle;
     private String snapshotDescription;
     private String snapshotImageUrl;

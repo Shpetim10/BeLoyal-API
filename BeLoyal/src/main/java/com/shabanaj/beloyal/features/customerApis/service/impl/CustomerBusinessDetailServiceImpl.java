@@ -322,7 +322,8 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                 // Lifecycle timestamps
                 cc.getRedeemedAt(),
                 cc.getUsedAt(),
-                cc.getOrderId()
+                cc.getOrderId(),
+                cc.getQrCode()
         );
     }
 
@@ -373,7 +374,7 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                 // No snapshot fields for public/unowned coupons
                 null, null, null, null, null, null,
                 // No lifecycle timestamps for public/unowned coupons
-                null, null, null
+                null, null, null, null
         );
     }
 

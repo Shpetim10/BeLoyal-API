@@ -1,12 +1,15 @@
 package com.shabanaj.beloyal.features.pointsBucket.service.impl;
 
+import com.shabanaj.beloyal.common.Exception.InsufficientPointsException;
 import com.shabanaj.beloyal.features.loyaltySettings.service.LoyaltySettingsService;
 import com.shabanaj.beloyal.features.pointsBucket.repository.PointsBucketRepository;
 import com.shabanaj.beloyal.features.pointsBucket.service.PointsBucketService;
+import com.shabanaj.beloyal.features.pointsBucketConsumption.service.PointsBucketConsumptionService;
 import com.shabanaj.beloyal.features.pointsTransaction.service.PointsTransactionService;
 import com.shabanaj.beloyal.model.Entity.LoyaltyAccount;
 import com.shabanaj.beloyal.model.Entity.LoyaltySettings;
 import com.shabanaj.beloyal.model.Entity.PointsBucket;
+import com.shabanaj.beloyal.model.Entity.PointsBucketConsumption;
 import com.shabanaj.beloyal.model.Entity.PointsTransaction;
 import com.shabanaj.beloyal.model.Enums.PointsBucketStatus;
 import com.shabanaj.beloyal.model.Enums.PointsType;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.stream.Stream;
 
 @Service
@@ -23,6 +27,7 @@ public class PointsBucketServiceImpl implements PointsBucketService {
     private final PointsBucketRepository pointsBucketRepository;
     private final LoyaltySettingsService loyaltySettingsService;
     private final PointsTransactionService pointsTransactionService;
+    private final PointsBucketConsumptionService pointsBucketConsumptionService;
 
     @Override
     public PointsBucket save(PointsBucket pointsBucket) {
@@ -63,6 +68,40 @@ public class PointsBucketServiceImpl implements PointsBucketService {
 
                 pointsTransactionService.save(pointsTransaction);
             });
+        }
+    }
+
+    @Override
+    @Transactional
+    public void spend(Long loyaltyAccountId, int pointsToSpend, PointsTransaction consumingTransaction) {
+        if (pointsToSpend <= 0) return;
+
+        List<PointsBucket> buckets = pointsBucketRepository.findSpendableBuckets(loyaltyAccountId);
+
+        int remaining = pointsToSpend;
+        for (PointsBucket bucket : buckets) {
+            if (remaining <= 0) break;
+
+            int consumed = Math.min(bucket.getPointsRemaining(), remaining);
+            bucket.setPointsRemaining(bucket.getPointsRemaining() - consumed);
+
+            if (bucket.getPointsRemaining() == 0) {
+                bucket.setStatus(PointsBucketStatus.FULLY_USED);
+            }
+
+            pointsBucketRepository.save(bucket);
+
+            PointsBucketConsumption consumption = new PointsBucketConsumption();
+            consumption.setTransaction(consumingTransaction);
+            consumption.setPointsBucket(bucket);
+            consumption.setPointsUsed(consumed);
+            pointsBucketConsumptionService.save(consumption);
+
+            remaining -= consumed;
+        }
+
+        if (remaining > 0) {
+            throw new InsufficientPointsException(pointsToSpend - remaining, pointsToSpend);
         }
     }
 }

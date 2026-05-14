@@ -13,6 +13,9 @@ import java.util.List;
 public class EarnPointsTransactionResponse {
     private String status; // CREATED or REPLAYED
     private BigDecimal billAmount;
+    private BigDecimal originalBillAmount;
+    private BigDecimal couponDiscountApplied;
+    private Long appliedCustomerCouponId;
     private String transactionReference;
     private String note;
 

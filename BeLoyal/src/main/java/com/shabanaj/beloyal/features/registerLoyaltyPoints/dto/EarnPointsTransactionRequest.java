@@ -21,6 +21,9 @@ public class EarnPointsTransactionRequest {
     @NotEmpty
     private List<Guest> guests;
 
+    /** Optional: QR code of a REDEEMED discount coupon to apply to this transaction. */
+    private String couponQrCode;
+
     public List<Long> getGuestIds(){
         List<Long> ids= new ArrayList<>();
         for(Guest guest : guests){

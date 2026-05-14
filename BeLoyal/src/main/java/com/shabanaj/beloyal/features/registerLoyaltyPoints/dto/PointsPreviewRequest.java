@@ -18,6 +18,8 @@ public class PointsPreviewRequest {
     @Min(1)
     private BigDecimal billAmount;
 
+    private String couponQrCode;
+
     @NotEmpty
     private List<Guest> guests;
 

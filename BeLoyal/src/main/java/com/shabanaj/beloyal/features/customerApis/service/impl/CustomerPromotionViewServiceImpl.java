@@ -88,7 +88,8 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
                 cc.getStatus() == CustomerCouponStatus.USED ? 1 : 0,
                 coupon.getPerCustomerRedemptionLimit(),
                 coupon.getTermsAndConditions(),
-                true
+                true,
+                cc.getQrCode()
         );
     }
 
@@ -108,10 +109,11 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
                 null,
                 coupon.isFeatured(),
                 false,
-                0,
+                coupon.getTotalRedemptions(),
                 coupon.getPerCustomerRedemptionLimit(),
                 coupon.getTermsAndConditions(),
-                false
+                false,
+                null
         );
     }
 

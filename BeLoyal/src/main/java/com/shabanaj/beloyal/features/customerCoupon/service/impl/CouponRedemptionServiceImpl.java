@@ -7,6 +7,7 @@ import com.shabanaj.beloyal.features.customerCoupon.dto.CustomerCouponDetailResp
 import com.shabanaj.beloyal.features.customerCoupon.repository.CustomerCouponRepository;
 import com.shabanaj.beloyal.features.customerCoupon.service.CouponRedemptionService;
 import com.shabanaj.beloyal.features.loyaltyAccount.repository.LoyaltyAccountRepository;
+import com.shabanaj.beloyal.features.pointsBucket.service.PointsBucketService;
 import com.shabanaj.beloyal.features.pointsTransaction.repository.PointsTransactionRepository;
 import com.shabanaj.beloyal.features.user.service.UserService;
 import com.shabanaj.beloyal.features.userProfiles.customer.service.CustomerProfileService;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +32,7 @@ public class CouponRedemptionServiceImpl implements CouponRedemptionService {
     private final CustomerCouponRepository customerCouponRepository;
     private final LoyaltyAccountRepository loyaltyAccountRepository;
     private final PointsTransactionRepository pointsTransactionRepository;
+    private final PointsBucketService pointsBucketService;
     private final UserService userService;
     private final CustomerProfileService customerProfileService;
 
@@ -91,8 +94,12 @@ public class CouponRedemptionServiceImpl implements CouponRedemptionService {
                 .build();
         pointsTransactionRepository.save(auditRecord);
 
-        // Create customer coupon with snapshot
-        CustomerCoupon customerCoupon = buildCustomerCoupon(coupon, customerProfile, now);
+        // Drain points from buckets FIFO (oldest-expiring first)
+        pointsBucketService.spend(loyaltyAccount.getId(), coupon.getPointsCost(), auditRecord);
+
+        // Create customer coupon with snapshot and QR code
+        String qrCode = UUID.randomUUID().toString();
+        CustomerCoupon customerCoupon = buildCustomerCoupon(coupon, customerProfile, now, qrCode);
         customerCoupon = customerCouponRepository.save(customerCoupon);
 
         return CouponRedeemResponse.builder()
@@ -104,6 +111,7 @@ public class CouponRedemptionServiceImpl implements CouponRedemptionService {
                 .currency(coupon.getCurrency())
                 .redeemedAt(customerCoupon.getRedeemedAt())
                 .expiresAt(customerCoupon.getExpiresAt())
+                .qrCode(customerCoupon.getQrCode())
                 .snapshotTitle(customerCoupon.getSnapshotTitle())
                 .snapshotDescription(customerCoupon.getSnapshotDescription())
                 .snapshotImageUrl(customerCoupon.getSnapshotImageUrl())
@@ -111,7 +119,7 @@ public class CouponRedemptionServiceImpl implements CouponRedemptionService {
                 .build();
     }
 
-    private CustomerCoupon buildCustomerCoupon(LoyaltyCoupon coupon, CustomerProfile customerProfile, LocalDateTime now) {
+    private CustomerCoupon buildCustomerCoupon(LoyaltyCoupon coupon, CustomerProfile customerProfile, LocalDateTime now, String qrCode) {
         CustomerCoupon.CustomerCouponBuilder builder = CustomerCoupon.builder()
                 .coupon(coupon)
                 .business(coupon.getBusiness())
@@ -120,6 +128,8 @@ public class CouponRedemptionServiceImpl implements CouponRedemptionService {
                 .redeemedAt(now)
                 .pointsSpent(coupon.getPointsCost())
                 .currency(coupon.getCurrency())
+                .qrCode(qrCode)
+                .qrCodeGeneratedAt(now)
                 .snapshotTitle(coupon.getTitle())
                 .snapshotDescription(coupon.getDescription())
                 .snapshotImageUrl(coupon.getImageUrl())
@@ -218,6 +228,7 @@ public class CouponRedemptionServiceImpl implements CouponRedemptionService {
                 .usedAt(cc.getUsedAt())
                 .expiresAt(cc.getExpiresAt())
                 .orderId(cc.getOrderId())
+                .qrCode(cc.getQrCode())
                 .snapshotTitle(cc.getSnapshotTitle())
                 .snapshotDescription(cc.getSnapshotDescription())
                 .snapshotImageUrl(cc.getSnapshotImageUrl())
