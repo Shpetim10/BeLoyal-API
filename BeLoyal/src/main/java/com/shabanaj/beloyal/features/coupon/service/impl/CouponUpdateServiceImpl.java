@@ -44,9 +44,6 @@ public class CouponUpdateServiceImpl implements CouponUpdateService {
         if (request.getSortOrder() != null) coupon.setSortOrder(request.getSortOrder());
 
         if (request.getPointsCost() != null) {
-            if (hasRedemptions) {
-                throw new InvalidCouponOperationException("Cannot change points cost of a coupon that has been redeemed");
-            }
             coupon.setPointsCost(request.getPointsCost());
         }
 

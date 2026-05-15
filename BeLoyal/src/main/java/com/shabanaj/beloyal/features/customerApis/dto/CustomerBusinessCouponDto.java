@@ -22,7 +22,7 @@ public record CustomerBusinessCouponDto(
         boolean isUsed,
         boolean isOwned,
         int usageCount,
-        Integer usageLimit,
+        Integer perCustomerRedemptionLimit,
         boolean isFeatured,
         int totalRedemptions,
         Integer totalRedemptionLimit,
@@ -36,12 +36,12 @@ public record CustomerBusinessCouponDto(
 
         // Free-product details (from CouponFreeProductDetails; null for non-FREE_PRODUCT coupons)
         Long freeProductCategoryId,
-        String freeProductCategoryName,
+        String freeProductCategory,
         Long freeProductId,
         String freeProductName,
         Long freeVariantId,
-        String freeVariantName,
-        Integer freeQuantity,
+        String freeProductVariant,
+        Integer freeProductQuantity,
 
         // Owned-coupon snapshot overrides (populated only when isOwned == true)
         String snapshotTitle,
@@ -63,6 +63,10 @@ public record CustomerBusinessCouponDto(
         String expiresIn,
 
         // how many times this customer has bought this coupon
-        int customerRedemptionCount
+        int customerRedemptionCount,
+
+        // claimability gate (can this customer buy/claim this coupon right now)
+        boolean canRedeem,
+        String cannotRedeemReason
 ) {
 }

@@ -113,6 +113,9 @@ public interface CouponRepository extends JpaRepository<LoyaltyCoupon, Long> {
 
     int countByBusinessIdAndDeletedAtIsNull(Long businessId);
 
+    @Query("SELECT COUNT(c) FROM LoyaltyCoupon c WHERE c.business.id = :businessId AND c.status = :status AND c.deletedAt IS NULL")
+    long countByBusinessIdAndStatusAndDeletedAtIsNull(@Param("businessId") Long businessId, @Param("status") CouponStatus status);
+
     @Query("SELECT c FROM LoyaltyCoupon c WHERE c.status = 'ACTIVE' AND c.endDate < :now AND c.deletedAt IS NULL")
     List<LoyaltyCoupon> findActiveExpiredCoupons(@Param("now") LocalDateTime now);
 

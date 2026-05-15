@@ -21,7 +21,7 @@ public record CustomerPromotionDto(
         boolean isHot,
         boolean isUsed,
         int usageCount,
-        Integer usageLimit,
+        Integer perCustomerRedemptionLimit,
         String termsAndConditions,
         boolean isOwned,
         String qrCode,

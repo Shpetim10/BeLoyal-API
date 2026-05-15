@@ -73,6 +73,15 @@ public class CustomerCouponDetailServiceImpl implements CustomerCouponDetailServ
         String orderId = ownedCoupon != null ? ownedCoupon.getOrderId() : null;
         String qrCode = ownedCoupon != null ? ownedCoupon.getQrCode() : null;
 
+        // Critical fields: use snapshot for owned coupons so updates don't affect already-redeemed copies
+        String title = (ownedCoupon != null && ownedCoupon.getSnapshotTitle() != null)
+                ? ownedCoupon.getSnapshotTitle() : coupon.getTitle();
+        String description = (ownedCoupon != null && ownedCoupon.getSnapshotDescription() != null)
+                ? ownedCoupon.getSnapshotDescription() : coupon.getDescription();
+        String imageUrl = (ownedCoupon != null && ownedCoupon.getSnapshotImageUrl() != null)
+                ? ownedCoupon.getSnapshotImageUrl() : coupon.getImageUrl();
+        int pointCost = ownedCoupon != null ? ownedCoupon.getPointsSpent() : coupon.getPointsCost();
+
         BigDecimal minimumOrderAmount = null;
         BigDecimal maximumDiscountAmount = null;
         String freeProductCategory = null;
@@ -81,18 +90,15 @@ public class CustomerCouponDetailServiceImpl implements CustomerCouponDetailServ
         Integer freeProductQuantity = null;
 
         if (coupon.getType() == CouponType.PERCENTAGE_DISCOUNT || coupon.getType() == CouponType.FIXED_AMOUNT_DISCOUNT) {
+            // For owned coupons prefer snapshot; fall back to live for unowned or null snapshot values
+            if (ownedCoupon != null) {
+                minimumOrderAmount = ownedCoupon.getSnapshotMinimumOrderAmount();
+                maximumDiscountAmount = ownedCoupon.getSnapshotMaximumDiscountAmount();
+            }
             CouponDiscountDetails discountDetails = coupon.getDiscountDetails();
             if (discountDetails != null) {
-                minimumOrderAmount = discountDetails.getMinimumOrderAmount();
-                maximumDiscountAmount = discountDetails.getMaximumDiscountAmount();
-            }
-            if (ownedCoupon != null) {
-                if (minimumOrderAmount == null) {
-                    minimumOrderAmount = ownedCoupon.getSnapshotMinimumOrderAmount();
-                }
-                if (maximumDiscountAmount == null) {
-                    maximumDiscountAmount = ownedCoupon.getSnapshotMaximumDiscountAmount();
-                }
+                if (minimumOrderAmount == null) minimumOrderAmount = discountDetails.getMinimumOrderAmount();
+                if (maximumDiscountAmount == null) maximumDiscountAmount = discountDetails.getMaximumDiscountAmount();
             }
         }
 
@@ -113,17 +119,17 @@ public class CustomerCouponDetailServiceImpl implements CustomerCouponDetailServ
             coupon.getId(),
             coupon.getBusiness().getId(),
             coupon.getBusiness().getBusinessName(),
-            coupon.getTitle(),
+            title,
             discountValue,
             discountDisplay,
             status,
             coupon.getType().name(),
             expiresAt,
             coupon.getStartDate(),
-            coupon.getPointsCost(),
-            coupon.getDescription(),
+            pointCost,
+            description,
             coupon.getTermsAndConditions(),
-            coupon.getImageUrl(),
+            imageUrl,
             coupon.getCurrency().name(),
             coupon.isFeatured(),
             isUsed,

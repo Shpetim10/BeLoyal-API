@@ -48,28 +48,43 @@ public class CouponDiscountCalculatorServiceImpl implements CouponDiscountCalcul
             throw new CouponExpiredException();
         }
 
+        // Prefer snapshot values captured at redemption time; fall back to live details for
+        // CustomerCoupon records created before snapshots were introduced.
         CouponDiscountDetails details = coupon.getDiscountDetails();
         BigDecimal discount;
 
         if (coupon.getType() == CouponType.PERCENTAGE_DISCOUNT) {
-            if (details == null || details.getDiscountPercentage() == null) {
-                throw new InvalidCouponOperationException("Coupon discount details are missing");
+            BigDecimal pct = customerCoupon.getSnapshotDiscountPercentage();
+            if (pct == null) {
+                if (details == null || details.getDiscountPercentage() == null) {
+                    throw new InvalidCouponOperationException("Coupon discount details are missing");
+                }
+                pct = details.getDiscountPercentage();
             }
-            discount = billAmount.multiply(details.getDiscountPercentage())
-                    .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
-            if (details.getMaximumDiscountAmount() != null && discount.compareTo(details.getMaximumDiscountAmount()) > 0) {
-                discount = details.getMaximumDiscountAmount();
+            discount = billAmount.multiply(pct).divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+            BigDecimal maxDiscount = customerCoupon.getSnapshotMaximumDiscountAmount() != null
+                    ? customerCoupon.getSnapshotMaximumDiscountAmount()
+                    : (details != null ? details.getMaximumDiscountAmount() : null);
+            if (maxDiscount != null && discount.compareTo(maxDiscount) > 0) {
+                discount = maxDiscount;
             }
         } else {
             // FIXED_AMOUNT_DISCOUNT
-            if (details == null || details.getDiscountAmount() == null) {
-                throw new InvalidCouponOperationException("Coupon discount details are missing");
+            BigDecimal amt = customerCoupon.getSnapshotDiscountAmount();
+            if (amt == null) {
+                if (details == null || details.getDiscountAmount() == null) {
+                    throw new InvalidCouponOperationException("Coupon discount details are missing");
+                }
+                amt = details.getDiscountAmount();
             }
-            if (details.getMinimumOrderAmount() != null && billAmount.compareTo(details.getMinimumOrderAmount()) < 0) {
+            BigDecimal minOrder = customerCoupon.getSnapshotMinimumOrderAmount() != null
+                    ? customerCoupon.getSnapshotMinimumOrderAmount()
+                    : (details != null ? details.getMinimumOrderAmount() : null);
+            if (minOrder != null && billAmount.compareTo(minOrder) < 0) {
                 throw new InvalidCouponOperationException(
-                        "Transaction amount " + billAmount + " is below the minimum required " + details.getMinimumOrderAmount() + " for this coupon");
+                        "Transaction amount " + billAmount + " is below the minimum required " + minOrder + " for this coupon");
             }
-            discount = details.getDiscountAmount();
+            discount = amt;
             if (discount.compareTo(billAmount) > 0) {
                 discount = billAmount;
             }

@@ -15,10 +15,10 @@ public class AvailableCouponItem {
     private String title;
     private String description;
     private String imageUrl;
-    private int pointsCost;
+    private int pointCost;
     private CurrencyCode currency;
     private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDateTime expiresAt;
     private Integer totalRedemptionLimit;
     private int totalRedemptions;
     private Integer perCustomerRedemptionLimit;

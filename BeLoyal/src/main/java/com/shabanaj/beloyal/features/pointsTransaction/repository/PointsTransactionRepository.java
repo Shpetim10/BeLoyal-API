@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -105,6 +106,18 @@ public interface PointsTransactionRepository extends JpaRepository<PointsTransac
                         "JOIN la.business b " +
                         "WHERE la.customerProfile.user.id = :userId AND b.id = :businessId")
     Page<PointsTransaction> findPageByUserIdAndBusinessId(@Param("userId") Long userId, @Param("businessId") Long businessId, Pageable pageable);
+
+    @Query("SELECT COUNT(pt) FROM PointsTransaction pt WHERE pt.loyaltyAccount.business.id = :businessId")
+    long countByBusinessId(@Param("businessId") Long businessId);
+
+    @Query("SELECT COUNT(pt) FROM PointsTransaction pt WHERE pt.loyaltyAccount.business.id = :businessId AND pt.businessMember.user.id = :userId")
+    long countByBusinessIdAndMemberUserId(@Param("businessId") Long businessId, @Param("userId") Long userId);
+
+    @Query("SELECT COUNT(pt) FROM PointsTransaction pt WHERE pt.loyaltyAccount.business.id = :businessId AND pt.businessMember.user.id = :userId AND pt.createdAt >= :from")
+    long countTodayByBusinessIdAndMemberUserId(@Param("businessId") Long businessId, @Param("userId") Long userId, @Param("from") LocalDateTime from);
+
+    @Query("SELECT COALESCE(SUM(pt.pointsDelta), 0) FROM PointsTransaction pt WHERE pt.loyaltyAccount.business.id = :businessId AND pt.type IN :types AND pt.createdAt >= :from")
+    long sumPointsDeltaByBusinessIdAndTypesAndFrom(@Param("businessId") Long businessId, @Param("types") List<com.shabanaj.beloyal.model.Enums.PointsType> types, @Param("from") LocalDateTime from);
 
     // security check
     @Query("SELECT COUNT(pt) > 0 FROM PointsTransaction pt " +

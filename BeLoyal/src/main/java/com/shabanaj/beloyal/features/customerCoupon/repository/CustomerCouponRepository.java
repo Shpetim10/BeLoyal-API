@@ -48,4 +48,6 @@ public interface CustomerCouponRepository extends JpaRepository<CustomerCoupon, 
     List<CustomerCoupon> findAllWithCouponByCustomerProfileId(@Param("profileId") Long profileId);
 
     Optional<CustomerCoupon> findByCouponIdAndCustomerProfileId(Long couponId, Long customerProfileId);
+
+    long countByBusinessIdAndStatus(Long businessId, CustomerCouponStatus status);
 }

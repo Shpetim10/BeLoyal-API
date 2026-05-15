@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record CustomerCouponDetailDto(
-    Long id,
+    Long couponId,
     Long businessId,
     String businessName,
     String title,
@@ -25,7 +25,7 @@ public record CustomerCouponDetailDto(
     Boolean isHot,
     Integer totalRedemptions,
     Integer totalRedemptionLimit,
-    Integer usageLimit,
+    Integer perCustomerRedemptionLimit,
     Integer usageCount,
     Long customerCouponId,
     BigDecimal minimumOrderAmount,

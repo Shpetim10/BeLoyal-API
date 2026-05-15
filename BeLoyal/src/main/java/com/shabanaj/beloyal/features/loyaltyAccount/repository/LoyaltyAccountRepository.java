@@ -27,4 +27,6 @@ public interface LoyaltyAccountRepository extends JpaRepository<LoyaltyAccount, 
 
     @Query("SELECT la FROM LoyaltyAccount la JOIN FETCH la.business WHERE la.customerProfile.id = :profileId")
     List<LoyaltyAccount> findAllWithBusinessByCustomerProfileId(@Param("profileId") Long profileId);
+
+    long countByBusinessId(Long businessId);
 }

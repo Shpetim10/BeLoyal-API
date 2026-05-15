@@ -72,11 +72,13 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
         LocalDateTime now = LocalDateTime.now();
         List<LoyaltyCoupon> availablePublicCoupons = couponRepository.findAvailableForBusiness(businessId, now);
 
+        int balance = loyaltyAccount != null ? loyaltyAccount.getAvailablePoints() : 0;
+
         return new CustomerBusinessDetailResponse(
                 buildBusinessDetail(business),
                 buildLoyalty(loyaltyAccount, loyaltySettings, earningSettings, loyaltyCard, availablePublicCoupons, business, customerProfile),
                 buildCatalog(business, earningSettings),
-                buildCoupons(customerProfile, business, availablePublicCoupons),
+                buildCoupons(customerProfile, business, availablePublicCoupons, balance),
                 buildTransactions(userId, businessId),
                 buildDetails(business)
         );
@@ -254,7 +256,7 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
     }
 
     private List<CustomerBusinessCouponDto> buildCoupons(CustomerProfile customerProfile, Business business,
-                                                          List<LoyaltyCoupon> availablePublicCoupons) {
+                                                          List<LoyaltyCoupon> availablePublicCoupons, int balance) {
         List<CustomerCoupon> owned = customerCouponRepository
                 .findAllByCustomerProfileIdAndBusinessIdOrderByCreatedAtDesc(
                         customerProfile.getId(), business.getId());
@@ -266,19 +268,30 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                 .map(cc -> cc.getCoupon().getId())
                 .collect(Collectors.toSet());
 
+        Set<Long> availableCouponIds = availablePublicCoupons.stream()
+                .map(LoyaltyCoupon::getId)
+                .collect(Collectors.toSet());
+
         List<LoyaltyCoupon> publicCoupons = availablePublicCoupons.stream()
                 .filter(c -> !ownedCouponIds.contains(c.getId()))
                 .toList();
 
         List<CustomerBusinessCouponDto> result = new ArrayList<>();
         owned.stream()
-                .map(cc -> toOwnedCouponDto(cc, business, redemptionCountByCouponId.getOrDefault(cc.getCoupon().getId(), 0)))
+                .map(cc -> toOwnedCouponDto(cc, business,
+                        redemptionCountByCouponId.getOrDefault(cc.getCoupon().getId(), 0),
+                        availableCouponIds, balance))
                 .forEach(result::add);
-        publicCoupons.stream().map(c -> toPublicCouponDto(c, business)).forEach(result::add);
+        publicCoupons.stream()
+                .map(c -> toPublicCouponDto(c, business, balance,
+                        redemptionCountByCouponId.getOrDefault(c.getId(), 0)))
+                .forEach(result::add);
         return result;
     }
 
-    private CustomerBusinessCouponDto toOwnedCouponDto(CustomerCoupon cc, Business business, int customerRedemptionCount) {
+    private CustomerBusinessCouponDto toOwnedCouponDto(CustomerCoupon cc, Business business,
+                                                        int customerRedemptionCount,
+                                                        Set<Long> availableCouponIds, int balance) {
         LoyaltyCoupon coupon = cc.getCoupon();
         LocalDateTime now = LocalDateTime.now();
         String status = deriveStatus(cc);
@@ -286,6 +299,19 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
         BigDecimal discountValue = resolveDiscountValue(coupon, cc.getSnapshotDiscountPercentage(), cc.getSnapshotDiscountAmount());
 
         CouponFreeProductDetails fpd = coupon.getFreeProductDetails();
+
+        boolean canRedeem = false;
+        String cannotRedeemReason = null;
+        if (!availableCouponIds.contains(coupon.getId())) {
+            cannotRedeemReason = "Coupon no longer available";
+        } else if (balance < coupon.getPointsCost()) {
+            cannotRedeemReason = "Insufficient points";
+        } else if (coupon.getPerCustomerRedemptionLimit() != null
+                && customerRedemptionCount >= coupon.getPerCustomerRedemptionLimit()) {
+            cannotRedeemReason = "Redemption limit reached";
+        } else {
+            canRedeem = true;
+        }
 
         return new CustomerBusinessCouponDto(
                 cc.getId(),
@@ -335,11 +361,14 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                 cc.getOrderId(),
                 cc.getQrCode(),
                 buildExpiresIn(cc.getExpiresAt(), now),
-                customerRedemptionCount
+                customerRedemptionCount,
+                canRedeem,
+                cannotRedeemReason
         );
     }
 
-    private CustomerBusinessCouponDto toPublicCouponDto(LoyaltyCoupon coupon, Business business) {
+    private CustomerBusinessCouponDto toPublicCouponDto(LoyaltyCoupon coupon, Business business,
+                                                         int balance, int customerRedemptionCount) {
         LocalDateTime now = LocalDateTime.now();
         CouponDiscountDetails details = coupon.getDiscountDetails();
         BigDecimal pct = details != null ? details.getDiscountPercentage() : null;
@@ -348,6 +377,17 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
         BigDecimal discountValue = resolveDiscountValue(coupon, pct, amt);
 
         CouponFreeProductDetails fpd = coupon.getFreeProductDetails();
+
+        boolean canRedeem = true;
+        String cannotRedeemReason = null;
+        if (balance < coupon.getPointsCost()) {
+            canRedeem = false;
+            cannotRedeemReason = "Insufficient points";
+        } else if (coupon.getPerCustomerRedemptionLimit() != null
+                && customerRedemptionCount >= coupon.getPerCustomerRedemptionLimit()) {
+            canRedeem = false;
+            cannotRedeemReason = "Redemption limit reached";
+        }
 
         return new CustomerBusinessCouponDto(
                 null,
@@ -389,7 +429,9 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                 // No lifecycle timestamps for public/unowned coupons
                 null, null, null, null,
                 buildExpiresIn(coupon.getEndDate(), now),
-                0
+                customerRedemptionCount,
+                canRedeem,
+                cannotRedeemReason
         );
     }
 

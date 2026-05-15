@@ -21,6 +21,8 @@ public interface BusinessMemberRepository extends JpaRepository<BusinessMember, 
     boolean existsByBusinessIdAndUserIdAndRoleIn(Long businessId, Long userId, List<String> roles);
     Optional<BusinessMember> findByUserIdAndBusinessId(Long  userId, Long businessId);
 
+    long countByBusinessIdAndRole(Long businessId, Role role);
+
     // find by business id
     @Query(
             "SELECT bm FROM BusinessMember bm " +

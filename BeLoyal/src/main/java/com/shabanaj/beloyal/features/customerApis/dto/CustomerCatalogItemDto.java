@@ -14,6 +14,6 @@ public record CustomerCatalogItemDto(
         BigDecimal basePrice,
         String currency,
         String unit,
-        Integer earnedPoints
+        Integer qq
 ) {
 }
