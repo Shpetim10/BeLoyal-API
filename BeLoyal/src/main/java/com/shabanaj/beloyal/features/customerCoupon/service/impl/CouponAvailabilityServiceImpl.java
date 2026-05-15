@@ -49,15 +49,14 @@ public class CouponAvailabilityServiceImpl implements CouponAvailabilityService 
             String cannotRedeemReason = null;
             boolean canRedeem = true;
 
+            int customerUsed = customerCouponRepository.countByCouponIdAndCustomerProfileId(c.getId(), customerProfile.getId());
+
             if (balance < c.getPointsCost()) {
                 canRedeem = false;
                 cannotRedeemReason = "Insufficient points";
-            } else if (c.getPerCustomerRedemptionLimit() != null) {
-                int used = customerCouponRepository.countByCouponIdAndCustomerProfileId(c.getId(), customerProfile.getId());
-                if (used >= c.getPerCustomerRedemptionLimit()) {
-                    canRedeem = false;
-                    cannotRedeemReason = "Redemption limit reached";
-                }
+            } else if (c.getPerCustomerRedemptionLimit() != null && customerUsed >= c.getPerCustomerRedemptionLimit()) {
+                canRedeem = false;
+                cannotRedeemReason = "Redemption limit reached";
             }
 
             return AvailableCouponItem.builder()
@@ -75,6 +74,7 @@ public class CouponAvailabilityServiceImpl implements CouponAvailabilityService 
                     .perCustomerRedemptionLimit(c.getPerCustomerRedemptionLimit())
                     .termsAndConditions(c.getTermsAndConditions())
                     .isFeatured(c.isFeatured())
+                    .customerRedemptionCount(customerUsed)
                     .canRedeem(canRedeem)
                     .cannotRedeemReason(cannotRedeemReason)
                     .build();

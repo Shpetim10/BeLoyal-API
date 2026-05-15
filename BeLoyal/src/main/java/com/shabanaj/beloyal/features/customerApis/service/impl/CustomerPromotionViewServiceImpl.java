@@ -39,10 +39,16 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
         User user = userService.getUserOrThrow(userId);
         CustomerProfile customerProfile = customerProfileService.getCustomerProfileByUser(user);
 
-        List<CustomerPromotionDto> ownedPromotions = customerCouponRepository
-                .findAllWithCouponByCustomerProfileId(customerProfile.getId())
-                .stream()
-                .map(this::toOwnedDto)
+        List<CustomerCoupon> ownedCouponEntities = customerCouponRepository
+                .findAllWithCouponByCustomerProfileId(customerProfile.getId());
+
+        Map<Long, Integer> redemptionCountByCouponId = ownedCouponEntities.stream()
+                .collect(java.util.stream.Collectors.groupingBy(
+                        cc -> cc.getCoupon().getId(),
+                        java.util.stream.Collectors.summingInt(cc -> 1)));
+
+        List<CustomerPromotionDto> ownedPromotions = ownedCouponEntities.stream()
+                .map(cc -> toOwnedDto(cc, redemptionCountByCouponId.getOrDefault(cc.getCoupon().getId(), 0)))
                 .toList();
 
         LocalDateTime now = LocalDateTime.now();
@@ -66,7 +72,7 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
         return promotions;
     }
 
-    private CustomerPromotionDto toOwnedDto(CustomerCoupon cc) {
+    private CustomerPromotionDto toOwnedDto(CustomerCoupon cc, int customerRedemptionCount) {
         LoyaltyCoupon coupon = cc.getCoupon();
         String status = deriveStatus(cc);
         String discountDisplay = buildDiscountDisplay(cc, coupon);
@@ -107,7 +113,8 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
                 coupon.getPerCustomerRedemptionLimit(),
                 coupon.getTermsAndConditions(),
                 true,
-                cc.getQrCode()
+                cc.getQrCode(),
+                customerRedemptionCount
         );
     }
 
@@ -141,7 +148,8 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
                 coupon.getPerCustomerRedemptionLimit(),
                 coupon.getTermsAndConditions(),
                 false,
-                null
+                null,
+                0
         );
     }
 

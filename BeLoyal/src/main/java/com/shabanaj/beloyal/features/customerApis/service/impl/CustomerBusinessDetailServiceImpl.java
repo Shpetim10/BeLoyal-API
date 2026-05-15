@@ -259,6 +259,9 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                 .findAllByCustomerProfileIdAndBusinessIdOrderByCreatedAtDesc(
                         customerProfile.getId(), business.getId());
 
+        Map<Long, Integer> redemptionCountByCouponId = owned.stream()
+                .collect(Collectors.groupingBy(cc -> cc.getCoupon().getId(), Collectors.summingInt(cc -> 1)));
+
         Set<Long> ownedCouponIds = owned.stream()
                 .map(cc -> cc.getCoupon().getId())
                 .collect(Collectors.toSet());
@@ -268,12 +271,14 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                 .toList();
 
         List<CustomerBusinessCouponDto> result = new ArrayList<>();
-        owned.stream().map(cc -> toOwnedCouponDto(cc, business)).forEach(result::add);
+        owned.stream()
+                .map(cc -> toOwnedCouponDto(cc, business, redemptionCountByCouponId.getOrDefault(cc.getCoupon().getId(), 0)))
+                .forEach(result::add);
         publicCoupons.stream().map(c -> toPublicCouponDto(c, business)).forEach(result::add);
         return result;
     }
 
-    private CustomerBusinessCouponDto toOwnedCouponDto(CustomerCoupon cc, Business business) {
+    private CustomerBusinessCouponDto toOwnedCouponDto(CustomerCoupon cc, Business business, int customerRedemptionCount) {
         LoyaltyCoupon coupon = cc.getCoupon();
         LocalDateTime now = LocalDateTime.now();
         String status = deriveStatus(cc);
@@ -329,7 +334,8 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                 cc.getUsedAt(),
                 cc.getOrderId(),
                 cc.getQrCode(),
-                buildExpiresIn(cc.getExpiresAt(), now)
+                buildExpiresIn(cc.getExpiresAt(), now),
+                customerRedemptionCount
         );
     }
 
@@ -382,7 +388,8 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                 null, null, null, null, null, null,
                 // No lifecycle timestamps for public/unowned coupons
                 null, null, null, null,
-                buildExpiresIn(coupon.getEndDate(), now)
+                buildExpiresIn(coupon.getEndDate(), now),
+                0
         );
     }
 

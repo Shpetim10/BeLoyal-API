@@ -24,6 +24,7 @@ public record CustomerPromotionDto(
         Integer usageLimit,
         String termsAndConditions,
         boolean isOwned,
-        String qrCode
+        String qrCode,
+        int customerRedemptionCount
 ) {
 }

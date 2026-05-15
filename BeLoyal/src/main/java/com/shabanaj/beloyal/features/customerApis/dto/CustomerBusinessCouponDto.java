@@ -60,6 +60,9 @@ public record CustomerBusinessCouponDto(
         String qrCode,
 
         // human-readable expiry label
-        String expiresIn
+        String expiresIn,
+
+        // how many times this customer has bought this coupon
+        int customerRedemptionCount
 ) {
 }

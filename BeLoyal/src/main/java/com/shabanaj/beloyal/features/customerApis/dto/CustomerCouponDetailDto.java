@@ -39,6 +39,7 @@ public record CustomerCouponDetailDto(
     String orderId,
     String qrCode,
     String multiplierLabel,
-    String expiresIn
+    String expiresIn,
+    int customerRedemptionCount
 ) {
 }

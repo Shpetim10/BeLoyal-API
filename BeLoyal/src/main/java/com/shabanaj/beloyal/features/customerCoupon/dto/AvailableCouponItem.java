@@ -24,6 +24,7 @@ public class AvailableCouponItem {
     private Integer perCustomerRedemptionLimit;
     private String termsAndConditions;
     private boolean isFeatured;
+    private int customerRedemptionCount;
     private boolean canRedeem;
     private String cannotRedeemReason;
 }

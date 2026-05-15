@@ -55,10 +55,12 @@ public class CustomerCouponDetailServiceImpl implements CustomerCouponDetailServ
             throw new CouponNotFound(couponId);
         }
 
-        return buildDetail(coupon, ownedCoupon.orElse(null), now);
+        int customerRedemptionCount = customerCouponRepository.countByCouponIdAndCustomerProfileId(couponId, customerProfile.getId());
+
+        return buildDetail(coupon, ownedCoupon.orElse(null), now, customerRedemptionCount);
     }
 
-    private CustomerCouponDetailDto buildDetail(LoyaltyCoupon coupon, CustomerCoupon ownedCoupon, LocalDateTime now) {
+    private CustomerCouponDetailDto buildDetail(LoyaltyCoupon coupon, CustomerCoupon ownedCoupon, LocalDateTime now, int customerRedemptionCount) {
         String status = deriveStatus(coupon, ownedCoupon, now);
         String discountDisplay = buildDiscountDisplay(coupon, ownedCoupon);
         BigDecimal discountValue = extractDiscountValue(coupon, ownedCoupon);
@@ -143,7 +145,8 @@ public class CustomerCouponDetailServiceImpl implements CustomerCouponDetailServ
             orderId,
             qrCode,
             null,
-            buildExpiresIn(expiresAt, now)
+            buildExpiresIn(expiresAt, now),
+            customerRedemptionCount
         );
     }
 
