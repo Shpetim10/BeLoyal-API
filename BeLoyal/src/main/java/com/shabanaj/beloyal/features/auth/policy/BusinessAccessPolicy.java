@@ -45,8 +45,17 @@ public class BusinessAccessPolicy {
             businessProfileInfo.setBusinessName(userRole.getBusiness().getBusinessName());
             businessProfileInfo.setRole(userRole.getRole());
             businessProfileInfo.setActive(memberEnabled && businessActive);
-            businessProfileInfo.setBusinessStatus(userRole.getBusiness().getBusinessStatus().name());
-            businessProfileInfo.setRejectionReason(userRole.getBusiness().getRejectionReason());
+
+            BusinessStatus status = userRole.getBusiness().getBusinessStatus();
+            businessProfileInfo.setBusinessStatus(status.name());
+            businessProfileInfo.setStatusDisplayName(status.getName());
+            businessProfileInfo.setStatusDescription(status.getDescription());
+
+            // Only admins can see rejection reason
+            if (userRole.getRole().name().equals("ADMIN")) {
+                businessProfileInfo.setRejectionReason(userRole.getBusiness().getRejectionReason());
+            }
+
             businessProfileInfo.setMemberStatus(userRole.getMemberStatus().name());
 
             // invitation info

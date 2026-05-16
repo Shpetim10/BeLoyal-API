@@ -13,6 +13,8 @@ public class BusinessProfileInfo {
     private Role role;
     private boolean active;
     private String businessStatus;
+    private String statusDisplayName;
+    private String statusDescription;
     private String rejectionReason;
     private String memberStatus;
     private boolean invitationAccepted;
