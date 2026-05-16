@@ -144,6 +144,10 @@ public class CouponRedemptionServiceImpl implements CouponRedemptionService {
             CouponFreeProductDetails d = coupon.getFreeProductDetails();
             builder.snapshotProductId(d.getProduct().getId());
             builder.snapshotVariantId(d.getVariant() != null ? d.getVariant().getId() : null);
+            builder.snapshotFreeProductCategory(d.getCategory().getName());
+            builder.snapshotFreeProductName(d.getProduct().getName());
+            builder.snapshotFreeProductVariant(d.getVariant() != null ? d.getVariant().getName() : null);
+            builder.snapshotFreeProductQuantity(d.getQuantity());
         } else if (coupon.getDiscountDetails() != null) {
             CouponDiscountDetails d = coupon.getDiscountDetails();
             builder.snapshotDiscountPercentage(d.getDiscountPercentage());
@@ -245,10 +249,61 @@ public class CouponRedemptionServiceImpl implements CouponRedemptionService {
 
     private CustomerCouponDetailResponse toDetailResponse(CustomerCoupon cc, int balance, int customerRedemptionCount) {
         String title = cc.getSnapshotTitle() != null ? cc.getSnapshotTitle() : cc.getCoupon().getTitle();
-        String type = cc.getSnapshotCouponType() != null ? cc.getSnapshotCouponType().name() : null;
+        CouponType effectiveType = cc.getSnapshotCouponType() != null ? cc.getSnapshotCouponType() : cc.getCoupon().getType();
+        String type = effectiveType != null ? effectiveType.name() : null;
         String displayStatus = deriveDisplayStatus(cc);
         String expiresIn = buildExpiresIn(cc.getExpiresAt());
+        LocalDateTime now = LocalDateTime.now();
 
+        // isUsed: this owned instance has been consumed at checkout
+        boolean isUsed = cc.getStatus() == CustomerCouponStatus.USED;
+
+        // canUse: this owned instance can be presented at checkout
+        boolean canUse;
+        String cannotUseReason;
+        switch (cc.getStatus()) {
+            case USED -> { canUse = false; cannotUseReason = "Already used"; }
+            case CANCELLED -> { canUse = false; cannotUseReason = "Cancelled"; }
+            case EXPIRED -> { canUse = false; cannotUseReason = "Expired"; }
+            case REDEEMED -> {
+                if (cc.getExpiresAt() != null && cc.getExpiresAt().isBefore(now)) {
+                    canUse = false;
+                    cannotUseReason = "Expired";
+                } else {
+                    canUse = true;
+                    cannotUseReason = null;
+                }
+            }
+            default -> { canUse = false; cannotUseReason = null; }
+        }
+
+        // discountDisplay and discountValue from snapshot, fallback to live template
+        String discountDisplay = buildDiscountDisplay(cc, effectiveType);
+        java.math.BigDecimal discountValue = extractDiscountValue(cc, effectiveType);
+
+        // Free-product names: snapshot first, live catalog fallback
+        String freeProductCategory = null;
+        String freeProductName = null;
+        String freeProductVariant = null;
+        Integer freeProductQuantity = null;
+        if (effectiveType == CouponType.FREE_PRODUCT) {
+            freeProductCategory = cc.getSnapshotFreeProductCategory();
+            freeProductName = cc.getSnapshotFreeProductName();
+            freeProductVariant = cc.getSnapshotFreeProductVariant();
+            freeProductQuantity = cc.getSnapshotFreeProductQuantity();
+            // Fallback to live catalog if snapshot names are absent (pre-migration rows)
+            if (freeProductCategory == null || freeProductName == null) {
+                CouponFreeProductDetails fpd = cc.getCoupon().getFreeProductDetails();
+                if (fpd != null) {
+                    if (freeProductCategory == null) freeProductCategory = fpd.getCategory().getName();
+                    if (freeProductName == null) freeProductName = fpd.getProduct().getName();
+                    if (freeProductVariant == null && fpd.getVariant() != null) freeProductVariant = fpd.getVariant().getName();
+                    if (freeProductQuantity == null) freeProductQuantity = fpd.getQuantity();
+                }
+            }
+        }
+
+        // canRedeem: can the customer buy another copy of this template right now
         LoyaltyCoupon coupon = cc.getCoupon();
         boolean canRedeem = true;
         String cannotRedeemReason = null;
@@ -283,6 +338,15 @@ public class CouponRedemptionServiceImpl implements CouponRedemptionService {
                 .type(type)
                 .displayStatus(displayStatus)
                 .customerCouponStatus(cc.getStatus())
+                .isUsed(isUsed)
+                .discountDisplay(discountDisplay)
+                .discountValue(discountValue)
+                .freeProductCategory(freeProductCategory)
+                .freeProductName(freeProductName)
+                .freeProductVariant(freeProductVariant)
+                .freeProductQuantity(freeProductQuantity)
+                .canUse(canUse)
+                .cannotUseReason(cannotUseReason)
                 .pointsSpent(cc.getPointsSpent())
                 .currency(cc.getCurrency())
                 .redeemedAt(cc.getRedeemedAt())
@@ -312,6 +376,24 @@ public class CouponRedemptionServiceImpl implements CouponRedemptionService {
                 .cannotRedeemReason(cannotRedeemReason)
                 .cannotRedeemCode(cannotRedeemCode)
                 .build();
+    }
+
+    private String buildDiscountDisplay(CustomerCoupon cc, CouponType type) {
+        if (type == CouponType.FREE_PRODUCT) return "Free Product";
+        if (type == CouponType.PERCENTAGE_DISCOUNT && cc.getSnapshotDiscountPercentage() != null) {
+            return cc.getSnapshotDiscountPercentage().stripTrailingZeros().toPlainString() + "% Off";
+        }
+        if (type == CouponType.FIXED_AMOUNT_DISCOUNT && cc.getSnapshotDiscountAmount() != null) {
+            String symbol = cc.getCurrency() != null ? " " + cc.getCurrency().getSymbol() : "";
+            return cc.getSnapshotDiscountAmount().stripTrailingZeros().toPlainString() + symbol + " Off";
+        }
+        return null;
+    }
+
+    private java.math.BigDecimal extractDiscountValue(CustomerCoupon cc, CouponType type) {
+        if (type == CouponType.PERCENTAGE_DISCOUNT) return cc.getSnapshotDiscountPercentage();
+        if (type == CouponType.FIXED_AMOUNT_DISCOUNT) return cc.getSnapshotDiscountAmount();
+        return null;
     }
 
     private String deriveDisplayStatus(CustomerCoupon cc) {

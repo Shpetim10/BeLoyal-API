@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd"
+        logicalFilePath="db/changelog/changes/005-customer-coupon-snapshot-names.xml">
+
+    <changeSet id="001-customer-coupon-snapshot-free-product-names" author="shaba">
+        <addColumn tableName="customer_coupons">
+            <column name="snapshot_free_product_category" type="VARCHAR(200)"/>
+            <column name="snapshot_free_product_name" type="VARCHAR(200)"/>
+            <column name="snapshot_free_product_variant" type="VARCHAR(200)"/>
+            <column name="snapshot_free_product_quantity" type="INT"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

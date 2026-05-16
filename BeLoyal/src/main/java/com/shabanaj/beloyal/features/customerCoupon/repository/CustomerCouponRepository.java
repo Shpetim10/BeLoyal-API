@@ -6,6 +6,7 @@ import com.shabanaj.beloyal.model.Enums.CustomerCouponStatus;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -71,4 +72,12 @@ public interface CustomerCouponRepository extends JpaRepository<CustomerCoupon, 
     List<CustomerCoupon> findAllByCouponIdAndCustomerProfileIdOrderByCreatedAtDesc(Long couponId, Long customerProfileId);
 
     long countByBusinessIdAndStatus(Long businessId, CustomerCouponStatus status);
+
+    @Modifying
+    @Query("DELETE FROM CustomerCoupon cc WHERE cc.business.id = :businessId")
+    void deleteByBusinessId(@Param("businessId") Long businessId);
+
+    @Modifying
+    @Query("DELETE FROM CustomerCoupon cc WHERE cc.customerProfile.id = :customerProfileId")
+    void deleteByCustomerProfileId(@Param("customerProfileId") Long customerProfileId);
 }

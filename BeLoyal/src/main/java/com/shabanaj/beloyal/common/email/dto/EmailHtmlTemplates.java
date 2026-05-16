@@ -1229,6 +1229,220 @@ public class EmailHtmlTemplates {
                 );
     }
 
+    public String buildBusinessSuspendedEmailHtml(User user, Business business, String reason) {
+        String brandName = "Besa Hub";
+        String supportEmail = "support@besahub.app";
+        String ownerName = safe(user.getFirstName(), "there");
+        String businessName = safe(business.getBusinessName(), "your business");
+        String safeReason = safe(reason, "Administrative action.");
+        String suspendedAt = java.time.LocalDateTime.now()
+                .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+
+        return """
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Business Suspended</title>
+</head>
+<body style="margin:0; padding:0; background:#F3F4F6;">
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%%" style="background:#F3F4F6; padding:24px 0;">
+    <tr>
+      <td align="center" style="padding:0 16px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" width="600" style="width:600px; max-width:600px; border-collapse:separate;">
+          <tr>
+            <td style="background: linear-gradient(135deg, #F59E0B 0%%, #EF4444 100%%); border-radius: 18px 18px 0 0; padding: 26px 28px; color:#FFFFFF;">
+              <div style="font-size:14px; letter-spacing:0.12em; opacity:0.9; text-transform:uppercase;">%s</div>
+              <div style="font-size:28px; line-height:1.15; font-weight:800; margin-top:6px;">Business Suspended ⚠️</div>
+              <div style="font-size:15px; line-height:1.5; margin-top:10px; opacity:0.95;">
+                Hi %s — <strong>%s</strong> has been temporarily suspended.
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#FFFFFF; border-radius:0 0 18px 18px; padding: 24px 28px; box-shadow: 0 10px 25px rgba(17,24,39,0.06);">
+              <div style="font-size:16px; line-height:1.65; color:#111827;">
+                Your business has been suspended and is currently not visible or operational on the platform.
+              </div>
+              <div style="margin-top:14px; padding:14px; background:#FEF3C7; border:1px solid #FCD34D; border-radius:14px;">
+                <div style="font-size:14px; color:#92400E; line-height:1.6;">
+                  ⚠️ <strong>Reason:</strong> %s
+                </div>
+              </div>
+              <div style="margin-top:18px; font-size:13px; color:#6B7280;">Suspended at: %s</div>
+              <div style="margin-top:16px; font-size:14px; color:#374151; line-height:1.6;">
+                If you believe this is a mistake or wish to resolve the issue, please contact our support team at
+                <a href="mailto:%s" style="color:#F59E0B; text-decoration:none;">%s</a>.
+              </div>
+              <div style="margin-top:22px; padding-top:16px; border-top:1px solid #E5E7EB; font-size:12px; color:#6B7280;">
+                — %s Team
+              </div>
+            </td>
+          </tr>
+          <tr><td style="height:14px;"></td></tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+""".formatted(
+                escape(brandName),
+                escape(ownerName),
+                escape(businessName),
+                escape(safeReason),
+                escape(suspendedAt),
+                escape(supportEmail),
+                escape(supportEmail),
+                escape(brandName)
+        );
+    }
+
+    public String buildBusinessBannedEmailHtml(User user, Business business, String reason) {
+        String brandName = "Besa Hub";
+        String supportEmail = "support@besahub.app";
+        String ownerName = safe(user.getFirstName(), "there");
+        String businessName = safe(business.getBusinessName(), "your business");
+        String safeReason = safe(reason, "Violation of platform terms.");
+        String bannedAt = java.time.LocalDateTime.now()
+                .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+
+        return """
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Business Banned</title>
+</head>
+<body style="margin:0; padding:0; background:#F3F4F6;">
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%%" style="background:#F3F4F6; padding:24px 0;">
+    <tr>
+      <td align="center" style="padding:0 16px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" width="600" style="width:600px; max-width:600px; border-collapse:separate;">
+          <tr>
+            <td style="background: linear-gradient(135deg, #7F1D1D 0%%, #EF4444 100%%); border-radius: 18px 18px 0 0; padding: 26px 28px; color:#FFFFFF;">
+              <div style="font-size:14px; letter-spacing:0.12em; opacity:0.9; text-transform:uppercase;">%s</div>
+              <div style="font-size:28px; line-height:1.15; font-weight:800; margin-top:6px;">Business Banned 🚫</div>
+              <div style="font-size:15px; line-height:1.5; margin-top:10px; opacity:0.95;">
+                Hi %s — <strong>%s</strong> has been permanently banned.
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#FFFFFF; border-radius:0 0 18px 18px; padding: 24px 28px; box-shadow: 0 10px 25px rgba(17,24,39,0.06);">
+              <div style="font-size:16px; line-height:1.65; color:#111827;">
+                Your business has been permanently banned from the platform due to a violation of our terms of service.
+              </div>
+              <div style="margin-top:14px; padding:14px; background:#FEF2F2; border:1px solid #FECACA; border-radius:14px;">
+                <div style="font-size:14px; color:#7F1D1D; line-height:1.6;">
+                  🚫 <strong>Reason:</strong> %s
+                </div>
+              </div>
+              <div style="margin-top:18px; font-size:13px; color:#6B7280;">Banned at: %s</div>
+              <div style="margin-top:16px; font-size:14px; color:#374151; line-height:1.6;">
+                If you have questions, contact <a href="mailto:%s" style="color:#EF4444; text-decoration:none;">%s</a>.
+              </div>
+              <div style="margin-top:22px; padding-top:16px; border-top:1px solid #E5E7EB; font-size:12px; color:#6B7280;">
+                — %s Team
+              </div>
+            </td>
+          </tr>
+          <tr><td style="height:14px;"></td></tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+""".formatted(
+                escape(brandName),
+                escape(ownerName),
+                escape(businessName),
+                escape(safeReason),
+                escape(bannedAt),
+                escape(supportEmail),
+                escape(supportEmail),
+                escape(brandName)
+        );
+    }
+
+    public String buildBusinessReactivatedEmailHtml(User user, Business business) {
+        String brandName = "Besa Hub";
+        String supportEmail = "support@besahub.app";
+        String portalUrl = "https://besahub.app/portal";
+        String ownerName = safe(user.getFirstName(), "there");
+        String businessName = safe(business.getBusinessName(), "your business");
+        String reactivatedAt = java.time.LocalDateTime.now()
+                .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+
+        return """
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Business Reactivated</title>
+</head>
+<body style="margin:0; padding:0; background:#F3F4F6;">
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%%" style="background:#F3F4F6; padding:24px 0;">
+    <tr>
+      <td align="center" style="padding:0 16px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" width="600" style="width:600px; max-width:600px; border-collapse:separate;">
+          <tr>
+            <td style="background: linear-gradient(135deg, #22C55E 0%%, #10B981 100%%); border-radius: 18px 18px 0 0; padding: 26px 28px; color:#FFFFFF;">
+              <div style="font-size:14px; letter-spacing:0.12em; opacity:0.9; text-transform:uppercase;">%s</div>
+              <div style="font-size:28px; line-height:1.15; font-weight:800; margin-top:6px;">Business Reactivated ✅</div>
+              <div style="font-size:15px; line-height:1.5; margin-top:10px; opacity:0.95;">
+                Hi %s — <strong>%s</strong> is now active again!
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#FFFFFF; border-radius:0 0 18px 18px; padding: 24px 28px; box-shadow: 0 10px 25px rgba(17,24,39,0.06);">
+              <div style="font-size:16px; line-height:1.65; color:#111827;">
+                Your business is now active and fully operational on the platform. Customers can see and interact with it again.
+              </div>
+              <div style="margin-top:14px; padding:14px; background:#F0FDF4; border:1px solid #BBF7D0; border-radius:14px;">
+                <div style="font-size:14px; color:#14532D; line-height:1.6;">
+                  ✅ Reactivated at: %s
+                </div>
+              </div>
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:22px;">
+                <tr>
+                  <td>
+                    <a href="%s" style="display:inline-block; background: linear-gradient(135deg, #22C55E 0%%, #10B981 100%%); color:#FFFFFF; text-decoration:none; padding: 12px 18px; border-radius: 12px; font-weight: 800; font-size: 14px;">
+                      Go to portal
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <div style="margin-top:22px; padding-top:16px; border-top:1px solid #E5E7EB; font-size:12px; color:#6B7280;">
+                Need help? Contact <a href="mailto:%s" style="color:#10B981; text-decoration:none;">%s</a>.
+                <br><br>— %s Team
+              </div>
+            </td>
+          </tr>
+          <tr><td style="height:14px;"></td></tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+""".formatted(
+                escape(brandName),
+                escape(ownerName),
+                escape(businessName),
+                escape(reactivatedAt),
+                escapeUrl(portalUrl),
+                escape(supportEmail),
+                escape(supportEmail),
+                escape(brandName)
+        );
+    }
+
     /** For link href attributes */
     private static String escapeUrl(String url) {
         if (url == null) return "";

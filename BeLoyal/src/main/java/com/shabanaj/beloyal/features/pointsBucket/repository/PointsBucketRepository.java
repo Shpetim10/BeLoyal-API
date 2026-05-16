@@ -5,6 +5,7 @@ import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
@@ -36,4 +37,12 @@ public interface PointsBucketRepository extends JpaRepository<PointsBucket, Long
             "AND (pb.expiresAt IS NULL OR pb.expiresAt >= CURRENT_TIMESTAMP) " +
             "ORDER BY CASE WHEN pb.expiresAt IS NULL THEN 1 ELSE 0 END ASC, pb.expiresAt ASC")
     List<PointsBucket> findSpendableBuckets(@Param("loyaltyAccountId") Long loyaltyAccountId);
+
+    @Modifying
+    @Query("DELETE FROM PointsBucket pb WHERE pb.loyaltyAccount.business.id = :businessId")
+    void deleteByBusinessId(@Param("businessId") Long businessId);
+
+    @Modifying
+    @Query("DELETE FROM PointsBucket pb WHERE pb.loyaltyAccount.customerProfile.id = :customerProfileId")
+    void deleteByCustomerProfileId(@Param("customerProfileId") Long customerProfileId);
 }

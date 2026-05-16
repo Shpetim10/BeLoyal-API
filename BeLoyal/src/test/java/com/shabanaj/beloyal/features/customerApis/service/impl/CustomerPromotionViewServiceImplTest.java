@@ -72,6 +72,24 @@ class CustomerPromotionViewServiceImplTest {
     }
 
     @Test
+    void publicPromotionRow_hasUsageCountZeroNotTotalRedemptions() {
+        // coupon has totalRedemptions=2 (other customers), but for this unowned public row usageCount must be 0
+        when(userService.getUserOrThrow(1L)).thenReturn(user);
+        when(customerProfileService.getCustomerProfileByUser(user)).thenReturn(customerProfile);
+        when(loyaltyAccountRepository.findAllWithBusinessByCustomerProfileId(10L)).thenReturn(List.of());
+        when(customerCouponRepository.findAllWithCouponByCustomerProfileId(10L)).thenReturn(List.of());
+        when(couponRepository.findAllActivePublic(any(LocalDateTime.class))).thenReturn(List.of(coupon));
+
+        List<CustomerPromotionDto> result = service.getPromotions(1L, null);
+
+        assertThat(result).hasSize(1);
+        CustomerPromotionDto dto = result.get(0);
+        assertThat(dto.isOwned()).isFalse();
+        assertThat(dto.usageCount()).isZero();
+        assertThat(dto.totalRedemptions()).isEqualTo(2);
+    }
+
+    @Test
     void promotionsPreserveMultipleOwnedCopiesOfSameCouponTemplate() {
         CustomerCoupon first = ownedCoupon(101L, "qr-101");
         CustomerCoupon second = ownedCoupon(102L, "qr-102");

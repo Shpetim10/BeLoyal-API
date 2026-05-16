@@ -134,6 +134,7 @@ class CouponRedemptionContractTest {
         assertThat(r.getCustomerCouponId()).isEqualTo(77L);
         assertThat(r.getId()).isEqualTo(77L);      // backward-compat alias
         assertThat(r.getCouponId()).isEqualTo(5L);
+        assertThat(r.getQrCode()).isEqualTo("test-qr-77");
     }
 
     // --- displayStatus normalization (rule 3) ---
@@ -207,6 +208,7 @@ class CouponRedemptionContractTest {
 
         assertThat(result.getCustomerCouponId()).isEqualTo(88L);
         assertThat(result.getCouponId()).isEqualTo(5L);
+        assertThat(result.getQrCode()).isEqualTo("test-qr-88");
     }
 
     @Test

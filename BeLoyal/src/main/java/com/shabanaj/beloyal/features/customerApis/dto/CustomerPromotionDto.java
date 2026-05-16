@@ -2,6 +2,7 @@ package com.shabanaj.beloyal.features.customerApis.dto;
 
 import com.shabanaj.beloyal.model.Enums.CouponCannotRedeemCode;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -32,6 +33,30 @@ public record CustomerPromotionDto(
         boolean isFeatured,
         int totalRedemptions,
         Integer totalRedemptionLimit,
-        CouponCannotRedeemCode cannotRedeemCode
+        CouponCannotRedeemCode cannotRedeemCode,
+        // Fields matching CustomerBusinessCouponDto
+        String imageUrl,
+        String type,
+        BigDecimal discountValue,
+        String currency,
+        LocalDateTime startDate,
+        BigDecimal minimumOrderAmount,
+        BigDecimal maximumDiscountAmount,
+        Long freeProductCategoryId,
+        String freeProductCategory,
+        Long freeProductId,
+        String freeProductName,
+        Long freeVariantId,
+        String freeProductVariant,
+        Integer freeProductQuantity,
+        String snapshotTitle,
+        String snapshotDescription,
+        String snapshotImageUrl,
+        String snapshotCouponType,
+        BigDecimal snapshotMinimumOrderAmount,
+        BigDecimal snapshotMaximumDiscountAmount,
+        LocalDateTime redeemedAt,
+        LocalDateTime usedAt,
+        String orderId
 ) {
 }

@@ -94,6 +94,19 @@ public class CustomerCoupon {
     @Column(name = "snapshot_maximum_discount_amount", precision = 12, scale = 2)
     private BigDecimal snapshotMaximumDiscountAmount;
 
+    // Free-product display names captured at purchase time so display remains correct if catalog changes
+    @Column(name = "snapshot_free_product_category", length = 200)
+    private String snapshotFreeProductCategory;
+
+    @Column(name = "snapshot_free_product_name", length = 200)
+    private String snapshotFreeProductName;
+
+    @Column(name = "snapshot_free_product_variant", length = 200)
+    private String snapshotFreeProductVariant;
+
+    @Column(name = "snapshot_free_product_quantity")
+    private Integer snapshotFreeProductQuantity;
+
     @Column(name = "qr_code", unique = true, length = 255)
     private String qrCode;
 

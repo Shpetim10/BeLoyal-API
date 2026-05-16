@@ -2,6 +2,9 @@ package com.shabanaj.beloyal.features.catalogItemVariants.repository;
 
 import com.shabanaj.beloyal.model.Entity.CatalogItemVariant;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,4 +26,8 @@ public interface CatalogItemVariantRepository extends JpaRepository<CatalogItemV
     List<CatalogItemVariant> findByCatalogItemIdAndIsDeletedFalse(Long catalogItemId);
 
     List<CatalogItemVariant> findByCatalogItemIdInAndIsDeletedFalseOrderByOrderIndexAsc(java.util.Collection<Long> itemIds);
+
+    @Modifying
+    @Query("DELETE FROM CatalogItemVariant civ WHERE civ.catalogItem.business.id = :businessId")
+    void deleteByBusinessId(@Param("businessId") Long businessId);
 }

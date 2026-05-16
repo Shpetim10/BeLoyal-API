@@ -11,3 +11,6 @@ databaseChangeLog:
   - include:
       file: changes/004-coupon-qr-redemption.xml
       relativeToChangelogFile: true
+  - include:
+      file: changes/005-customer-coupon-snapshot-names.xml
+      relativeToChangelogFile: true

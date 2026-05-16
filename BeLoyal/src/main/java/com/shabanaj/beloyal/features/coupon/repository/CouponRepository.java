@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.time.LocalDateTime;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -132,4 +133,8 @@ public interface CouponRepository extends JpaRepository<LoyaltyCoupon, Long> {
             LIMIT 1
             """)
     Optional<LoyaltyCoupon> findCheapestCouponByBusinessId(@Param("businessId") Long businessId, @Param("now") LocalDateTime now);
+
+    @Modifying
+    @Query("DELETE FROM LoyaltyCoupon lc WHERE lc.business.id = :businessId")
+    void deleteByBusinessId(@Param("businessId") Long businessId);
 }

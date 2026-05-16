@@ -3,6 +3,7 @@ package com.shabanaj.beloyal.features.loyaltyCard.repository;
 import com.shabanaj.beloyal.model.Entity.CustomerProfile;
 import com.shabanaj.beloyal.model.Entity.LoyaltyCard;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -19,4 +20,8 @@ public interface LoyaltyCardRepository extends JpaRepository<LoyaltyCard, Long> 
     Optional<LoyaltyCard> getLoyaltyCardByEmail(@Param("email") String email);
 
     Optional<LoyaltyCard> getLoyaltyCardByCustomerProfile(CustomerProfile customerProfile);
+
+    @Modifying
+    @Query("DELETE FROM LoyaltyCard lc WHERE lc.customerProfile.id = :customerProfileId")
+    void deleteByCustomerProfileId(@Param("customerProfileId") Long customerProfileId);
 }

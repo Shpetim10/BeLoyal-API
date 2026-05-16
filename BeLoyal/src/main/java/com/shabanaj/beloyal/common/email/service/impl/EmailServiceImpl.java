@@ -106,6 +106,51 @@ public class EmailServiceImpl implements EmailService {
         sendMail(user.getEmail(), subject, content);
     }
 
+    @Override
+    public void sendBusinessSuspendedEmail(List<BusinessMember> members, Business business, String reason) {
+        String subject = "⚠️ Your business has been suspended";
+
+        members.forEach(member -> {
+            if(!member.getUser().getEmail().equals(business.getBusinessEmail())) {
+                String content = emailHtmlTemplates.buildBusinessSuspendedEmailHtml(member.getUser(), business, reason);
+                sendMail(member.getUser().getEmail(), subject, content);
+            }
+        });
+
+        String content = emailHtmlTemplates.buildBusinessSuspendedEmailHtml(members.get(0).getUser(), business, reason);
+        sendMail(business.getBusinessEmail(), subject, content);
+    }
+
+    @Override
+    public void sendBusinessBannedEmail(List<BusinessMember> members, Business business, String reason) {
+        String subject = "🔒 Your business has been banned";
+
+        members.forEach(member -> {
+            if(!member.getUser().getEmail().equals(business.getBusinessEmail())) {
+                String content = emailHtmlTemplates.buildBusinessBannedEmailHtml(member.getUser(), business, reason);
+                sendMail(member.getUser().getEmail(), subject, content);
+            }
+        });
+
+        String content = emailHtmlTemplates.buildBusinessBannedEmailHtml(members.get(0).getUser(), business, reason);
+        sendMail(business.getBusinessEmail(), subject, content);
+    }
+
+    @Override
+    public void sendBusinessReactivatedEmail(List<BusinessMember> members, Business business) {
+        String subject = "✅ Your business is now active";
+
+        members.forEach(member -> {
+            if(!member.getUser().getEmail().equals(business.getBusinessEmail())) {
+                String content = emailHtmlTemplates.buildBusinessReactivatedEmailHtml(member.getUser(), business);
+                sendMail(member.getUser().getEmail(), subject, content);
+            }
+        });
+
+        String content = emailHtmlTemplates.buildBusinessReactivatedEmailHtml(members.get(0).getUser(), business);
+        sendMail(business.getBusinessEmail(), subject, content);
+    }
+
     // Helpers
     private void sendMail(String to, String subject, String body) {
         publisher.publishEvent(new SendEmailEvent(to, subject, body));

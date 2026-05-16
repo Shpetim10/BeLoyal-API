@@ -5,6 +5,7 @@ import com.shabanaj.beloyal.model.Entity.BusinessMember;
 import com.shabanaj.beloyal.model.Entity.User;
 import com.shabanaj.beloyal.model.Enums.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -22,6 +23,20 @@ public interface BusinessMemberRepository extends JpaRepository<BusinessMember, 
     Optional<BusinessMember> findByUserIdAndBusinessId(Long  userId, Long businessId);
 
     long countByBusinessIdAndRole(Long businessId, Role role);
+
+    @Query("SELECT bm.user.id FROM BusinessMember bm WHERE bm.business.id = :businessId")
+    List<Long> findUserIdsByBusinessId(@Param("businessId") Long businessId);
+
+    @Query("SELECT COUNT(bm) FROM BusinessMember bm WHERE bm.user.id = :userId AND bm.business.id <> :excludeBusinessId")
+    long countOtherMembershipsForUser(@Param("userId") Long userId, @Param("excludeBusinessId") Long excludeBusinessId);
+
+    @Modifying
+    @Query("DELETE FROM BusinessMember bm WHERE bm.business.id = :businessId")
+    void deleteByBusinessId(@Param("businessId") Long businessId);
+
+    @Modifying
+    @Query("DELETE FROM BusinessMember bm WHERE bm.user.id = :userId")
+    void deleteByUserId(@Param("userId") Long userId);
 
     // find by business id
     @Query(

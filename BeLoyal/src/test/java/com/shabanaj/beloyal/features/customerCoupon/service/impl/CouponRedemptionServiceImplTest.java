@@ -9,8 +9,12 @@ import com.shabanaj.beloyal.features.pointsBucket.service.PointsBucketService;
 import com.shabanaj.beloyal.features.pointsTransaction.repository.PointsTransactionRepository;
 import com.shabanaj.beloyal.features.user.service.UserService;
 import com.shabanaj.beloyal.features.userProfiles.customer.service.CustomerProfileService;
+import com.shabanaj.beloyal.features.customerCoupon.dto.CustomerCouponDetailResponse;
 import com.shabanaj.beloyal.model.Entity.*;
 import com.shabanaj.beloyal.model.Enums.*;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -169,6 +173,237 @@ class CouponRedemptionServiceImplTest {
 
         assertThatThrownBy(() -> service.redeem(5L, 1L))
                 .isInstanceOf(InsufficientPointsException.class);
+    }
+
+    // ─── wallet / detail DTO contract tests ───────────────────────────────────
+
+    @Test
+    void getCustomerCoupons_usedCoupon_isUsedTrueAndCanUseFalse() {
+        CustomerCoupon cc = usedCoupon(200L);
+        when(userService.getUserOrThrow(1L)).thenReturn(user);
+        when(customerProfileService.getCustomerProfileByUser(user)).thenReturn(customerProfile);
+        when(customerCouponRepository.findAllByCustomerProfileIdOrderByCreatedAtDesc(10L)).thenReturn(List.of(cc));
+        when(loyaltyAccountRepository.findAllWithBusinessByCustomerProfileId(10L)).thenReturn(List.of());
+
+        List<CustomerCouponDetailResponse> result = service.getCustomerCoupons(1L);
+
+        assertThat(result).hasSize(1);
+        CustomerCouponDetailResponse dto = result.get(0);
+        assertThat(dto.isUsed()).isTrue();
+        assertThat(dto.isCanUse()).isFalse();
+        assertThat(dto.getCannotUseReason()).isEqualTo("Already used");
+        assertThat(dto.getDisplayStatus()).isEqualTo("USED");
+    }
+
+    @Test
+    void getCustomerCoupons_repeatedPurchases_returnMultipleRowsWithDistinctIds() {
+        CustomerCoupon first = redeemedCoupon(301L, "qr-301");
+        CustomerCoupon second = redeemedCoupon(302L, "qr-302");
+        when(userService.getUserOrThrow(1L)).thenReturn(user);
+        when(customerProfileService.getCustomerProfileByUser(user)).thenReturn(customerProfile);
+        when(customerCouponRepository.findAllByCustomerProfileIdOrderByCreatedAtDesc(10L)).thenReturn(List.of(first, second));
+        when(loyaltyAccountRepository.findAllWithBusinessByCustomerProfileId(10L)).thenReturn(List.of());
+
+        List<CustomerCouponDetailResponse> result = service.getCustomerCoupons(1L);
+
+        assertThat(result).hasSize(2);
+        assertThat(result).extracting(CustomerCouponDetailResponse::getCustomerCouponId).containsExactlyInAnyOrder(301L, 302L);
+        // couponId must always be the template id
+        assertThat(result).extracting(CustomerCouponDetailResponse::getCouponId).containsOnly(5L);
+    }
+
+    @Test
+    void getCustomerCoupons_discountCoupon_includesDiscountDisplayAndValue() {
+        CustomerCoupon cc = discountCoupon(400L, BigDecimal.valueOf(15), null);
+        when(userService.getUserOrThrow(1L)).thenReturn(user);
+        when(customerProfileService.getCustomerProfileByUser(user)).thenReturn(customerProfile);
+        when(customerCouponRepository.findAllByCustomerProfileIdOrderByCreatedAtDesc(10L)).thenReturn(List.of(cc));
+        when(loyaltyAccountRepository.findAllWithBusinessByCustomerProfileId(10L)).thenReturn(List.of());
+
+        List<CustomerCouponDetailResponse> result = service.getCustomerCoupons(1L);
+
+        CustomerCouponDetailResponse dto = result.get(0);
+        assertThat(dto.getDiscountDisplay()).isEqualTo("15% Off");
+        assertThat(dto.getDiscountValue()).isEqualByComparingTo(BigDecimal.valueOf(15));
+    }
+
+    @Test
+    void getCustomerCoupons_fixedAmountCoupon_includesDiscountDisplayAndValue() {
+        CustomerCoupon cc = discountCoupon(401L, null, BigDecimal.valueOf(5));
+        when(userService.getUserOrThrow(1L)).thenReturn(user);
+        when(customerProfileService.getCustomerProfileByUser(user)).thenReturn(customerProfile);
+        when(customerCouponRepository.findAllByCustomerProfileIdOrderByCreatedAtDesc(10L)).thenReturn(List.of(cc));
+        when(loyaltyAccountRepository.findAllWithBusinessByCustomerProfileId(10L)).thenReturn(List.of());
+
+        List<CustomerCouponDetailResponse> result = service.getCustomerCoupons(1L);
+
+        CustomerCouponDetailResponse dto = result.get(0);
+        assertThat(dto.getDiscountDisplay()).contains("5").contains("Off");
+        assertThat(dto.getDiscountValue()).isEqualByComparingTo(BigDecimal.valueOf(5));
+    }
+
+    @Test
+    void getCustomerCoupons_freeProductCoupon_includesSnapshotDisplayNames() {
+        CustomerCoupon cc = freeProductCouponWithSnapshotNames(500L);
+        when(userService.getUserOrThrow(1L)).thenReturn(user);
+        when(customerProfileService.getCustomerProfileByUser(user)).thenReturn(customerProfile);
+        when(customerCouponRepository.findAllByCustomerProfileIdOrderByCreatedAtDesc(10L)).thenReturn(List.of(cc));
+        when(loyaltyAccountRepository.findAllWithBusinessByCustomerProfileId(10L)).thenReturn(List.of());
+
+        List<CustomerCouponDetailResponse> result = service.getCustomerCoupons(1L);
+
+        CustomerCouponDetailResponse dto = result.get(0);
+        assertThat(dto.getFreeProductCategory()).isEqualTo("Beverages");
+        assertThat(dto.getFreeProductName()).isEqualTo("Espresso");
+        assertThat(dto.getFreeProductVariant()).isEqualTo("Large");
+        assertThat(dto.getFreeProductQuantity()).isEqualTo(1);
+    }
+
+    @Test
+    void getCustomerCoupons_activeRedeemedCoupon_canUseTrue() {
+        CustomerCoupon cc = redeemedCoupon(600L, "qr-600");
+        when(userService.getUserOrThrow(1L)).thenReturn(user);
+        when(customerProfileService.getCustomerProfileByUser(user)).thenReturn(customerProfile);
+        when(customerCouponRepository.findAllByCustomerProfileIdOrderByCreatedAtDesc(10L)).thenReturn(List.of(cc));
+        when(loyaltyAccountRepository.findAllWithBusinessByCustomerProfileId(10L)).thenReturn(List.of());
+
+        List<CustomerCouponDetailResponse> result = service.getCustomerCoupons(1L);
+
+        CustomerCouponDetailResponse dto = result.get(0);
+        assertThat(dto.isCanUse()).isTrue();
+        assertThat(dto.getCannotUseReason()).isNull();
+        assertThat(dto.isUsed()).isFalse();
+    }
+
+    @Test
+    void getCustomerCoupons_expiredRedeemedCoupon_canUseFalseWithExpiredReason() {
+        CustomerCoupon cc = expiredRedeemedCoupon(700L);
+        when(userService.getUserOrThrow(1L)).thenReturn(user);
+        when(customerProfileService.getCustomerProfileByUser(user)).thenReturn(customerProfile);
+        // expired rows are NOT filtered by my-coupons (wallet shows history)
+        when(customerCouponRepository.findAllByCustomerProfileIdOrderByCreatedAtDesc(10L)).thenReturn(List.of(cc));
+        when(loyaltyAccountRepository.findAllWithBusinessByCustomerProfileId(10L)).thenReturn(List.of());
+
+        List<CustomerCouponDetailResponse> result = service.getCustomerCoupons(1L);
+
+        CustomerCouponDetailResponse dto = result.get(0);
+        assertThat(dto.isCanUse()).isFalse();
+        assertThat(dto.getCannotUseReason()).isEqualTo("Expired");
+        assertThat(dto.getDisplayStatus()).isEqualTo("EXPIRED");
+    }
+
+    // ─── helpers ─────────────────────────────────────────────────────────────
+
+    private CustomerCoupon redeemedCoupon(Long id, String qrCode) {
+        CustomerCoupon cc = CustomerCoupon.builder()
+                .coupon(coupon)
+                .business(business)
+                .customerProfile(customerProfile)
+                .status(CustomerCouponStatus.REDEEMED)
+                .redeemedAt(LocalDateTime.now().minusHours(1))
+                .expiresAt(LocalDateTime.now().plusDays(7))
+                .pointsSpent(100)
+                .currency(CurrencyCode.EUR)
+                .qrCode(qrCode)
+                .snapshotTitle("Free Coffee")
+                .snapshotCouponType(CouponType.FREE_PRODUCT)
+                .build();
+        setField(cc, "id", id);
+        return cc;
+    }
+
+    private CustomerCoupon usedCoupon(Long id) {
+        CustomerCoupon cc = CustomerCoupon.builder()
+                .coupon(coupon)
+                .business(business)
+                .customerProfile(customerProfile)
+                .status(CustomerCouponStatus.USED)
+                .redeemedAt(LocalDateTime.now().minusDays(2))
+                .usedAt(LocalDateTime.now().minusDays(1))
+                .expiresAt(LocalDateTime.now().plusDays(5))
+                .pointsSpent(100)
+                .currency(CurrencyCode.EUR)
+                .qrCode("qr-used-" + id)
+                .snapshotTitle("Free Coffee")
+                .snapshotCouponType(CouponType.FREE_PRODUCT)
+                .build();
+        setField(cc, "id", id);
+        return cc;
+    }
+
+    private CustomerCoupon expiredRedeemedCoupon(Long id) {
+        CustomerCoupon cc = CustomerCoupon.builder()
+                .coupon(coupon)
+                .business(business)
+                .customerProfile(customerProfile)
+                .status(CustomerCouponStatus.REDEEMED)
+                .redeemedAt(LocalDateTime.now().minusDays(10))
+                .expiresAt(LocalDateTime.now().minusDays(1))
+                .pointsSpent(100)
+                .currency(CurrencyCode.EUR)
+                .qrCode("qr-expired-" + id)
+                .snapshotTitle("Free Coffee")
+                .snapshotCouponType(CouponType.FREE_PRODUCT)
+                .build();
+        setField(cc, "id", id);
+        return cc;
+    }
+
+    private CustomerCoupon discountCoupon(Long id, BigDecimal pct, BigDecimal amt) {
+        CouponType type = pct != null ? CouponType.PERCENTAGE_DISCOUNT : CouponType.FIXED_AMOUNT_DISCOUNT;
+        LoyaltyCoupon discountTemplate = LoyaltyCoupon.builder()
+                .type(type)
+                .title("Discount Coupon")
+                .pointsCost(50)
+                .currency(CurrencyCode.EUR)
+                .status(CouponStatus.ACTIVE)
+                .visibility(CouponVisibility.PUBLIC)
+                .startDate(LocalDateTime.now().minusDays(1))
+                .endDate(LocalDateTime.now().plusDays(10))
+                .totalRedemptions(0)
+                .build();
+        setField(discountTemplate, "id", 50L);
+        setField(discountTemplate, "business", business);
+
+        CustomerCoupon cc = CustomerCoupon.builder()
+                .coupon(discountTemplate)
+                .business(business)
+                .customerProfile(customerProfile)
+                .status(CustomerCouponStatus.REDEEMED)
+                .redeemedAt(LocalDateTime.now().minusHours(1))
+                .expiresAt(LocalDateTime.now().plusDays(7))
+                .pointsSpent(50)
+                .currency(CurrencyCode.EUR)
+                .qrCode("qr-discount-" + id)
+                .snapshotTitle("Discount")
+                .snapshotCouponType(type)
+                .snapshotDiscountPercentage(pct)
+                .snapshotDiscountAmount(amt)
+                .build();
+        setField(cc, "id", id);
+        return cc;
+    }
+
+    private CustomerCoupon freeProductCouponWithSnapshotNames(Long id) {
+        CustomerCoupon cc = CustomerCoupon.builder()
+                .coupon(coupon)
+                .business(business)
+                .customerProfile(customerProfile)
+                .status(CustomerCouponStatus.REDEEMED)
+                .redeemedAt(LocalDateTime.now().minusHours(1))
+                .expiresAt(LocalDateTime.now().plusDays(7))
+                .pointsSpent(100)
+                .currency(CurrencyCode.EUR)
+                .qrCode("qr-fp-" + id)
+                .snapshotTitle("Free Coffee")
+                .snapshotCouponType(CouponType.FREE_PRODUCT)
+                .snapshotFreeProductCategory("Beverages")
+                .snapshotFreeProductName("Espresso")
+                .snapshotFreeProductVariant("Large")
+                .snapshotFreeProductQuantity(1)
+                .build();
+        setField(cc, "id", id);
+        return cc;
     }
 
     // Utility to set private fields via reflection

@@ -5,6 +5,7 @@ import com.shabanaj.beloyal.features.coupon.repository.CouponRepository;
 import com.shabanaj.beloyal.features.customerApis.service.CustomerPromotionViewService;
 import com.shabanaj.beloyal.features.customerCoupon.repository.CustomerCouponRepository;
 import com.shabanaj.beloyal.model.Entity.CouponDiscountDetails;
+import com.shabanaj.beloyal.model.Entity.CouponFreeProductDetails;
 import com.shabanaj.beloyal.features.loyaltyAccount.repository.LoyaltyAccountRepository;
 import com.shabanaj.beloyal.features.user.service.UserService;
 import com.shabanaj.beloyal.features.userProfiles.customer.service.CustomerProfileService;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -144,6 +146,19 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
             cannotRedeemReason = "Insufficient points";
         }
 
+        CouponDiscountDetails ownedDiscountDetails = coupon.getDiscountDetails();
+        BigDecimal discountValue = resolveDiscountValue(coupon, cc.getSnapshotDiscountPercentage(),
+                cc.getSnapshotDiscountAmount(), ownedDiscountDetails);
+        BigDecimal minimumOrderAmount = cc.getSnapshotMinimumOrderAmount() != null
+                ? cc.getSnapshotMinimumOrderAmount()
+                : (ownedDiscountDetails != null ? ownedDiscountDetails.getMinimumOrderAmount() : null);
+        BigDecimal maximumDiscountAmount = cc.getSnapshotMaximumDiscountAmount() != null
+                ? cc.getSnapshotMaximumDiscountAmount()
+                : (ownedDiscountDetails != null ? ownedDiscountDetails.getMaximumDiscountAmount() : null);
+        CouponFreeProductDetails ownedFpd = coupon.getFreeProductDetails();
+        String imageUrl = cc.getSnapshotImageUrl() != null ? cc.getSnapshotImageUrl() : coupon.getImageUrl();
+        String currency = cc.getCurrency() != null ? cc.getCurrency().getSymbol() : coupon.getCurrency().getSymbol();
+
         return new CustomerPromotionDto(
                 cc.getId(),
                 cc.getBusiness().getId(),
@@ -171,7 +186,30 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
                 coupon.isFeatured(),
                 coupon.getTotalRedemptions(),
                 coupon.getTotalRedemptionLimit(),
-                cannotRedeemCode
+                cannotRedeemCode,
+                imageUrl,
+                coupon.getType().name(),
+                discountValue,
+                currency,
+                coupon.getStartDate(),
+                minimumOrderAmount,
+                maximumDiscountAmount,
+                ownedFpd != null ? ownedFpd.getCategory().getId() : null,
+                ownedFpd != null ? ownedFpd.getCategory().getName() : null,
+                ownedFpd != null ? ownedFpd.getProduct().getId() : null,
+                ownedFpd != null ? ownedFpd.getProduct().getName() : null,
+                ownedFpd != null && ownedFpd.getVariant() != null ? ownedFpd.getVariant().getId() : null,
+                ownedFpd != null && ownedFpd.getVariant() != null ? ownedFpd.getVariant().getName() : null,
+                ownedFpd != null ? ownedFpd.getQuantity() : null,
+                cc.getSnapshotTitle(),
+                cc.getSnapshotDescription(),
+                cc.getSnapshotImageUrl(),
+                cc.getSnapshotCouponType() != null ? cc.getSnapshotCouponType().name() : null,
+                cc.getSnapshotMinimumOrderAmount(),
+                cc.getSnapshotMaximumDiscountAmount(),
+                cc.getRedeemedAt(),
+                cc.getUsedAt(),
+                cc.getOrderId()
         );
     }
 
@@ -202,6 +240,13 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
             cannotRedeemReason = "Insufficient points";
         }
 
+        CouponDiscountDetails publicDiscountDetails = coupon.getDiscountDetails();
+        BigDecimal publicDiscountValue = resolveDiscountValue(coupon,
+                publicDiscountDetails != null ? publicDiscountDetails.getDiscountPercentage() : null,
+                publicDiscountDetails != null ? publicDiscountDetails.getDiscountAmount() : null,
+                publicDiscountDetails);
+        CouponFreeProductDetails publicFpd = coupon.getFreeProductDetails();
+
         return new CustomerPromotionDto(
                 null,           // id = null for public/unowned coupons; couponId is the identifier
                 coupon.getBusiness().getId(),
@@ -218,7 +263,7 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
                 null,
                 false,
                 false,
-                coupon.getTotalRedemptions(),
+                0,  // usageCount: 0 for public/unowned rows — this customer has not used this coupon
                 coupon.getPerCustomerRedemptionLimit(),
                 coupon.getTermsAndConditions(),
                 false,
@@ -229,7 +274,23 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
                 coupon.isFeatured(),
                 coupon.getTotalRedemptions(),
                 coupon.getTotalRedemptionLimit(),
-                cannotRedeemCode
+                cannotRedeemCode,
+                coupon.getImageUrl(),
+                coupon.getType().name(),
+                publicDiscountValue,
+                coupon.getCurrency().getSymbol(),
+                coupon.getStartDate(),
+                publicDiscountDetails != null ? publicDiscountDetails.getMinimumOrderAmount() : null,
+                publicDiscountDetails != null ? publicDiscountDetails.getMaximumDiscountAmount() : null,
+                publicFpd != null ? publicFpd.getCategory().getId() : null,
+                publicFpd != null ? publicFpd.getCategory().getName() : null,
+                publicFpd != null ? publicFpd.getProduct().getId() : null,
+                publicFpd != null ? publicFpd.getProduct().getName() : null,
+                publicFpd != null && publicFpd.getVariant() != null ? publicFpd.getVariant().getId() : null,
+                publicFpd != null && publicFpd.getVariant() != null ? publicFpd.getVariant().getName() : null,
+                publicFpd != null ? publicFpd.getQuantity() : null,
+                null, null, null, null, null, null,
+                null, null, null
         );
     }
 
@@ -258,6 +319,14 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
             return "CANCELLED";
         }
         return "EXPIRED";
+    }
+
+    private BigDecimal resolveDiscountValue(LoyaltyCoupon coupon, BigDecimal pct, BigDecimal amt, CouponDiscountDetails details) {
+        return switch (coupon.getType()) {
+            case PERCENTAGE_DISCOUNT -> pct != null ? pct : (details != null ? details.getDiscountPercentage() : null);
+            case FIXED_AMOUNT_DISCOUNT -> amt != null ? amt : (details != null ? details.getDiscountAmount() : null);
+            case FREE_PRODUCT -> null;
+        };
     }
 
     private String buildDiscountDisplay(CustomerCoupon cc, LoyaltyCoupon coupon) {

@@ -4,6 +4,7 @@ import com.shabanaj.beloyal.model.Entity.PointsTransaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -127,4 +128,12 @@ public interface PointsTransactionRepository extends JpaRepository<PointsTransac
             "OR pt.loyaltyAccount.business.id IN " +                    // Has role in Business
             "    (SELECT bm.business.id FROM BusinessMember bm WHERE bm.user.id = :userId))")
     boolean hasAccess(@Param("transactionId") Long transactionId, @Param("userId") Long userId);
+
+    @Modifying
+    @Query("DELETE FROM PointsTransaction pt WHERE pt.loyaltyAccount.business.id = :businessId")
+    void deleteByBusinessId(@Param("businessId") Long businessId);
+
+    @Modifying
+    @Query("DELETE FROM PointsTransaction pt WHERE pt.loyaltyAccount.customerProfile.id = :customerProfileId")
+    void deleteByCustomerProfileId(@Param("customerProfileId") Long customerProfileId);
 }

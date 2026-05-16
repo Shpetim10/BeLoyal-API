@@ -41,6 +41,21 @@ public class CustomerCouponDetailResponse {
     private String orderId;
     private String qrCode;
 
+    // top-level display fields (mirrors CustomerBusinessCouponDto for wallet consistency)
+    private boolean isUsed;
+    private String discountDisplay;
+    private BigDecimal discountValue;
+    // Free-product resolved names (snapshot first, live catalog fallback)
+    private String freeProductCategory;
+    private String freeProductName;
+    private String freeProductVariant;
+    private Integer freeProductQuantity;
+
+    // canUse: this owned instance can be presented at checkout (REDEEMED and not expired)
+    // canRedeem: customer can buy/claim another copy of the template right now
+    private boolean canUse;
+    private String cannotUseReason;
+
     // snapshot
     private String snapshotTitle;
     private String snapshotDescription;
