@@ -64,7 +64,13 @@ public class StaffCouponRedemptionServiceImpl implements StaffCouponRedemptionSe
             throw new CouponNotYetValidException();
         }
 
-        if (now.isAfter(coupon.getEndDate())) {
+        // Owned coupons expire from the redemption snapshot, so later edits to the
+        // coupon template endDate do not retroactively invalidate a purchased row.
+        LocalDateTime effectiveExpiry = customerCoupon.getExpiresAt() != null
+                ? customerCoupon.getExpiresAt()
+                : coupon.getEndDate();
+
+        if (effectiveExpiry != null && now.isAfter(effectiveExpiry)) {
             throw new CouponExpiredException();
         }
 

@@ -169,6 +169,40 @@ class StaffCouponRedemptionServiceImplTest {
     }
 
     @Test
+    void scanAndRedeem_usesCustomerCouponSnapshotExpiryInsteadOfLiveCouponEndDate() {
+        coupon.setEndDate(LocalDateTime.now().minusHours(1));
+        setField(customerCoupon, "expiresAt", LocalDateTime.now().plusDays(2));
+
+        when(userService.getUserOrThrow(STAFF_USER_ID)).thenReturn(staffUser);
+        when(businessMemberService.getBusinessMemberByUserIdAndBusinessId(STAFF_USER_ID, BUSINESS_ID)).thenReturn(staffMember);
+        when(customerCouponRepository.findWithLockByQrCode(VALID_QR)).thenReturn(Optional.of(customerCoupon));
+        when(customerCouponRepository.save(any())).thenReturn(customerCoupon);
+
+        StaffCouponScanRequest request = new StaffCouponScanRequest();
+        setField(request, "qrCode", VALID_QR);
+
+        StaffCouponScanResponse response = service.scanAndRedeem(BUSINESS_ID, STAFF_USER_ID, request);
+
+        assertThat(response.getStatus()).isEqualTo(CustomerCouponStatus.USED);
+    }
+
+    @Test
+    void scanAndRedeem_throwsExpiredWhenSnapshotExpiryHasPassedEvenIfLiveCouponIsActive() {
+        coupon.setEndDate(LocalDateTime.now().plusDays(10));
+        setField(customerCoupon, "expiresAt", LocalDateTime.now().minusHours(1));
+
+        when(userService.getUserOrThrow(STAFF_USER_ID)).thenReturn(staffUser);
+        when(businessMemberService.getBusinessMemberByUserIdAndBusinessId(STAFF_USER_ID, BUSINESS_ID)).thenReturn(staffMember);
+        when(customerCouponRepository.findWithLockByQrCode(VALID_QR)).thenReturn(Optional.of(customerCoupon));
+
+        StaffCouponScanRequest request = new StaffCouponScanRequest();
+        setField(request, "qrCode", VALID_QR);
+
+        assertThatThrownBy(() -> service.scanAndRedeem(BUSINESS_ID, STAFF_USER_ID, request))
+                .isInstanceOf(CouponExpiredException.class);
+    }
+
+    @Test
     void scanAndRedeem_throwsCouponNotYetValid_whenBeforeStartDate() {
         coupon.setStartDate(LocalDateTime.now().plusDays(1));
 

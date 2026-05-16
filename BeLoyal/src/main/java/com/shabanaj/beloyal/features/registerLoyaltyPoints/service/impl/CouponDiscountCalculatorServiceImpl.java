@@ -40,11 +40,17 @@ public class CouponDiscountCalculatorServiceImpl implements CouponDiscountCalcul
 
         LocalDateTime now = LocalDateTime.now();
 
+        // Use the snapshot expiry captured at redemption time. This prevents business
+        // edits to coupon.endDate from retroactively invalidating owned coupons.
+        LocalDateTime effectiveExpiry = customerCoupon.getExpiresAt() != null
+                ? customerCoupon.getExpiresAt()
+                : coupon.getEndDate();
+
         if (now.isBefore(coupon.getStartDate())) {
             throw new CouponNotYetValidException();
         }
 
-        if (now.isAfter(coupon.getEndDate())) {
+        if (effectiveExpiry != null && now.isAfter(effectiveExpiry)) {
             throw new CouponExpiredException();
         }
 
@@ -60,6 +66,13 @@ public class CouponDiscountCalculatorServiceImpl implements CouponDiscountCalcul
                     throw new InvalidCouponOperationException("Coupon discount details are missing");
                 }
                 pct = details.getDiscountPercentage();
+            }
+            BigDecimal minOrderPct = customerCoupon.getSnapshotMinimumOrderAmount() != null
+                    ? customerCoupon.getSnapshotMinimumOrderAmount()
+                    : (details != null ? details.getMinimumOrderAmount() : null);
+            if (minOrderPct != null && billAmount.compareTo(minOrderPct) < 0) {
+                throw new InvalidCouponOperationException(
+                        "Transaction amount " + billAmount + " is below the minimum required " + minOrderPct + " for this coupon");
             }
             discount = billAmount.multiply(pct).divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
             BigDecimal maxDiscount = customerCoupon.getSnapshotMaximumDiscountAmount() != null

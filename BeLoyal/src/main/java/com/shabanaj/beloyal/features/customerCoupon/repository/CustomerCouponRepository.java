@@ -28,6 +28,23 @@ public interface CustomerCouponRepository extends JpaRepository<CustomerCoupon, 
             @Param("couponStatus") CustomerCouponStatus couponStatus
     );
 
+    /**
+     * Counts REDEEMED owned coupons that have not yet passed their snapshot expiry.
+     * Used for the customer active-coupon stat so that expired-but-not-scanned rows
+     * are not counted as active.
+     */
+    @Query("""
+            SELECT COUNT(cc) FROM CustomerCoupon cc
+            WHERE cc.customerProfile = :customerProfile
+              AND cc.status = :status
+              AND (cc.expiresAt IS NULL OR cc.expiresAt > :now)
+            """)
+    long countActiveByCustomerProfile(
+            @Param("customerProfile") CustomerProfile customerProfile,
+            @Param("status") CustomerCouponStatus status,
+            @Param("now") java.time.LocalDateTime now
+    );
+
     List<CustomerCoupon> findAllByCustomerProfileIdAndBusinessIdOrderByCreatedAtDesc(Long customerProfileId, Long businessId);
 
     Optional<CustomerCoupon> findByIdAndCustomerProfileId(Long id, Long customerProfileId);
@@ -48,6 +65,10 @@ public interface CustomerCouponRepository extends JpaRepository<CustomerCoupon, 
     List<CustomerCoupon> findAllWithCouponByCustomerProfileId(@Param("profileId") Long profileId);
 
     Optional<CustomerCoupon> findByCouponIdAndCustomerProfileId(Long couponId, Long customerProfileId);
+
+    Optional<CustomerCoupon> findTopByCouponIdAndCustomerProfileIdOrderByCreatedAtDesc(Long couponId, Long customerProfileId);
+
+    List<CustomerCoupon> findAllByCouponIdAndCustomerProfileIdOrderByCreatedAtDesc(Long couponId, Long customerProfileId);
 
     long countByBusinessIdAndStatus(Long businessId, CustomerCouponStatus status);
 }

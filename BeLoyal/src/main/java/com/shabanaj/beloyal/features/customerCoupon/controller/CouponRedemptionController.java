@@ -1,5 +1,6 @@
 package com.shabanaj.beloyal.features.customerCoupon.controller;
 
+import com.shabanaj.beloyal.common.Exception.InvalidCouponOperationException;
 import com.shabanaj.beloyal.features.Security.UserPrincipal;
 import com.shabanaj.beloyal.features.customerCoupon.dto.CouponRedeemResponse;
 import com.shabanaj.beloyal.features.customerCoupon.dto.CustomerCouponDetailResponse;
@@ -37,6 +38,14 @@ public class CouponRedemptionController {
         return ResponseEntity.ok(couponRedemptionService.getCustomerCoupons(userPrincipal.getId()));
     }
 
+    @GetMapping("/customer-coupons/{customerCouponId}")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<CustomerCouponDetailResponse> getCustomerCouponById(
+            @PathVariable Long customerCouponId,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return ResponseEntity.ok(couponRedemptionService.getCustomerCouponById(customerCouponId, userPrincipal.getId()));
+    }
+
     @PostMapping("/customer-coupons/{customerCouponId}/apply")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<CustomerCouponDetailResponse> apply(
@@ -47,11 +56,17 @@ public class CouponRedemptionController {
         return ResponseEntity.ok(couponRedemptionService.applyCoupon(customerCouponId, userPrincipal.getId(), orderId));
     }
 
+    /**
+     * Kept as a locked-down compatibility route for older clients. Customers may
+     * claim coupons, but usage must be performed by staff scan (free products) or
+     * earn-points transaction flow (discount coupons).
+     */
     @PostMapping("/customer-coupons/{customerCouponId}/use")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<CustomerCouponDetailResponse> use(
             @PathVariable Long customerCouponId,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        return ResponseEntity.ok(couponRedemptionService.useCoupon(customerCouponId, userPrincipal.getId()));
+        throw new InvalidCouponOperationException("Customers cannot self-use coupons");
     }
+
 }

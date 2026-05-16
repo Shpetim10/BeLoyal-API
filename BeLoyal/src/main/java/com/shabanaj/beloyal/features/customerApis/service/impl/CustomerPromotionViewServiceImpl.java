@@ -5,24 +5,28 @@ import com.shabanaj.beloyal.features.coupon.repository.CouponRepository;
 import com.shabanaj.beloyal.features.customerApis.service.CustomerPromotionViewService;
 import com.shabanaj.beloyal.features.customerCoupon.repository.CustomerCouponRepository;
 import com.shabanaj.beloyal.model.Entity.CouponDiscountDetails;
+import com.shabanaj.beloyal.features.loyaltyAccount.repository.LoyaltyAccountRepository;
 import com.shabanaj.beloyal.features.user.service.UserService;
 import com.shabanaj.beloyal.features.userProfiles.customer.service.CustomerProfileService;
 import com.shabanaj.beloyal.model.Entity.CustomerCoupon;
 import com.shabanaj.beloyal.model.Entity.CustomerProfile;
+import com.shabanaj.beloyal.model.Entity.LoyaltyAccount;
 import com.shabanaj.beloyal.model.Entity.LoyaltyCoupon;
 import com.shabanaj.beloyal.model.Entity.User;
+import com.shabanaj.beloyal.model.Enums.CouponCannotRedeemCode;
 import com.shabanaj.beloyal.model.Enums.CouponType;
 import com.shabanaj.beloyal.model.Enums.CustomerCouponStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +36,7 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
     private final CustomerProfileService customerProfileService;
     private final CustomerCouponRepository customerCouponRepository;
     private final CouponRepository couponRepository;
+    private final LoyaltyAccountRepository loyaltyAccountRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -39,28 +44,51 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
         User user = userService.getUserOrThrow(userId);
         CustomerProfile customerProfile = customerProfileService.getCustomerProfileByUser(user);
 
+        // Build balance map: businessId → availablePoints
+        Map<Long, Integer> balanceByBusiness = loyaltyAccountRepository
+                .findAllWithBusinessByCustomerProfileId(customerProfile.getId())
+                .stream()
+                .collect(Collectors.toMap(
+                        la -> la.getBusiness().getId(),
+                        LoyaltyAccount::getAvailablePoints));
+
+        LocalDateTime filterNow = LocalDateTime.now();
         List<CustomerCoupon> ownedCouponEntities = customerCouponRepository
-                .findAllWithCouponByCustomerProfileId(customerProfile.getId());
+                .findAllWithCouponByCustomerProfileId(customerProfile.getId())
+                .stream()
+                .filter(cc -> !isExpired(cc, filterNow))
+                .toList();
 
         Map<Long, Integer> redemptionCountByCouponId = ownedCouponEntities.stream()
-                .collect(java.util.stream.Collectors.groupingBy(
+                .collect(Collectors.groupingBy(
                         cc -> cc.getCoupon().getId(),
-                        java.util.stream.Collectors.summingInt(cc -> 1)));
+                        Collectors.summingInt(cc -> 1)));
 
         List<CustomerPromotionDto> ownedPromotions = ownedCouponEntities.stream()
-                .map(cc -> toOwnedDto(cc, redemptionCountByCouponId.getOrDefault(cc.getCoupon().getId(), 0)))
+                .map(cc -> toOwnedDto(cc,
+                        redemptionCountByCouponId.getOrDefault(cc.getCoupon().getId(), 0),
+                        balanceByBusiness))
                 .toList();
 
         LocalDateTime now = LocalDateTime.now();
         List<CustomerPromotionDto> publicPromotions = couponRepository.findAllActivePublic(now)
                 .stream()
-                .map(this::toPublicDto)
+                .map(c -> toPublicDto(c,
+                        balanceByBusiness.getOrDefault(c.getBusiness().getId(), 0),
+                        redemptionCountByCouponId.getOrDefault(c.getId(), 0)))
                 .toList();
 
-        Map<Long, CustomerPromotionDto> promotionsByCouponId = new LinkedHashMap<>();
-        ownedPromotions.forEach(p -> promotionsByCouponId.put(p.couponId(), p));
-        publicPromotions.forEach(p -> promotionsByCouponId.putIfAbsent(p.couponId(), p));
-        List<CustomerPromotionDto> promotions = promotionsByCouponId.values().stream().toList();
+        // Owned coupons are keyed by customerCouponId (a unique row per redemption).
+        // Public/unowned coupons are de-duplicated by couponId, and only added when
+        // there is no owned row for that coupon template.
+        Set<Long> ownedTemplateCouponIds = ownedCouponEntities.stream()
+                .map(cc -> cc.getCoupon().getId())
+                .collect(Collectors.toSet());
+
+        List<CustomerPromotionDto> promotions = new ArrayList<>(ownedPromotions);
+        publicPromotions.stream()
+                .filter(p -> !ownedTemplateCouponIds.contains(p.couponId()))
+                .forEach(promotions::add);
 
         if (statusFilter != null && !statusFilter.isBlank()) {
             String filter = statusFilter.toUpperCase();
@@ -72,26 +100,49 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
         return promotions;
     }
 
-    private CustomerPromotionDto toOwnedDto(CustomerCoupon cc, int customerRedemptionCount) {
+    private CustomerPromotionDto toOwnedDto(CustomerCoupon cc, int customerRedemptionCount,
+                                             Map<Long, Integer> balanceByBusiness) {
         LoyaltyCoupon coupon = cc.getCoupon();
         String status = deriveStatus(cc);
         String discountDisplay = buildDiscountDisplay(cc, coupon);
 
-        //expiration duration calculation
         String expiresIn;
-        if(cc.getExpiresAt() != null){
-            Duration expirationDuration= Duration.between(LocalDateTime.now(), cc.getExpiresAt());
+        if (cc.getExpiresAt() != null) {
+            Duration expirationDuration = Duration.between(LocalDateTime.now(), cc.getExpiresAt());
             long days = expirationDuration.toDays();
             int hours = expirationDuration.toHoursPart();
-
             expiresIn = days + (days == 1 ? " day" : " days");
             if (hours != 0) {
                 expiresIn += " and " + hours + (hours == 1 ? " hour" : " hours");
             }
-        }else{
-            expiresIn="No expiration date";
+        } else {
+            expiresIn = "No expiration date";
         }
 
+        // canRedeem = can the customer claim another copy of this coupon template
+        int balance = balanceByBusiness.getOrDefault(cc.getBusiness().getId(), 0);
+        boolean canRedeem = true;
+        String cannotRedeemReason = null;
+        CouponCannotRedeemCode cannotRedeemCode = null;
+
+        if (coupon.getStatus() != com.shabanaj.beloyal.model.Enums.CouponStatus.ACTIVE) {
+            canRedeem = false;
+            cannotRedeemCode = CouponCannotRedeemCode.TEMPLATE_INACTIVE;
+            cannotRedeemReason = "Coupon no longer available";
+        } else if (coupon.isSoldOut()) {
+            canRedeem = false;
+            cannotRedeemCode = CouponCannotRedeemCode.SOLD_OUT;
+            cannotRedeemReason = "Sold out";
+        } else if (coupon.getPerCustomerRedemptionLimit() != null
+                && customerRedemptionCount >= coupon.getPerCustomerRedemptionLimit()) {
+            canRedeem = false;
+            cannotRedeemCode = CouponCannotRedeemCode.PER_CUSTOMER_LIMIT;
+            cannotRedeemReason = "Personal limit reached";
+        } else if (balance < coupon.getPointsCost()) {
+            canRedeem = false;
+            cannotRedeemCode = CouponCannotRedeemCode.INSUFFICIENT_POINTS;
+            cannotRedeemReason = "Insufficient points";
+        }
 
         return new CustomerPromotionDto(
                 cc.getId(),
@@ -107,29 +158,52 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
                 cc.getExpiresAt(),
                 expiresIn,
                 null,
-                coupon.isFeatured(),
+                false,
                 cc.getStatus() == CustomerCouponStatus.USED,
                 cc.getStatus() == CustomerCouponStatus.USED ? 1 : 0,
                 coupon.getPerCustomerRedemptionLimit(),
                 coupon.getTermsAndConditions(),
                 true,
                 cc.getQrCode(),
-                customerRedemptionCount
+                customerRedemptionCount,
+                canRedeem,
+                cannotRedeemReason,
+                coupon.isFeatured(),
+                coupon.getTotalRedemptions(),
+                coupon.getTotalRedemptionLimit(),
+                cannotRedeemCode
         );
     }
 
-    private CustomerPromotionDto toPublicDto(LoyaltyCoupon coupon) {
-        //expiration duration calculation
-        Duration expirationDuration= Duration.between(LocalDateTime.now(), coupon.getEndDate());
+    private CustomerPromotionDto toPublicDto(LoyaltyCoupon coupon, int balance, int customerRedemptionCount) {
+        Duration expirationDuration = Duration.between(LocalDateTime.now(), coupon.getEndDate());
         long days = expirationDuration.toDays();
         int hours = expirationDuration.toHoursPart();
-
         String expiresIn = days + (days == 1 ? " day" : " days");
         if (hours != 0) {
             expiresIn += " and " + hours + (hours == 1 ? " hour" : " hours");
         }
+
+        boolean canRedeem = true;
+        String cannotRedeemReason = null;
+        CouponCannotRedeemCode cannotRedeemCode = null;
+        if (coupon.isSoldOut()) {
+            canRedeem = false;
+            cannotRedeemCode = CouponCannotRedeemCode.SOLD_OUT;
+            cannotRedeemReason = "Sold out";
+        } else if (coupon.getPerCustomerRedemptionLimit() != null
+                && customerRedemptionCount >= coupon.getPerCustomerRedemptionLimit()) {
+            canRedeem = false;
+            cannotRedeemCode = CouponCannotRedeemCode.PER_CUSTOMER_LIMIT;
+            cannotRedeemReason = "Personal limit reached";
+        } else if (balance < coupon.getPointsCost()) {
+            canRedeem = false;
+            cannotRedeemCode = CouponCannotRedeemCode.INSUFFICIENT_POINTS;
+            cannotRedeemReason = "Insufficient points";
+        }
+
         return new CustomerPromotionDto(
-                coupon.getId(),
+                null,           // id = null for public/unowned coupons; couponId is the identifier
                 coupon.getBusiness().getId(),
                 coupon.getId(),
                 coupon.getBusiness().getBusinessName(),
@@ -142,20 +216,36 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
                 coupon.getEndDate(),
                 expiresIn,
                 null,
-                coupon.isFeatured(),
+                false,
                 false,
                 coupon.getTotalRedemptions(),
                 coupon.getPerCustomerRedemptionLimit(),
                 coupon.getTermsAndConditions(),
                 false,
                 null,
-                0
+                customerRedemptionCount,
+                canRedeem,
+                cannotRedeemReason,
+                coupon.isFeatured(),
+                coupon.getTotalRedemptions(),
+                coupon.getTotalRedemptionLimit(),
+                cannotRedeemCode
         );
+    }
+
+    private boolean isExpired(CustomerCoupon cc, LocalDateTime now) {
+        if (cc.getStatus() == CustomerCouponStatus.EXPIRED) return true;
+        return cc.getStatus() == CustomerCouponStatus.REDEEMED
+                && cc.getExpiresAt() != null
+                && cc.getExpiresAt().isBefore(now);
     }
 
     private String deriveStatus(CustomerCoupon cc) {
         LocalDateTime now = LocalDateTime.now();
         if (cc.getStatus() == CustomerCouponStatus.REDEEMED) {
+            if (cc.getExpiresAt() != null && cc.getExpiresAt().isBefore(now)) {
+                return "EXPIRED";
+            }
             if (cc.getExpiresAt() != null && cc.getExpiresAt().isBefore(now.plusDays(3))) {
                 return "EXPIRING";
             }
@@ -163,6 +253,9 @@ public class CustomerPromotionViewServiceImpl implements CustomerPromotionViewSe
         }
         if (cc.getStatus() == CustomerCouponStatus.USED) {
             return "USED";
+        }
+        if (cc.getStatus() == CustomerCouponStatus.CANCELLED) {
+            return "CANCELLED";
         }
         return "EXPIRED";
     }

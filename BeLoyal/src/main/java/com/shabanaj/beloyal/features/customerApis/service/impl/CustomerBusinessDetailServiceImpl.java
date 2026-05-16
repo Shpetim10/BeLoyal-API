@@ -201,7 +201,10 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
 
         List<CatalogItemVariant> variants = itemIds.isEmpty()
                 ? List.of()
-                : catalogItemVariantRepository.findByCatalogItemIdInAndIsDeletedFalseOrderByOrderIndexAsc(itemIds);
+                : catalogItemVariantRepository.findByCatalogItemIdInAndIsDeletedFalseOrderByOrderIndexAsc(itemIds)
+                        .stream()
+                        .filter(v -> v.getStatus() == CatalogStatus.ACTIVE)
+                        .toList();
 
         String pointsLabel = buildPointsLabel(earningSettings);
 
@@ -224,7 +227,7 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                         i.getOrderIndex() != null ? i.getOrderIndex() : 0,
                         pointsLabel,
                         i.getPrice(),
-                        business.getCurrencyCode() != null ? i.getCurrencyCode().getSymbol() : null,
+                        resolveCurrencySymbol(i.getCurrencyCode(), business.getCurrencyCode()),
                         i.getUnit(),
                         calculateEarnedPoints(i.getPrice(), earningSettings)))
                 .toList();
@@ -245,7 +248,7 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                             v.getName(),
                             v.getDescription(),
                             price,
-                            business.getCurrencyCode() != null ? business.getCurrencyCode().getSymbol() : null,
+                            resolveCurrencySymbol(parentItem.getCurrencyCode(), business.getCurrencyCode()),
                             isDefault,
                             v.getStatus() == CatalogStatus.ACTIVE,
                             calculateEarnedPoints(price, earningSettings));
@@ -257,9 +260,13 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
 
     private List<CustomerBusinessCouponDto> buildCoupons(CustomerProfile customerProfile, Business business,
                                                           List<LoyaltyCoupon> availablePublicCoupons, int balance) {
+        LocalDateTime now = LocalDateTime.now();
         List<CustomerCoupon> owned = customerCouponRepository
                 .findAllByCustomerProfileIdAndBusinessIdOrderByCreatedAtDesc(
-                        customerProfile.getId(), business.getId());
+                        customerProfile.getId(), business.getId())
+                .stream()
+                .filter(cc -> !isExpiredCoupon(cc, now))
+                .toList();
 
         Map<Long, Integer> redemptionCountByCouponId = owned.stream()
                 .collect(Collectors.groupingBy(cc -> cc.getCoupon().getId(), Collectors.summingInt(cc -> 1)));
@@ -302,13 +309,20 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
 
         boolean canRedeem = false;
         String cannotRedeemReason = null;
+        CouponCannotRedeemCode cannotRedeemCode = null;
         if (!availableCouponIds.contains(coupon.getId())) {
+            cannotRedeemCode = CouponCannotRedeemCode.TEMPLATE_INACTIVE;
             cannotRedeemReason = "Coupon no longer available";
-        } else if (balance < coupon.getPointsCost()) {
-            cannotRedeemReason = "Insufficient points";
+        } else if (coupon.isSoldOut()) {
+            cannotRedeemCode = CouponCannotRedeemCode.SOLD_OUT;
+            cannotRedeemReason = "Sold out";
         } else if (coupon.getPerCustomerRedemptionLimit() != null
                 && customerRedemptionCount >= coupon.getPerCustomerRedemptionLimit()) {
-            cannotRedeemReason = "Redemption limit reached";
+            cannotRedeemCode = CouponCannotRedeemCode.PER_CUSTOMER_LIMIT;
+            cannotRedeemReason = "Personal limit reached";
+        } else if (balance < coupon.getPointsCost()) {
+            cannotRedeemCode = CouponCannotRedeemCode.INSUFFICIENT_POINTS;
+            cannotRedeemReason = "Insufficient points";
         } else {
             canRedeem = true;
         }
@@ -322,6 +336,7 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                 cc.getSnapshotDescription(),
                 cc.getSnapshotImageUrl() != null ? cc.getSnapshotImageUrl() : coupon.getImageUrl(),
                 mapPromotionType(coupon.getType()),
+                coupon.getType().name(),
                 status,
                 discountDisplay,
                 discountValue,
@@ -363,7 +378,8 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                 buildExpiresIn(cc.getExpiresAt(), now),
                 customerRedemptionCount,
                 canRedeem,
-                cannotRedeemReason
+                cannotRedeemReason,
+                cannotRedeemCode
         );
     }
 
@@ -380,13 +396,20 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
 
         boolean canRedeem = true;
         String cannotRedeemReason = null;
-        if (balance < coupon.getPointsCost()) {
+        CouponCannotRedeemCode cannotRedeemCode = null;
+        if (coupon.isSoldOut()) {
             canRedeem = false;
-            cannotRedeemReason = "Insufficient points";
+            cannotRedeemCode = CouponCannotRedeemCode.SOLD_OUT;
+            cannotRedeemReason = "Sold out";
         } else if (coupon.getPerCustomerRedemptionLimit() != null
                 && customerRedemptionCount >= coupon.getPerCustomerRedemptionLimit()) {
             canRedeem = false;
-            cannotRedeemReason = "Redemption limit reached";
+            cannotRedeemCode = CouponCannotRedeemCode.PER_CUSTOMER_LIMIT;
+            cannotRedeemReason = "Personal limit reached";
+        } else if (balance < coupon.getPointsCost()) {
+            canRedeem = false;
+            cannotRedeemCode = CouponCannotRedeemCode.INSUFFICIENT_POINTS;
+            cannotRedeemReason = "Insufficient points";
         }
 
         return new CustomerBusinessCouponDto(
@@ -398,6 +421,7 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                 coupon.getDescription(),
                 coupon.getImageUrl(),
                 mapPromotionType(coupon.getType()),
+                coupon.getType().name(),
                 "ACTIVE",
                 discountDisplay,
                 discountValue,
@@ -431,7 +455,8 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
                 buildExpiresIn(coupon.getEndDate(), now),
                 customerRedemptionCount,
                 canRedeem,
-                cannotRedeemReason
+                cannotRedeemReason,
+                cannotRedeemCode
         );
     }
 
@@ -524,9 +549,28 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
         return business.getBusinessName() + (city.isBlank() ? "" : ", " + city);
     }
 
+    private String resolveCurrencySymbol(CurrencyCode... currencies) {
+        for (CurrencyCode currency : currencies) {
+            if (currency != null) {
+                return currency.getSymbol();
+            }
+        }
+        return null;
+    }
+
+    private boolean isExpiredCoupon(CustomerCoupon cc, LocalDateTime now) {
+        if (cc.getStatus() == CustomerCouponStatus.EXPIRED) return true;
+        return cc.getStatus() == CustomerCouponStatus.REDEEMED
+                && cc.getExpiresAt() != null
+                && cc.getExpiresAt().isBefore(now);
+    }
+
     private String deriveStatus(CustomerCoupon cc) {
         LocalDateTime now = LocalDateTime.now();
         if (cc.getStatus() == CustomerCouponStatus.REDEEMED) {
+            if (cc.getExpiresAt() != null && cc.getExpiresAt().isBefore(now)) {
+                return "EXPIRED";
+            }
             if (cc.getExpiresAt() != null && cc.getExpiresAt().isBefore(now.plusDays(3))) {
                 return "EXPIRING";
             }
@@ -534,6 +578,9 @@ public class CustomerBusinessDetailServiceImpl implements CustomerBusinessDetail
         }
         if (cc.getStatus() == CustomerCouponStatus.USED) {
             return "USED";
+        }
+        if (cc.getStatus() == CustomerCouponStatus.CANCELLED) {
+            return "CANCELLED";
         }
         return "EXPIRED";
     }

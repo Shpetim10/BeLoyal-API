@@ -11,11 +11,15 @@ import com.shabanaj.beloyal.features.loyaltyAccount.repository.LoyaltyAccountRep
 import com.shabanaj.beloyal.features.user.service.UserService;
 import com.shabanaj.beloyal.features.userProfiles.customer.service.CustomerProfileService;
 import com.shabanaj.beloyal.model.Entity.*;
+import com.shabanaj.beloyal.model.Enums.CouponCannotRedeemCode;
 import com.shabanaj.beloyal.model.Enums.CouponStatus;
+import com.shabanaj.beloyal.model.Enums.CouponType;
+import com.shabanaj.beloyal.model.Enums.CouponVisibility;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -47,17 +51,28 @@ public class CouponAvailabilityServiceImpl implements CouponAvailabilityService 
 
         List<AvailableCouponItem> items = coupons.stream().map(c -> {
             String cannotRedeemReason = null;
+            CouponCannotRedeemCode cannotRedeemCode = null;
             boolean canRedeem = true;
 
             int customerUsed = customerCouponRepository.countByCouponIdAndCustomerProfileId(c.getId(), customerProfile.getId());
 
-            if (balance < c.getPointsCost()) {
+            if (c.isSoldOut()) {
                 canRedeem = false;
-                cannotRedeemReason = "Insufficient points";
+                cannotRedeemCode = CouponCannotRedeemCode.SOLD_OUT;
+                cannotRedeemReason = "Sold out";
             } else if (c.getPerCustomerRedemptionLimit() != null && customerUsed >= c.getPerCustomerRedemptionLimit()) {
                 canRedeem = false;
-                cannotRedeemReason = "Redemption limit reached";
+                cannotRedeemCode = CouponCannotRedeemCode.PER_CUSTOMER_LIMIT;
+                cannotRedeemReason = "Personal limit reached";
+            } else if (balance < c.getPointsCost()) {
+                canRedeem = false;
+                cannotRedeemCode = CouponCannotRedeemCode.INSUFFICIENT_POINTS;
+                cannotRedeemReason = "Insufficient points";
             }
+
+            String displayStatus = c.getEndDate().isBefore(now.plusDays(3)) ? "EXPIRING" : "ACTIVE";
+            String discountDisplay = buildDiscountDisplay(c);
+            BigDecimal discountValue = extractDiscountValue(c);
 
             return AvailableCouponItem.builder()
                     .couponId(c.getId())
@@ -67,6 +82,9 @@ public class CouponAvailabilityServiceImpl implements CouponAvailabilityService 
                     .imageUrl(c.getImageUrl())
                     .pointCost(c.getPointsCost())
                     .currency(c.getCurrency())
+                    .displayStatus(displayStatus)
+                    .discountDisplay(discountDisplay)
+                    .discountValue(discountValue)
                     .startDate(c.getStartDate())
                     .expiresAt(c.getEndDate())
                     .totalRedemptionLimit(c.getTotalRedemptionLimit())
@@ -77,6 +95,7 @@ public class CouponAvailabilityServiceImpl implements CouponAvailabilityService 
                     .customerRedemptionCount(customerUsed)
                     .canRedeem(canRedeem)
                     .cannotRedeemReason(cannotRedeemReason)
+                    .cannotRedeemCode(cannotRedeemCode)
                     .build();
         }).toList();
 
@@ -93,8 +112,7 @@ public class CouponAvailabilityServiceImpl implements CouponAvailabilityService 
         User user = userService.getUserOrThrow(userId);
         CustomerProfile customerProfile = customerProfileService.getCustomerProfileByUser(user);
 
-        LoyaltyCoupon coupon = couponRepository.findById(couponId)
-                .orElse(null);
+        LoyaltyCoupon coupon = couponRepository.findById(couponId).orElse(null);
 
         if (coupon == null || coupon.isDeleted()) {
             return ValidateRedemptionResponse.builder()
@@ -103,7 +121,7 @@ public class CouponAvailabilityServiceImpl implements CouponAvailabilityService 
 
         LocalDateTime now = LocalDateTime.now();
 
-        if (coupon.getStatus() != CouponStatus.ACTIVE) {
+        if (coupon.getStatus() != CouponStatus.ACTIVE || coupon.getVisibility() != CouponVisibility.PUBLIC) {
             return ValidateRedemptionResponse.builder()
                     .canRedeem(false).reason("Coupon is not active")
                     .pointsRequired(coupon.getPointsCost()).build();
@@ -149,5 +167,31 @@ public class CouponAvailabilityServiceImpl implements CouponAvailabilityService 
                 .pointsRequired(coupon.getPointsCost())
                 .customerBalance(balance)
                 .build();
+    }
+
+    private String buildDiscountDisplay(LoyaltyCoupon coupon) {
+        if (coupon.getType() == CouponType.FREE_PRODUCT) return "Free Product";
+
+        CouponDiscountDetails d = coupon.getDiscountDetails();
+        if (d == null) return null;
+
+        if (coupon.getType() == CouponType.PERCENTAGE_DISCOUNT && d.getDiscountPercentage() != null) {
+            return d.getDiscountPercentage().stripTrailingZeros().toPlainString() + "% Off";
+        }
+        if (coupon.getType() == CouponType.FIXED_AMOUNT_DISCOUNT && d.getDiscountAmount() != null) {
+            return d.getDiscountAmount().stripTrailingZeros().toPlainString()
+                    + " " + coupon.getCurrency().getSymbol() + " Off";
+        }
+        return null;
+    }
+
+    private BigDecimal extractDiscountValue(LoyaltyCoupon coupon) {
+        CouponDiscountDetails d = coupon.getDiscountDetails();
+        if (d == null) return null;
+        return switch (coupon.getType()) {
+            case PERCENTAGE_DISCOUNT -> d.getDiscountPercentage();
+            case FIXED_AMOUNT_DISCOUNT -> d.getDiscountAmount();
+            case FREE_PRODUCT -> null;
+        };
     }
 }
