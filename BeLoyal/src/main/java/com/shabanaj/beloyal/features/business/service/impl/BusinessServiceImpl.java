@@ -2,6 +2,7 @@ package com.shabanaj.beloyal.features.business.service.impl;
 
 import com.shabanaj.beloyal.common.Exception.BusinessNotActive;
 import com.shabanaj.beloyal.features.registration.dto.businessRegistration.BusinessRegistrationDto;
+import com.shabanaj.beloyal.features.business.dto.BusinessUpdateAdminDto;
 import com.shabanaj.beloyal.model.Entity.Business;
 import com.shabanaj.beloyal.model.Enums.BusinessStatus;
 import com.shabanaj.beloyal.common.Exception.BusinessNotFound;
@@ -51,6 +52,47 @@ public class BusinessServiceImpl implements BusinessService {
     @Override
     public void updateBusiness(Business business) {
 
+    }
+
+    @Override
+    public Business updateBusinessByAdmin(Long businessId, BusinessUpdateAdminDto dto) {
+        Business business = getBusinessById(businessId);
+
+        if (dto.getBusinessName() != null) {
+            business.setBusinessName(dto.getBusinessName());
+        }
+        if (dto.getBusinessType() != null) {
+            business.setBusinessType(dto.getBusinessType());
+        }
+        if (dto.getBusinessDescription() != null) {
+            business.setBusinessDescription(dto.getBusinessDescription());
+        }
+        if (dto.getAddress() != null) {
+            business.setAddress(dto.getAddress());
+        }
+        if (dto.getCity() != null) {
+            business.setCity(dto.getCity());
+        }
+        if (dto.getCountry() != null) {
+            business.setCountry(dto.getCountry());
+        }
+        if (dto.getWebsiteUrl() != null) {
+            business.setWebsiteUrl(dto.getWebsiteUrl());
+        }
+        if (dto.getBusinessPhoneNumber() != null) {
+            business.setBusinessPhoneNumber(dto.getBusinessPhoneNumber());
+        }
+        if (dto.getBusinessEmail() != null) {
+            business.setBusinessEmail(dto.getBusinessEmail());
+        }
+        if (dto.getLogoPath() != null) {
+            business.setLogoPath(dto.getLogoPath());
+        }
+        if (dto.getLogoKey() != null) {
+            business.setLogoKey(dto.getLogoKey());
+        }
+
+        return businessRepository.save(business);
     }
 
     @Override

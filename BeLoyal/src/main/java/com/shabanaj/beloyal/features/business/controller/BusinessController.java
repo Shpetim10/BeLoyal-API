@@ -3,8 +3,10 @@ package com.shabanaj.beloyal.features.business.controller;
 import com.shabanaj.beloyal.features.business.service.BusinessService;
 import com.shabanaj.beloyal.features.business.service.BusinessDeletionService;
 import com.shabanaj.beloyal.features.business.service.BusinessLifecycleService;
+import com.shabanaj.beloyal.features.business.dto.BusinessUpdateAdminDto;
 import com.shabanaj.beloyal.model.Entity.Business;
 import com.shabanaj.beloyal.model.Enums.BusinessStatus;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,6 +49,13 @@ public class BusinessController {
     public ResponseEntity<Void> reactivateBusiness(@PathVariable Long id) {
         businessLifecycleService.reactivateBusiness(id);
         return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/business/{id}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<Business> updateBusiness(@PathVariable Long id, @Valid @RequestBody BusinessUpdateAdminDto dto) {
+        Business updatedBusiness = businessService.updateBusinessByAdmin(id, dto);
+        return ResponseEntity.ok(updatedBusiness);
     }
 
     @DeleteMapping("/businesses/{id}")
