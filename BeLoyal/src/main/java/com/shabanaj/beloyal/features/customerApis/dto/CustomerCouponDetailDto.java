@@ -10,8 +10,9 @@ public record CustomerCouponDetailDto(
     String title,
     BigDecimal discountValue,
     String discountDisplay,
-    String status,
-    String type,
+    String status,           // raw CouponStatus / CustomerCouponStatus label
+    String displayStatus,    // normalized: ACTIVE / EXPIRING / USED / EXPIRED
+    String type,             // canonical: FREE_PRODUCT / PERCENTAGE_DISCOUNT / FIXED_AMOUNT_DISCOUNT
     LocalDateTime expiresAt,
     LocalDateTime startDate,
     Integer pointCost,
@@ -40,6 +41,8 @@ public record CustomerCouponDetailDto(
     String qrCode,
     String multiplierLabel,
     String expiresIn,
-    int customerRedemptionCount
+    int customerRedemptionCount,
+    boolean canRedeem,
+    String cannotRedeemReason
 ) {
 }

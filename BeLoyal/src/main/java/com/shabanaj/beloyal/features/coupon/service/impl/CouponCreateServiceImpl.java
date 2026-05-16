@@ -96,7 +96,7 @@ public class CouponCreateServiceImpl implements CouponCreateService {
         CatalogItemVariant variant = null;
         if (request.getVariantId() != null) {
             variant = catalogItemVariantRepository
-                    .findByIdAndCatalogItemId(request.getVariantId(), product.getId())
+                    .findByIdAndCatalogItemIdAndIsDeletedFalse(request.getVariantId(), product.getId())
                     .orElseThrow(() -> new CatalogItemVariantNotFound(request.getVariantId()));
 
             if (variant.getStatus() != CatalogStatus.ACTIVE) {

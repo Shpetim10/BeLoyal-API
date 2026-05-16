@@ -67,6 +67,7 @@ class CouponRedemptionServiceImplTest {
                 .pointsCost(100)
                 .currency(CurrencyCode.EUR)
                 .status(CouponStatus.ACTIVE)
+                .visibility(CouponVisibility.PUBLIC)
                 .startDate(LocalDateTime.now().minusDays(1))
                 .endDate(LocalDateTime.now().plusDays(10))
                 .totalRedemptions(0)

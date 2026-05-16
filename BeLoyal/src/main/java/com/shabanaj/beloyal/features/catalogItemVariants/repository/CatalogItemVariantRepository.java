@@ -14,6 +14,8 @@ public interface CatalogItemVariantRepository extends JpaRepository<CatalogItemV
     /** Used to find a variant that belongs to a specific catalog item (active or deleted). */
     Optional<CatalogItemVariant> findByIdAndCatalogItemId(Long id, Long catalogItemId);
 
+    Optional<CatalogItemVariant> findByIdAndCatalogItemIdAndIsDeletedFalse(Long id, Long catalogItemId);
+
     /** Count active variants — drives the next order index on create. */
     Integer countByCatalogItemIdAndIsDeletedFalse(Long catalogItemId);
 

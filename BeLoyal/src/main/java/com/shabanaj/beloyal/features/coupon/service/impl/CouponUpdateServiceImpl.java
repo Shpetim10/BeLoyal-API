@@ -87,7 +87,7 @@ public class CouponUpdateServiceImpl implements CouponUpdateService {
 
         if (request.getVariantId() != null) {
             CatalogItemVariant variant = catalogItemVariantRepository
-                    .findByIdAndCatalogItemId(request.getVariantId(), details.getProduct().getId())
+                    .findByIdAndCatalogItemIdAndIsDeletedFalse(request.getVariantId(), details.getProduct().getId())
                     .orElseThrow(() -> new CatalogItemVariantNotFound(request.getVariantId()));
 
             if (variant.getStatus() != CatalogStatus.ACTIVE) {

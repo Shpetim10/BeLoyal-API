@@ -5,6 +5,7 @@ import com.shabanaj.beloyal.features.customerApis.dto.CustomerCouponDetailDto;
 import com.shabanaj.beloyal.features.customerApis.service.CustomerCouponDetailService;
 import com.shabanaj.beloyal.features.coupon.repository.CouponRepository;
 import com.shabanaj.beloyal.features.customerCoupon.repository.CustomerCouponRepository;
+import com.shabanaj.beloyal.features.loyaltyAccount.repository.LoyaltyAccountRepository;
 import com.shabanaj.beloyal.features.user.service.UserService;
 import com.shabanaj.beloyal.features.userProfiles.customer.service.CustomerProfileService;
 import com.shabanaj.beloyal.model.Entity.*;
@@ -19,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +30,7 @@ public class CustomerCouponDetailServiceImpl implements CustomerCouponDetailServ
     private final CustomerProfileService customerProfileService;
     private final CouponRepository couponRepository;
     private final CustomerCouponRepository customerCouponRepository;
+    private final LoyaltyAccountRepository loyaltyAccountRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -46,34 +48,66 @@ public class CustomerCouponDetailServiceImpl implements CustomerCouponDetailServ
                 && coupon.getEndDate().isAfter(now)
                 && coupon.getDeletedAt() == null;
 
-        Optional<CustomerCoupon> ownedCoupon = customerCouponRepository
-                .findByCouponIdAndCustomerProfileId(couponId, customerProfile.getId());
+        // Use findTopBy... to avoid IncorrectResultSizeDataAccessException when customer
+        // has redeemed this coupon more than once. Most recent REDEEMED row wins.
+        List<CustomerCoupon> ownedRows = customerCouponRepository
+                .findAllByCouponIdAndCustomerProfileIdOrderByCreatedAtDesc(couponId, customerProfile.getId());
 
-        boolean isOwnedByCustomer = ownedCoupon.isPresent();
+        CustomerCoupon ownedCoupon = ownedRows.stream()
+                .filter(cc -> cc.getStatus() == CustomerCouponStatus.REDEEMED)
+                .filter(cc -> cc.getExpiresAt() == null || cc.getExpiresAt().isAfter(now))
+                .findFirst()
+                .orElseGet(() -> ownedRows.isEmpty() ? null : ownedRows.get(0));
+        boolean isOwnedByCustomer = ownedCoupon != null;
 
         if (!isPublicActive && !isOwnedByCustomer) {
             throw new CouponNotFound(couponId);
         }
 
-        int customerRedemptionCount = customerCouponRepository.countByCouponIdAndCustomerProfileId(couponId, customerProfile.getId());
+        int customerRedemptionCount = ownedRows.size();
 
-        return buildDetail(coupon, ownedCoupon.orElse(null), now, customerRedemptionCount);
+        // canRedeem: can the customer claim another copy of this template right now?
+        int balance = loyaltyAccountRepository
+                .findByCustomerProfileAndBusiness(customerProfile, coupon.getBusiness())
+                .map(LoyaltyAccount::getAvailablePoints)
+                .orElse(0);
+
+        boolean canRedeem = true;
+        String cannotRedeemReason = null;
+
+        if (coupon.getStatus() != CouponStatus.ACTIVE || !isPublicActive) {
+            canRedeem = false;
+            cannotRedeemReason = "Coupon no longer available";
+        } else if (balance < coupon.getPointsCost()) {
+            canRedeem = false;
+            cannotRedeemReason = "Insufficient points";
+        } else if (coupon.isSoldOut()) {
+            canRedeem = false;
+            cannotRedeemReason = "Coupon is sold out";
+        } else if (coupon.getPerCustomerRedemptionLimit() != null
+                && customerRedemptionCount >= coupon.getPerCustomerRedemptionLimit()) {
+            canRedeem = false;
+            cannotRedeemReason = "Redemption limit reached";
+        }
+
+        return buildDetail(coupon, ownedCoupon, now, customerRedemptionCount, canRedeem, cannotRedeemReason);
     }
 
-    private CustomerCouponDetailDto buildDetail(LoyaltyCoupon coupon, CustomerCoupon ownedCoupon, LocalDateTime now, int customerRedemptionCount) {
-        String status = deriveStatus(coupon, ownedCoupon, now);
+    private CustomerCouponDetailDto buildDetail(LoyaltyCoupon coupon, CustomerCoupon ownedCoupon, LocalDateTime now,
+                                                 int customerRedemptionCount, boolean canRedeem, String cannotRedeemReason) {
+        String rawStatus = deriveRawStatus(coupon, ownedCoupon, now);
+        String displayStatus = deriveDisplayStatus(coupon, ownedCoupon, now);
         String discountDisplay = buildDiscountDisplay(coupon, ownedCoupon);
         BigDecimal discountValue = extractDiscountValue(coupon, ownedCoupon);
 
         Long customerCouponId = ownedCoupon != null ? ownedCoupon.getId() : null;
         Boolean isUsed = ownedCoupon != null && ownedCoupon.getStatus() == CustomerCouponStatus.USED;
-        Integer usageCount = isUsed != null && isUsed ? 1 : 0;
+        Integer usageCount = Boolean.TRUE.equals(isUsed) ? 1 : 0;
         LocalDateTime redeemedAt = ownedCoupon != null ? ownedCoupon.getRedeemedAt() : null;
         LocalDateTime usedAt = ownedCoupon != null ? ownedCoupon.getUsedAt() : null;
         String orderId = ownedCoupon != null ? ownedCoupon.getOrderId() : null;
         String qrCode = ownedCoupon != null ? ownedCoupon.getQrCode() : null;
 
-        // Critical fields: use snapshot for owned coupons so updates don't affect already-redeemed copies
         String title = (ownedCoupon != null && ownedCoupon.getSnapshotTitle() != null)
                 ? ownedCoupon.getSnapshotTitle() : coupon.getTitle();
         String description = (ownedCoupon != null && ownedCoupon.getSnapshotDescription() != null)
@@ -90,7 +124,6 @@ public class CustomerCouponDetailServiceImpl implements CustomerCouponDetailServ
         Integer freeProductQuantity = null;
 
         if (coupon.getType() == CouponType.PERCENTAGE_DISCOUNT || coupon.getType() == CouponType.FIXED_AMOUNT_DISCOUNT) {
-            // For owned coupons prefer snapshot; fall back to live for unowned or null snapshot values
             if (ownedCoupon != null) {
                 minimumOrderAmount = ownedCoupon.getSnapshotMinimumOrderAmount();
                 maximumDiscountAmount = ownedCoupon.getSnapshotMaximumDiscountAmount();
@@ -122,7 +155,8 @@ public class CustomerCouponDetailServiceImpl implements CustomerCouponDetailServ
             title,
             discountValue,
             discountDisplay,
-            status,
+            rawStatus,
+            displayStatus,
             coupon.getType().name(),
             expiresAt,
             coupon.getStartDate(),
@@ -152,33 +186,39 @@ public class CustomerCouponDetailServiceImpl implements CustomerCouponDetailServ
             qrCode,
             null,
             buildExpiresIn(expiresAt, now),
-            customerRedemptionCount
+            customerRedemptionCount,
+            canRedeem,
+            cannotRedeemReason
         );
     }
 
-    private String deriveStatus(LoyaltyCoupon coupon, CustomerCoupon ownedCoupon, LocalDateTime now) {
+    private String deriveRawStatus(LoyaltyCoupon coupon, CustomerCoupon ownedCoupon, LocalDateTime now) {
         if (ownedCoupon != null) {
-            if (ownedCoupon.getStatus() == CustomerCouponStatus.USED) {
-                return "USED";
+            return ownedCoupon.getStatus().name();
+        }
+        if (coupon.getStatus() != CouponStatus.ACTIVE) return coupon.getStatus().name();
+        if (coupon.getEndDate().isBefore(now)) return "EXPIRED";
+        return "ACTIVE";
+    }
+
+    private String deriveDisplayStatus(LoyaltyCoupon coupon, CustomerCoupon ownedCoupon, LocalDateTime now) {
+        if (ownedCoupon != null) {
+            if (ownedCoupon.getStatus() == CustomerCouponStatus.USED) return "USED";
+            if (ownedCoupon.getStatus() == CustomerCouponStatus.EXPIRED) return "EXPIRED";
+            if (ownedCoupon.getStatus() == CustomerCouponStatus.CANCELLED) return "CANCELLED";
+            // REDEEMED → EXPIRED if past snapshot expiry, EXPIRING if within 3 days, else ACTIVE
+            if (ownedCoupon.getExpiresAt() != null && ownedCoupon.getExpiresAt().isBefore(now)) {
+                return "EXPIRED";
             }
-            if (ownedCoupon.getStatus() == CustomerCouponStatus.REDEEMED) {
-                if (ownedCoupon.getExpiresAt() != null && ownedCoupon.getExpiresAt().isBefore(now.plusDays(3))) {
-                    return "EXPIRING";
-                }
-                return "ACTIVE";
+            if (ownedCoupon.getExpiresAt() != null && ownedCoupon.getExpiresAt().isBefore(now.plusDays(3))) {
+                return "EXPIRING";
             }
-            return "EXPIRED";
+            return "ACTIVE";
         }
 
-        if (coupon.getStatus() != CouponStatus.ACTIVE) {
-            return "EXPIRED";
-        }
-        if (coupon.getEndDate().isBefore(now)) {
-            return "EXPIRED";
-        }
-        if (coupon.getEndDate().isBefore(now.plusDays(3))) {
-            return "EXPIRING";
-        }
+        if (coupon.getStatus() != CouponStatus.ACTIVE) return "EXPIRED";
+        if (coupon.getEndDate().isBefore(now)) return "EXPIRED";
+        if (coupon.getEndDate().isBefore(now.plusDays(3))) return "EXPIRING";
         return "ACTIVE";
     }
 
@@ -200,12 +240,12 @@ public class CustomerCouponDetailServiceImpl implements CustomerCouponDetailServ
         if (coupon.getType() == CouponType.FIXED_AMOUNT_DISCOUNT) {
             if (ownedCoupon != null && ownedCoupon.getSnapshotDiscountAmount() != null) {
                 return ownedCoupon.getSnapshotDiscountAmount().stripTrailingZeros().toPlainString()
-                        + " " + coupon.getCurrency().name() + " Off";
+                        + " " + coupon.getCurrency().getSymbol() + " Off";
             }
             CouponDiscountDetails discountDetails = coupon.getDiscountDetails();
             if (discountDetails != null && discountDetails.getDiscountAmount() != null) {
                 return discountDetails.getDiscountAmount().stripTrailingZeros().toPlainString()
-                        + " " + coupon.getCurrency().name() + " Off";
+                        + " " + coupon.getCurrency().getSymbol() + " Off";
             }
         }
 

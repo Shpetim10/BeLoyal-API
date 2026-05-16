@@ -1,5 +1,7 @@
 package com.shabanaj.beloyal.features.customerApis.dto;
 
+import com.shabanaj.beloyal.model.Enums.CouponCannotRedeemCode;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -13,7 +15,8 @@ public record CustomerBusinessCouponDto(
         String title,
         String description,
         String imageUrl,
-        String promotionType,
+        String promotionType,  // legacy — kept for backward compatibility
+        String type,           // canonical: FREE_PRODUCT / PERCENTAGE_DISCOUNT / FIXED_AMOUNT_DISCOUNT
         String status,
         String discountDisplay,
         BigDecimal discountValue,
@@ -67,6 +70,7 @@ public record CustomerBusinessCouponDto(
 
         // claimability gate (can this customer buy/claim this coupon right now)
         boolean canRedeem,
-        String cannotRedeemReason
+        String cannotRedeemReason,
+        CouponCannotRedeemCode cannotRedeemCode
 ) {
 }

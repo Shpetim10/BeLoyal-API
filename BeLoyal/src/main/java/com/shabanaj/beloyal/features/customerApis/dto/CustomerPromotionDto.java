@@ -1,18 +1,19 @@
 package com.shabanaj.beloyal.features.customerApis.dto;
 
+import com.shabanaj.beloyal.model.Enums.CouponCannotRedeemCode;
+
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 public record CustomerPromotionDto(
-        Long id,
+        Long id,               // customerCouponId for owned coupons; null for public/unowned
         Long businessId,
-        Long couponId,
+        Long couponId,         // underlying loyalty coupon template id (always present)
         String businessName,
         String title,
         String description,
-        String promotionType,
-        String status,
+        String promotionType,  // legacy field — kept for backward compatibility
+        String status,         // display status: ACTIVE / EXPIRING / USED / EXPIRED
         String discountDisplay,
         int pointCost,
         LocalDateTime expiresAt,
@@ -25,6 +26,12 @@ public record CustomerPromotionDto(
         String termsAndConditions,
         boolean isOwned,
         String qrCode,
-        int customerRedemptionCount
+        int customerRedemptionCount,
+        boolean canRedeem,
+        String cannotRedeemReason,
+        boolean isFeatured,
+        int totalRedemptions,
+        Integer totalRedemptionLimit,
+        CouponCannotRedeemCode cannotRedeemCode
 ) {
 }
