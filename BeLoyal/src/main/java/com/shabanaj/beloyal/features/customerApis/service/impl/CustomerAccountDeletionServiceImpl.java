@@ -6,9 +6,12 @@ import com.shabanaj.beloyal.features.loyaltyCard.repository.LoyaltyCardRepositor
 import com.shabanaj.beloyal.features.pointsBucket.repository.PointsBucketRepository;
 import com.shabanaj.beloyal.features.pointsBucketConsumption.repository.PointsBucketConsumptionRepository;
 import com.shabanaj.beloyal.features.pointsTransaction.repository.PointsTransactionRepository;
+import com.shabanaj.beloyal.features.user.repository.UserRepository;
 import com.shabanaj.beloyal.features.userProfiles.customer.repository.CustomerProfileRepository;
 import com.shabanaj.beloyal.features.loyaltyAccount.repository.LoyaltyAccountRepository;
 import com.shabanaj.beloyal.model.Entity.CustomerProfile;
+import com.shabanaj.beloyal.model.Entity.User;
+import com.shabanaj.beloyal.model.Enums.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,7 @@ public class CustomerAccountDeletionServiceImpl implements CustomerAccountDeleti
     private final PointsBucketRepository pointsBucketRepository;
     private final PointsTransactionRepository pointsTransactionRepository;
     private final CustomerCouponRepository customerCouponRepository;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional
@@ -65,6 +69,13 @@ public class CustomerAccountDeletionServiceImpl implements CustomerAccountDeleti
         // 6. Customer profile
         customerProfileRepository.deleteByUserId(userId);
         log.info("Deleted customer profile: userId={}, customerProfileId={}", userId, customerProfileId);
+
+        // 7. Remove CUSTOMER role from the user
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.getRoles().remove(Role.CUSTOMER);
+        userRepository.save(user);
+        log.debug("Removed CUSTOMER role from user: userId={}", userId);
 
         log.info("Successfully deleted customer account: userId={}, customerProfileId={}", userId, customerProfileId);
         // User record is kept to preserve business membership data and business history
