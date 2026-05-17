@@ -1,6 +1,7 @@
 package com.shabanaj.beloyal.features.userProfiles.customer.controller;
 
 import com.shabanaj.beloyal.features.customerApis.dto.CustomerProfileDetailsResponse;
+import com.shabanaj.beloyal.features.customerApis.service.CustomerAccountDeletionService;
 import com.shabanaj.beloyal.features.customerApis.service.CustomerProfileDetailsService;
 import com.shabanaj.beloyal.features.loyaltyCard.service.LoyaltyCardService;
 import com.shabanaj.beloyal.features.registration.dto.customerRegistraton.CustomerProfileRegisterDto;
@@ -30,13 +31,15 @@ public class CustomerProfileController {
     private final CustomerProfileUpdateService customerProfileUpdateService;
     private final LoyaltyCardService loyaltyCardService;
     private final CustomerProfileDetailsService customerProfileDetailsService;
+    private final CustomerAccountDeletionService customerAccountDeletionService;
 
-    public CustomerProfileController(CustomerProfileService customerProfileService, UserService userService, CustomerProfileUpdateService customerProfileUpdateService, LoyaltyCardService loyaltyCardService, CustomerProfileDetailsService customerProfileDetailsService) {
+    public CustomerProfileController(CustomerProfileService customerProfileService, UserService userService, CustomerProfileUpdateService customerProfileUpdateService, LoyaltyCardService loyaltyCardService, CustomerProfileDetailsService customerProfileDetailsService, CustomerAccountDeletionService customerAccountDeletionService) {
         this.customerProfileService = customerProfileService;
         this.userService = userService;
         this.customerProfileUpdateService = customerProfileUpdateService;
         this.loyaltyCardService = loyaltyCardService;
         this.customerProfileDetailsService = customerProfileDetailsService;
+        this.customerAccountDeletionService = customerAccountDeletionService;
     }
 
     @PostMapping("/me/create-profile")
@@ -80,5 +83,12 @@ public class CustomerProfileController {
     public ResponseEntity<Map<String, String>> updateCustomerProfile(@AuthenticationPrincipal UserPrincipal principal, @RequestBody @Valid CustomerProfileUpdateDto dto) {
         customerProfileUpdateService.updateCustomerProfile(dto, principal.getId());
         return ResponseEntity.ok(Map.of("message", "Customer profile updated successfully!"));
+    }
+
+    @DeleteMapping("/me/account")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<Void> deleteAccount(@AuthenticationPrincipal UserPrincipal principal) {
+        customerAccountDeletionService.deleteCustomerAccount(principal.getId());
+        return ResponseEntity.noContent().build();
     }
 }

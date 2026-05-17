@@ -4,5 +4,5 @@ import com.shabanaj.beloyal.features.registration.dto.customerRegistraton.Custom
 import com.shabanaj.beloyal.model.Entity.CustomerProfile;
 
 public interface CustomerProfileCreationService {
-    CustomerProfile createProfileForCurrentUser(CustomerProfileRegisterDto dto);
+    CustomerProfile createProfileForUser(Long userId, CustomerProfileRegisterDto dto);
 }

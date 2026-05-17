@@ -88,6 +88,7 @@ public interface CouponRepository extends JpaRepository<LoyaltyCoupon, Long> {
             SELECT c FROM LoyaltyCoupon c
             WHERE c.business.id = :businessId
               AND c.deletedAt IS NULL
+              AND c.archivedAt IS NULL
               AND c.status = 'ACTIVE'
               AND c.visibility = 'PUBLIC'
               AND c.startDate <= :now
@@ -124,12 +125,13 @@ public interface CouponRepository extends JpaRepository<LoyaltyCoupon, Long> {
             SELECT c FROM LoyaltyCoupon c
             WHERE c.business.id = :businessId
               AND c.deletedAt IS NULL
+              AND c.archivedAt IS NULL
               AND c.status = 'ACTIVE'
               AND c.visibility = 'PUBLIC'
               AND c.startDate <= :now
               AND c.endDate >= :now
               AND (c.totalRedemptionLimit IS NULL OR c.totalRedemptions < c.totalRedemptionLimit)
-            ORDER BY  c.pointsCost ASC
+            ORDER BY c.pointsCost ASC
             LIMIT 1
             """)
     Optional<LoyaltyCoupon> findCheapestCouponByBusinessId(@Param("businessId") Long businessId, @Param("now") LocalDateTime now);
