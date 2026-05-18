@@ -14,3 +14,9 @@ databaseChangeLog:
   - include:
       file: changes/005-customer-coupon-snapshot-names.xml
       relativeToChangelogFile: true
+  - include:
+      file: changes/006-loyalty-card-status-string.xml
+      relativeToChangelogFile: true
+  - include:
+      file: changes/007-user-token-version.xml
+      relativeToChangelogFile: true

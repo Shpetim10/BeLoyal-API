@@ -52,6 +52,18 @@ public class LoyaltyAccountServiceImpl implements LoyaltyAccountService {
     }
 
     @Override
+    public LoyaltyAccount findWithLockOrCreate(CustomerProfile customerProfile, Business business) {
+        return loyaltyAccountRepository
+                .findWithLockByCustomerProfileIdAndBusinessId(customerProfile.getId(), business.getId())
+                .orElseGet(() -> {
+                    LoyaltyAccount account = new LoyaltyAccount();
+                    account.setCustomerProfile(customerProfile);
+                    account.setBusiness(business);
+                    return save(account);
+                });
+    }
+
+    @Override
     public LoyaltyAccount findLoyaltyAccountByCustomerProfileId(Long customerProfileId) {
         Optional<LoyaltyAccount> loyaltyAccount = loyaltyAccountRepository.findByCustomerProfileId(customerProfileId);
 

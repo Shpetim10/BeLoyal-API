@@ -110,16 +110,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public void resendVerificationEmail(String email) {
-        User user = userRepository.findUserByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (user.isEmailVerified()) {
-            throw new RuntimeException("Email already verified");
-        }
-
-        EmailVerificationToken verificationToken = emailVerificationTokenService.generateEmailVerificationToken(user);
-
-        emailService.sendActivationEmail(user, verificationToken.getToken());
+        // Intentionally returns without revealing whether the email exists or is already verified
+        userRepository.findUserByEmail(email).ifPresent(user -> {
+            if (!user.isEmailVerified()) {
+                EmailVerificationToken verificationToken = emailVerificationTokenService.generateEmailVerificationToken(user);
+                emailService.sendActivationEmail(user, verificationToken.getToken());
+            }
+        });
     }
 
     @Override

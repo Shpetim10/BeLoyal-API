@@ -11,6 +11,8 @@ public interface LoyaltyAccountService {
     LoyaltyAccount save(LoyaltyAccount loyaltyAccount);
     LoyaltyAccount getLoyaltyAccountByCustomerProfileAndBusiness(CustomerProfile customerProfile, Business business);
     LoyaltyAccount findLoyaltyAccountOrCreate(CustomerProfile customerProfile, Business business);
+    /** Same as findLoyaltyAccountOrCreate but acquires a pessimistic write lock — must be called inside a transaction. */
+    LoyaltyAccount findWithLockOrCreate(CustomerProfile customerProfile, Business business);
     LoyaltyAccount findLoyaltyAccountByCustomerProfileId(Long customerProfileId);
     List<LoyaltyAccount> findLoyaltyAccountsByCustomerProfile(CustomerProfile customerProfile);
 }

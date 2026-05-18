@@ -30,7 +30,7 @@ public class BusinessMemberRegistrationController {
     }
 
     @PostMapping("/staff/invitations/accept")
-    @PreAuthorize("isAuthenticated")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Map<String, String>> acceptInvitation(@AuthenticationPrincipal UserPrincipal authenticatedUser, @Valid @RequestBody AcceptInviteDto dto){
         businessMemberAcceptanceService.assignExistingUserToBusiness(dto.getToken(), authenticatedUser.getId());
 

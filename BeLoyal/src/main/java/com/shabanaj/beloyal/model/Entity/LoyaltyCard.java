@@ -20,7 +20,7 @@ public class LoyaltyCard {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.LAZY)
+    @OneToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_profile_id")
     private CustomerProfile customerProfile;
 
@@ -31,6 +31,7 @@ public class LoyaltyCard {
     private String manualCode;
 
     @Column(name = "status")
+    @Enumerated(EnumType.STRING)
     private LoyaltyCardStatus status;
 
     @Column(name = "issued_at", nullable = false)

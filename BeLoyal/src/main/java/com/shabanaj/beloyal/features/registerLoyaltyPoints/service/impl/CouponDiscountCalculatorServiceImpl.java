@@ -113,6 +113,7 @@ public class CouponDiscountCalculatorServiceImpl implements CouponDiscountCalcul
                 .originalAmount(billAmount)
                 .discountApplied(discount)
                 .finalAmount(finalAmount)
+                .lockedCustomerCoupon(customerCoupon)
                 .build();
     }
 }

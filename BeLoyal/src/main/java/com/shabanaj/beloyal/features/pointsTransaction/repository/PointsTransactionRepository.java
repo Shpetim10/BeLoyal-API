@@ -12,19 +12,19 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
-public interface PointsTransactionRepository extends JpaRepository<PointsTransaction, Integer> {
+public interface PointsTransactionRepository extends JpaRepository<PointsTransaction, Long> {
     List<PointsTransaction> findAllByBillTransactionId(Long billTransactionId);
 
-    // Query for points transactions details
+    // Query for points transactions details — use LEFT JOIN for nullable associations (EXPIRE rows have no bill/member)
     @Query(
             "SELECT pt FROM PointsTransaction pt " +
                     "JOIN FETCH pt.loyaltyAccount la " +
                     "JOIN FETCH la.customerProfile cp " +
                     "JOIN FETCH cp.user u " +
                     "JOIN FETCH la.business b " +
-                    "JOIN FETCH pt.billTransaction bt " +
-                    "JOIN FETCH pt.businessMember bm " +
-                    "JOIN FETCH bm.user bmu " +
+                    "LEFT JOIN FETCH pt.billTransaction bt " +
+                    "LEFT JOIN FETCH pt.businessMember bm " +
+                    "LEFT JOIN FETCH bm.user bmu " +
                     "WHERE pt.id= :id"
     )
     PointsTransaction getPointsTransactionById(@Param("id") Long id);

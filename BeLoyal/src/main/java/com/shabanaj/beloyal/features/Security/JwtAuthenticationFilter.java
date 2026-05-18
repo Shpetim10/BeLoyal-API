@@ -50,6 +50,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     return;
                 }
 
+                String tokenType = jwtService.extractTokenType(token);
+                if (!"ACCESS".equals(tokenType)) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+
                 int currentVer = tokenVersionService.getVersion(uid);
                 if (jwtVer != currentVer) {
                     filterChain.doFilter(request, response);

@@ -79,6 +79,9 @@ public class User {
 
     private LocalDateTime lockedUntil;
 
+    @Column(name = "token_version", nullable = false)
+    private int tokenVersion = 1;
+
     // T&C tracking (store what the user accepted)
     @Column(name = "accepted_tc_version", length = 50)
     private String acceptedTcVersion;
@@ -195,6 +198,9 @@ public class User {
 
     public LocalDateTime getAcceptedTcAt() { return acceptedTcAt; }
     public void setAcceptedTcAt(LocalDateTime acceptedTcAt) { this.acceptedTcAt = acceptedTcAt; }
+
+    public int getTokenVersion() { return tokenVersion; }
+    public void setTokenVersion(int tokenVersion) { this.tokenVersion = tokenVersion; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

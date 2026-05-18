@@ -1,6 +1,7 @@
 package com.shabanaj.beloyal.features.Security;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -18,6 +19,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -26,6 +29,9 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final CustomUserDetailsService userDetailsService;
+
+    @Value("${app.cors.extra-origins:}")
+    private String extraCorsOrigins;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter,
             CustomUserDetailsService userDetailsService) {
@@ -86,13 +92,19 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of(
-                "http://localhost:*",
-                "https://*.trycloudflare.com",
-                "https://tribal-jul-locale-will.trycloudflare.com"
-        ));
+
+        List<String> origins = new ArrayList<>();
+        origins.add("http://localhost:*");
+        // Extra origins loaded from CORS_EXTRA_ORIGINS env var (comma-separated exact origins only — no wildcards)
+        if (extraCorsOrigins != null && !extraCorsOrigins.isBlank()) {
+            Arrays.stream(extraCorsOrigins.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .forEach(origins::add);
+        }
+        config.setAllowedOriginPatterns(origins);
+
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        // Add "Accept" and "X-Requested-With" to this list
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With", "Idempotency-Key"));
         config.setAllowCredentials(true);
 
