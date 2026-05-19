@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,6 +73,12 @@ public interface CustomerCouponRepository extends JpaRepository<CustomerCoupon, 
     List<CustomerCoupon> findAllByCouponIdAndCustomerProfileIdOrderByCreatedAtDesc(Long couponId, Long customerProfileId);
 
     long countByBusinessIdAndStatus(Long businessId, CustomerCouponStatus status);
+
+    @Modifying
+    @Query("UPDATE CustomerCoupon cc SET cc.status = com.shabanaj.beloyal.model.Enums.CustomerCouponStatus.EXPIRED " +
+           "WHERE cc.status = com.shabanaj.beloyal.model.Enums.CustomerCouponStatus.REDEEMED " +
+           "AND cc.expiresAt IS NOT NULL AND cc.expiresAt < :now")
+    int expireOverdueCustomerCoupons(@Param("now") LocalDateTime now);
 
     @Modifying
     @Query("DELETE FROM CustomerCoupon cc WHERE cc.business.id = :businessId")

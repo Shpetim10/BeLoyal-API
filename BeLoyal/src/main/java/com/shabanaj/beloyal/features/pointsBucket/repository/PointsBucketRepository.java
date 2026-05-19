@@ -29,6 +29,9 @@ public interface PointsBucketRepository extends JpaRepository<PointsBucket, Long
             "AND pb.status = 'ACTIVE'")
     Stream<PointsBucket> streamExpiredPointsBuckets();
 
+    @Query("SELECT pb.id FROM PointsBucket pb WHERE pb.expiresAt < CURRENT_TIMESTAMP AND pb.status = 'ACTIVE'")
+    List<Long> findExpiredBucketIds();
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT pb FROM PointsBucket pb " +
             "WHERE pb.loyaltyAccount.id = :loyaltyAccountId " +

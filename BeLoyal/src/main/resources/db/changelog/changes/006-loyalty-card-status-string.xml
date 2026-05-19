@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd"
+        logicalFilePath="db/changelog/changes/006-loyalty-card-status-string.xml">
+
+    <changeSet id="006-loyalty-card-status-to-varchar" author="shaba">
+        <!-- Add a temporary VARCHAR column -->
+        <addColumn tableName="loyalty_cards">
+            <column name="status_tmp" type="VARCHAR(20)"/>
+        </addColumn>
+
+        <!-- Migrate ordinal values (0-indexed Java enum) to string names -->
+        <sql>
+            UPDATE loyalty_cards SET status_tmp = CASE
+                WHEN status = 0 THEN 'ACTIVE'
+                WHEN status = 1 THEN 'SUSPENDED'
+                WHEN status = 2 THEN 'REVOKED'
+                WHEN status = 3 THEN 'REPLACED'
+                ELSE 'ACTIVE'
+            END
+        </sql>
+
+        <!-- Drop the old TINYINT column -->
+        <dropColumn tableName="loyalty_cards" columnName="status"/>
+
+        <!-- Rename the new VARCHAR column -->
+        <renameColumn tableName="loyalty_cards"
+                      oldColumnName="status_tmp"
+                      newColumnName="status"
+                      columnDataType="VARCHAR(20)"/>
+
+        <!-- Make the column NOT NULL with a safe default -->
+        <addNotNullConstraint tableName="loyalty_cards"
+                              columnName="status"
+                              defaultNullValue="ACTIVE"
+                              columnDataType="VARCHAR(20)"/>
+    </changeSet>
+
+</databaseChangeLog>

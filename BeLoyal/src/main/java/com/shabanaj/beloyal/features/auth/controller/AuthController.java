@@ -110,16 +110,11 @@ public class AuthController {
 
     @PostMapping("/resend-verification")
     public ResponseEntity<?> resendVerification(@RequestParam String email) {
-        try {
-            authenticationService.resendVerificationEmail(email);
-            return ResponseEntity.ok(Map.of(
-                    "message", "Verification email sent successfully"
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "error", e.getMessage()
-            ));
-        }
+        authenticationService.resendVerificationEmail(email);
+        // Always return the same response to prevent email enumeration
+        return ResponseEntity.ok(Map.of(
+                "message", "If an account with that email exists and is unverified, a verification email has been sent."
+        ));
     }
 
     @PostMapping("/login")
@@ -127,8 +122,8 @@ public class AuthController {
         try{
             return ResponseEntity.ok(loginService.login(loginRequest));
         }catch(Exception e){
-            logger.error(e.getMessage());
-            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+            logger.error("Login failed: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid credentials or account not accessible."));
         }
     }
 

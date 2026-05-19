@@ -21,7 +21,7 @@ public class AuthenticatedPasswordChangerController {
     private final AuthenticatedPasswordChangerService authenticatedPasswordChangerService;
 
     @PostMapping("/change-password")
-    @PreAuthorize("isAuthenticated")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<AuthenticatedPasswordChangeResponse> changePassword(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestBody @Valid AuthenticatedPasswordChangeRequest request){

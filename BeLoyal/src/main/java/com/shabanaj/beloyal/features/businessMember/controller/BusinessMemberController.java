@@ -2,6 +2,7 @@ package com.shabanaj.beloyal.features.businessMember.controller;
 
 import com.shabanaj.beloyal.features.businessMember.dto.BusinessMemberDetailsDto;
 import com.shabanaj.beloyal.features.businessMember.dto.BusinessMemberStatusDto;
+import com.shabanaj.beloyal.features.businessMember.service.BusinessMemberDeletionService;
 import com.shabanaj.beloyal.features.businessMember.service.BusinessMemberService;
 import com.shabanaj.beloyal.features.businessMember.service.BusinessMemberStatusServcie;
 import com.shabanaj.beloyal.model.Entity.BusinessMember;
@@ -20,6 +21,7 @@ import java.util.Map;
 public class BusinessMemberController {
     private final BusinessMemberService  businessMemberService;
     private final BusinessMemberStatusServcie businessMemberStatusServcie;
+    private final BusinessMemberDeletionService businessMemberDeletionService;
 
     @GetMapping("/{businessId}/staff")
     @PreAuthorize("@businessSecurity.hasAccess(#businessId, authentication, 'BUSINESS_ADMIN')")
@@ -35,5 +37,12 @@ public class BusinessMemberController {
         businessMemberStatusServcie.changeStatusAndSave(memberId, dto.getMemberStatus());
 
         return ResponseEntity.ok(Map.of("message", "Status has been changed"));
+    }
+
+    @DeleteMapping("/{businessId}/staff/{memberId}")
+    @PreAuthorize("@businessSecurity.hasAccess(#businessId, authentication, 'BUSINESS_ADMIN')")
+    public ResponseEntity<Map<String, String>> deleteStaffMember(@PathVariable Long businessId, @PathVariable Long memberId) {
+        businessMemberDeletionService.deleteStaffMember(businessId, memberId);
+        return ResponseEntity.ok(Map.of("message", "Staff member has been deleted"));
     }
 }

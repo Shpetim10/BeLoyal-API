@@ -57,6 +57,10 @@ public class PasswordResetServiceImpl implements PasswordResetService {
                 req.token()
         );
 
+        if(resetPasswordToken.isUsed()){
+            throw new TokenIsNotValidException("Token has already been used");
+        }
+
         if(resetPasswordToken.getExpiryDate().isBefore(LocalDateTime.now(clock))){
             throw new TokenIsNotValidException("Token has expired");
         }

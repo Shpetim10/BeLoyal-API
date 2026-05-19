@@ -103,8 +103,8 @@ public class EarnPointsGuestsCalculatorServiceImpl implements EarnPointsGuestsCa
         for (GuestPointsResult result:  guestResults) {
             // find customer profile
             CustomerProfile customerProfile= customerProfileService.getCustomerProfileById(result.getCustomerId());
-            // find loyalty account
-            LoyaltyAccount loyaltyAccount = loyaltyAccountService.findLoyaltyAccountOrCreate(customerProfile, business);
+            // find loyalty account with pessimistic write lock to prevent concurrent lost-update
+            LoyaltyAccount loyaltyAccount = loyaltyAccountService.findWithLockOrCreate(customerProfile, business);
 
             // update points balance
             loyaltyAccount.add(result.getEarnedPoints());

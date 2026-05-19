@@ -35,6 +35,7 @@ public class JwtService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("uid", userId);
         claims.put("ver", tokenVersion);
+        claims.put("token_type", "ACCESS");
 
         return Jwts.builder()
                 .setClaims(claims) // set custom claims FIRST
@@ -77,6 +78,11 @@ public class JwtService {
         if (ver instanceof Long l)
             return l.intValue();
         return Integer.parseInt(ver.toString());
+    }
+
+    public String extractTokenType(String token) {
+        Object type = extractAllClaims(token).get("token_type");
+        return type != null ? type.toString() : null;
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {

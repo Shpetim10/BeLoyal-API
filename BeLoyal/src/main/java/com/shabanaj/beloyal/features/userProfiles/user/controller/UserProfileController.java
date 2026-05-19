@@ -22,13 +22,13 @@ public class UserProfileController {
     private final UserProfileUpdateService userProfileUpdateService;
 
     @GetMapping("/me")
-    @PreAuthorize("isAuthenticated")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDetailsDto> getCurrentUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         return ResponseEntity.ok(userProfileService.getUserProfile(userPrincipal.getId()));
     }
 
     @PatchMapping("/me")
-    @PreAuthorize("isAuthenticated")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Map<String, String>> updateUser(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody @Valid UpdateUserProfileDto dto){
         userProfileUpdateService.updateUserProfile(dto, userPrincipal.getId());
 

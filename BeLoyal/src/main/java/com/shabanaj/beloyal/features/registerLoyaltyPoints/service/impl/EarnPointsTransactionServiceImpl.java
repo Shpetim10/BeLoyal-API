@@ -153,9 +153,9 @@ public class EarnPointsTransactionServiceImpl implements EarnPointsTransactionSe
 
         billTransaction = billTransactionService.save(billTransaction);
 
-        // Mark coupon as used after bill transaction is persisted
+        // Mark coupon as used after bill transaction is persisted — use the already-locked entity to prevent double-redemption
         if (couponDiscountResult != null) {
-            applyAndMarkCouponUsed(couponDiscountResult.getCustomerCouponId(), businessMember, billTransaction.getId());
+            applyAndMarkCouponUsed(couponDiscountResult.getLockedCustomerCoupon(), businessMember, billTransaction.getId());
         }
 
         // Persist points transaction and create points bucket for each guest
@@ -189,10 +189,7 @@ public class EarnPointsTransactionServiceImpl implements EarnPointsTransactionSe
         return couponDiscountCalculatorService.calculate(customerCoupon, billAmount);
     }
 
-    private void applyAndMarkCouponUsed(Long customerCouponId, BusinessMember staffMember, Long billTransactionId) {
-        CustomerCoupon customerCoupon = customerCouponRepository.findById(customerCouponId)
-                .orElseThrow(() -> new CustomerCouponNotFound(customerCouponId));
-
+    private void applyAndMarkCouponUsed(CustomerCoupon customerCoupon, BusinessMember staffMember, Long billTransactionId) {
         customerCoupon.setStatus(CustomerCouponStatus.USED);
         customerCoupon.setUsedAt(java.time.LocalDateTime.now());
         customerCoupon.setRedeemedByStaff(staffMember);

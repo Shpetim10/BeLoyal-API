@@ -1,5 +1,6 @@
 package com.shabanaj.beloyal.features.registerLoyaltyPoints.dto;
 
+import com.shabanaj.beloyal.model.Entity.CustomerCoupon;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -12,4 +13,6 @@ public class CouponDiscountResult {
     private BigDecimal originalAmount;
     private BigDecimal discountApplied;
     private BigDecimal finalAmount;
+    /** Holds the already-locked CustomerCoupon entity to prevent a second unlocked reload when marking as USED. */
+    private CustomerCoupon lockedCustomerCoupon;
 }

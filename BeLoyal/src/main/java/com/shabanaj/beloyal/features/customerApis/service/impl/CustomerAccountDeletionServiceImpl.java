@@ -47,14 +47,15 @@ public class CustomerAccountDeletionServiceImpl implements CustomerAccountDeleti
         pointsBucketConsumptionRepository.deleteByCustomerProfileId(customerProfileId);
         log.debug("Deleted points bucket consumptions for customer: customerProfileId={}", customerProfileId);
 
-        // 2. Points transactions and buckets
-        pointsTransactionRepository.deleteByCustomerProfileId(customerProfileId);
-        log.debug("Deleted points transactions for customer: customerProfileId={}", customerProfileId);
-
+        // 2. Points buckets (FK source_transaction_id → points_transactions, must go before transactions)
         pointsBucketRepository.deleteByCustomerProfileId(customerProfileId);
         log.debug("Deleted points buckets for customer: customerProfileId={}", customerProfileId);
 
-        // 3. Customer coupons (redemptions)
+        // 3. Points transactions
+        pointsTransactionRepository.deleteByCustomerProfileId(customerProfileId);
+        log.debug("Deleted points transactions for customer: customerProfileId={}", customerProfileId);
+
+        // 4. Customer coupons (redemptions)
         customerCouponRepository.deleteByCustomerProfileId(customerProfileId);
         log.debug("Deleted customer coupons for customer: customerProfileId={}", customerProfileId);
 

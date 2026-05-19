@@ -6,6 +6,8 @@ import com.shabanaj.beloyal.model.Entity.PointsTransaction;
 public interface PointsBucketService {
     PointsBucket save(PointsBucket pointsBucket);
     void expireBuckets();
+    /** Expires a single bucket in its own transaction so one failure does not roll back the entire batch. */
+    void expireSingleBucket(Long bucketId);
 
     /**
      * Drains {@code pointsToSpend} from the caller's ACTIVE, non-expired buckets
