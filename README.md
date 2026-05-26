@@ -352,7 +352,7 @@ src/main/resources/
 
 <div align="center">
 
-**Shpétim Shabanaj**
+**Shpëtim Shabanaj**
 
 *BSc Software Engineering — BesaHub Loyalty Platform*
 
