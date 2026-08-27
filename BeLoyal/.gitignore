@@ -37,4 +37,4 @@ build/
 #Claude
 CLAUDE.md
 .claude
-*.md
+AGENTS.md
